@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Undercover Kids</title>
+<style>
+  :root{
+    --sky-top:#6FD7F0;
+    --sky-bottom:#FFD166;
+    --sun:#FFB703;
+    --leaf:#3DBE7C;
+    --berry:#FF5D8F;
+    --grape:#8E6BFF;
+    --ink:#20334A;
+    --card:#FFFFFF;
+    --shadow: rgba(32,51,74,0.25);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Trebuchet MS',Verdana,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 85% 8%, #FFE28A 0%, rgba(255,226,138,0) 30%),
+      linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    overflow-x:hidden;
+  }
+  #app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    padding:22px 18px 40px;
+    position:relative;
+  }
+  h1,h2,h3{font-family:'Arial Rounded MT Bold','Trebuchet MS',sans-serif; margin:0;}
+  .hills{
+    position:fixed; left:0; right:0; bottom:0; height:120px;
+    background:var(--leaf);
+    border-radius:50% 50% 0 0 / 100% 100% 0 0;
+    transform:scale(1.6);
+    z-index:0; opacity:0.9;
+  }
+  .screen{position:relative; z-index:1; animation: pop .35s ease;}
+  @keyframes pop{ from{opacity:0; transform:translateY(10px) scale(.98);} to{opacity:1; transform:none;} }
+
+  .title-row{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .title-row span.emoji{font-size:34px;}
+  h1.main{font-size:30px; color:var(--ink); text-shadow: 2px 2px 0 rgba(255,255,255,.5);}
+  .subtitle{font-size:15px; font-weight:700; color:#3a5170; margin-top:4px; margin-bottom:22px;}
+
+  .card{
+    background:var(--card);
+    border-radius:26px;
+    padding:20px;
+    box-shadow: 0 10px 0 var(--shadow), 0 14px 30px rgba(32,51,74,0.18);
+    margin-bottom:18px;
+    position:relative;
+  }
+
+  label.field-label{display:block; font-weight:800; font-size:14px; color:var(--ink); margin-bottom:8px;}
+
+  .stepper{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px;}
+  .stepper button{
+    width:48px; height:48px; border-radius:50%; border:none;
+    background:var(--sun); color:white; font-size:26px; font-weight:800;
+    box-shadow: 0 4px 0 #C98600; cursor:pointer;
+  }
+  .stepper button:disabled{opacity:.35; cursor:not-allowed;}
+  .stepper button:active{transform:translateY(3px); box-shadow:none;}
+  .stepper .value{font-family:'Arial Rounded MT Bold'; font-size:30px; font-weight:800; min-width:50px; text-align:center;}
+
+  .role-row{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:2px dashed #eef1f6;}
+  .role-row:last-child{border-bottom:none;}
+  .role-row .label{font-weight:800; font-size:15px;}
+  .role-row .desc{font-size:12px; color:#7a8aa0; font-weight:600;}
+  .mini-stepper{display:flex; align-items:center; gap:10px;}
+  .mini-stepper button{
+    width:36px; height:36px; border-radius:50%; border:none; background:#eef1f6; color:var(--ink);
+    font-size:20px; font-weight:800; cursor:pointer;
+  }
+  .mini-stepper button:disabled{opacity:.3; cursor:not-allowed;}
+  .mini-stepper button:active{transform:translateY(2px);}
+  .mini-stepper .value{min-width:24px; text-align:center; font-weight:800; font-size:17px;}
+
+  .name-field-wrap{position:relative; margin-bottom:12px;}
+  input.name-input{
+    width:100%; padding:12px 14px; border-radius:14px; border:2px solid #e4e9f0;
+    font-size:15px; font-weight:700; font-family:'Trebuchet MS'; background:#fbfcfe;
+  }
+  input.name-input:focus{outline:none; border-color:var(--sun);}
+  .suggestions{
+    position:absolute; left:0; right:0; top:calc(100% + 4px); background:white; border-radius:14px;
+    box-shadow:0 8px 20px rgba(32,51,74,.25); z-index:30; overflow-y:auto; max-height:220px; display:none;
+  }
+  .suggestion-item{
+    display:flex; justify-content:space-between; align-items:center; padding:10px 14px;
+    font-weight:700; font-size:14px; cursor:pointer; border-bottom:1px solid #f1f3f7;
+  }
+  .suggestion-item:last-child{border-bottom:none;}
+  .suggestion-item:active{background:#f5f7fb;}
+  .sugg-stats{font-size:11px; color:#8a97ab; font-weight:700;}
+
+  .btn{
+    display:block; width:100%; text-align:center; padding:16px; border-radius:20px;
+    font-family:'Arial Rounded MT Bold','Trebuchet MS'; font-size:20px; font-weight:700; border:none; cursor:pointer; color:white;
+    user-select:none;
+  }
+  .btn:active{transform:translateY(4px); box-shadow:none !important;}
+  .btn-primary{background:var(--berry); box-shadow:0 6px 0 #C23A66;}
+  .btn-secondary{background:var(--grape); box-shadow:0 6px 0 #5C3FCC;}
+  .btn-ghost{background:#eef1f6; color:var(--ink); box-shadow:0 6px 0 #cfd6e0;}
+
+  .center{text-align:center;}
+
+  .reveal-wrap{display:flex; flex-direction:column; align-items:center; margin-top:10px;}
+  .avatar-badge{
+    width:64px; height:64px; border-radius:50%; background:var(--grape); color:white;
+    display:flex; align-items:center; justify-content:center; font-family:'Arial Rounded MT Bold'; font-size:26px; font-weight:800;
+    margin-bottom:10px; box-shadow:0 5px 0 #5C3FCC;
+  }
+
+  .cards-row{display:flex; gap:14px; justify-content:center; margin:18px 0; flex-wrap:wrap;}
+  .mini-flip{width:96px; height:140px; perspective:800px; cursor:pointer;}
+  .mini-flip.disabled{opacity:.35; pointer-events:none;}
+  .mini-inner{position:relative; width:100%; height:100%; transition: transform .5s; transform-style:preserve-3d;}
+  .mini-flip.flipped .mini-inner{transform:rotateY(180deg);}
+  .mini-face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:18px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px;
+    box-shadow:0 6px 0 var(--shadow), 0 8px 16px rgba(32,51,74,.18); text-align:center;
+  }
+  .mini-front{background:linear-gradient(160deg, var(--grape), #6f4de0); color:white; font-size:30px;}
+  .mini-back{background:var(--card); transform:rotateY(180deg);}
+  .mini-back .word{font-family:'Arial Rounded MT Bold'; font-size:16px; font-weight:800; color:var(--ink);}
+  .mini-back .icon{font-size:26px; margin-bottom:4px;}
+
+  .players-list{display:flex; flex-direction:column; gap:10px;}
+  .player-btn{
+    display:flex; align-items:center; gap:12px; width:100%; padding:14px 16px; border-radius:18px;
+    background:var(--card); border:2px solid #eef1f6; cursor:pointer; font-family:'Trebuchet MS'; font-weight:800; font-size:16px;
+    color:var(--ink); box-shadow:0 4px 0 #e4e9f0;
+  }
+  .player-btn:active{transform:translateY(3px); box-shadow:none;}
+  .player-btn .dot{width:34px; height:34px; border-radius:50%; background:var(--sun); color:white; display:flex; align-items:center; justify-content:center; font-family:'Arial Rounded MT Bold'; font-weight:800;}
+  .player-btn.eliminated{opacity:.4; text-decoration:line-through; pointer-events:none;}
+
+  .modal-bg{
+    position:fixed; inset:0; background:rgba(20,30,45,0.55); display:flex; align-items:center; justify-content:center;
+    z-index:50; padding:20px;
+  }
+  .modal{background:white; border-radius:24px; padding:24px; width:100%; max-width:340px; text-align:center;}
+  .modal h3{margin-bottom:10px; font-size:22px;}
+  .modal p{font-size:14px; color:#516078; font-weight:700; margin-bottom:16px;}
+
+  .badge{display:inline-block; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:800; margin-top:6px;}
+  .badge.civil{background:#DFF6E7; color:#1E8A4C;}
+  .badge.undercover{background:#FDE3EA; color:#C23A66;}
+  .badge.mrwhite{background:#EDE7FF; color:#5C3FCC;}
+
+  .result-emoji{font-size:64px; margin-bottom:6px;}
+  .footer-note{text-align:center; font-size:12px; color:#5b6a80; font-weight:700; margin-top:8px;}
+  .warn{font-size:12px; color:#C23A66; font-weight:800; margin-top:-6px; margin-bottom:14px;}
+  .starter-icon{font-size:70px; margin:10px 0;}
+</style>
+</head>
+<body>
+<div class="hills"></div>
+<div id="app"></div>
+
+<script>
+// ---------- Word pairs faciles ET proches, pour enfants ----------
+const WORD_PAIRS = [
+  ["Chat","Chaton"], ["Chien","Loup"], ["Pomme","Poire"], ["Banane","Ananas"],
+  ["Lion","Tigre"], ["Panda","Ours"], ["Robot","Androïde"], ["Dinosaure","Dragon"],
+  ["Pirate","Corsaire"], ["Sorcière","Magicienne"], ["Princesse","Reine"], ["Vélo","Trottinette"],
+  ["Voiture","Camion"], ["Pizza","Quiche"], ["Glace","Sorbet"], ["Doudou","Peluche"],
+  ["Soleil","Étoile"], ["Piscine","Baignoire"], ["École","Collège"], ["Licorne","Cheval"],
+  ["Footballeur","Basketteur"]
+];
+
+// ---------- Historique des joueurs (en mémoire, le temps de la session) ----------
+let roster = [];
+
+function getOrCreateRosterEntry(name){
+  if(!name) return null;
+  let entry = roster.find(r => r.name.toLowerCase() === name.toLowerCase());
+  if(!entry){
+    entry = { name: name, parties: 0, points: 0 };
+    roster.push(entry);
+  }
+  return entry;
+}
+
+// ---------- State ----------
+let state = {
+  screen: 'setup',
+  numPlayers: 5,
+  numUndercover: 1,
+  numMrWhite: 1,
+  names: ["","","","",""],
+  players: [],
+  revealIndex: 0,
+  revealed: false,
+  chosenCard: null,
+  civilWord: null,
+  undercoverWord: null,
+  starterIndex: null,
+  winner: null
+};
+
+function syncNamesArray(){
+  const n = state.numPlayers;
+  while(state.names.length < n) state.names.push("");
+  state.names = state.names.slice(0, n);
+}
+
+function clampRoles(){
+  while(state.numUndercover + state.numMrWhite > state.numPlayers - 1 && (state.numUndercover > 0 || state.numMrWhite > 0)){
+    if(state.numMrWhite > 0) state.numMrWhite--;
+    else state.numUndercover--;
+  }
+}
+
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  if(state.screen === 'setup') app.appendChild(renderSetup());
+  if(state.screen === 'reveal') app.appendChild(renderReveal());
+  if(state.screen === 'starter') app.appendChild(renderStarter());
+  if(state.screen === 'discussion') app.appendChild(renderDiscussion());
+  if(state.screen === 'result') app.appendChild(renderResult());
+}
+
+function el(tag, cls, html){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+// ---------- SETUP SCREEN ----------
+function renderSetup(){
+  syncNamesArray();
+  clampRoles();
+  const wrap = el('div','screen');
+
+  wrap.appendChild(el('div','title-row','<span class="emoji">🕵️‍♀️</span><h1 class="main">Undercover Kids</h1>'));
+  wrap.appendChild(el('div','subtitle','Le jeu du mot secret, en mode facile pour les enfants !'));
+
+  const card1 = el('div','card');
+  card1.appendChild(el('label','field-label','👥 Nombre de joueurs'));
+  const stepper = el('div','stepper');
+  const minus = el('button', null, '−');
+  const val = el('div','value', state.numPlayers);
+  const plus = el('button', null, '+');
+  minus.disabled = state.numPlayers <= 3;
+  plus.disabled = state.numPlayers >= 10;
+  minus.onclick = () => { if(state.numPlayers>3){ state.numPlayers--; clampRoles(); render(); } };
+  plus.onclick = () => { if(state.numPlayers<10){ state.numPlayers++; render(); } };
+  stepper.appendChild(minus); stepper.appendChild(val); stepper.appendChild(plus);
+  card1.appendChild(stepper);
+
+  for(let i=0;i<state.numPlayers;i++){
+    card1.appendChild(createNameField(i));
+  }
+  wrap.appendChild(card1);
+
+  const card2 = el('div','card');
+  card2.appendChild(el('label','field-label','🎭 Rôles spéciaux'));
+
+  const row1 = el('div','role-row');
+  row1.innerHTML = '<div><div class="label">🕶️ Infiltré(s)</div><div class="desc">Reçoit un mot presque pareil</div></div>';
+  row1.appendChild(createRoleStepper(
+    state.numUndercover,
+    (v) => { state.numUndercover = v; },
+    () => state.numPlayers - 1 - state.numMrWhite
+  ));
+  card2.appendChild(row1);
+
+  const row2 = el('div','role-row');
+  row2.innerHTML = '<div><div class="label">🤍 Mr. White</div><div class="desc">N\'a aucun mot, doit deviner</div></div>';
+  row2.appendChild(createRoleStepper(
+    state.numMrWhite,
+    (v) => { state.numMrWhite = v; },
+    () => state.numPlayers - 1 - state.numUndercover
+  ));
+  card2.appendChild(row2);
+
+  wrap.appendChild(card2);
+
+  const civilCount = state.numPlayers - state.numUndercover - state.numMrWhite;
+  const info = el('div','card center');
+  info.style.background = '#FFF7E0';
+  info.innerHTML = '<div style="font-size:14px;font-weight:800;color:#8a6d1a;">💡 ' + civilCount + ' civil(s), ' + state.numUndercover + ' infiltré(s)' + (state.numMrWhite>0 ? ', ' + state.numMrWhite + ' Mr. White' : '') + '</div>';
+  wrap.appendChild(info);
+
+  if(state.numUndercover + state.numMrWhite < 1){
+    wrap.appendChild(el('div','warn center','⚠️ Choisis au moins 1 infiltré ou 1 Mr. White pour jouer.'));
+  }
+
+  const startBtn = el('div','btn btn-primary','▶️ Commencer la partie');
+  startBtn.onclick = startGame;
+  wrap.appendChild(startBtn);
+
+  return wrap;
+}
+
+function createRoleStepper(value, onChange, getMax){
+  const wrap = el('div','mini-stepper');
+  const max = Math.max(0, getMax());
+  const minus = el('button', null, '−');
+  const val = el('div','value', value);
+  const plus = el('button', null, '+');
+  minus.disabled = value <= 0;
+  plus.disabled = value >= max;
+  minus.onclick = () => { if(value>0){ onChange(value-1); render(); } };
+  plus.onclick = () => { if(value<max){ onChange(value+1); render(); } };
+  wrap.appendChild(minus); wrap.appendChild(val); wrap.appendChild(plus);
+  return wrap;
+}
+
+function createNameField(i){
+  const wrapper = el('div','name-field-wrap');
+  const input = document.createElement('input');
+  input.className = 'name-input';
+  input.type = 'text';
+  input.autocomplete = 'off';
+  input.value = state.names[i] || '';
+  input.placeholder = 'Joueur ' + (i+1);
+  wrapper.appendChild(input);
+
+  const sugg = el('div','suggestions');
+  wrapper.appendChild(sugg);
+
+  function updateSuggestions(){
+    const q = input.value.trim().toLowerCase();
+    const matches = roster
+      .filter(r => r.name.toLowerCase().includes(q))
+      .filter(r => r.name.toLowerCase() !== q)
+      .sort((a,b) => a.name.localeCompare(b.name))
+      .slice(0,5);
+    if(matches.length === 0){
+      sugg.style.display = 'none';
+      sugg.innerHTML = '';
+      return;
+    }
+    sugg.innerHTML = '';
+    matches.forEach(r => {
+      const item = el('div','suggestion-item');
+      item.innerHTML = '<span>' + r.name + '</span><span class="sugg-stats">' + r.parties + ' parties · ' + r.points + ' pts</span>';
+      item.onmousedown = (ev) => {
+        ev.preventDefault();
+        input.value = r.name;
+        state.names[i] = r.name;
+        sugg.style.display = 'none';
+        sugg.innerHTML = '';
+      };
+      sugg.appendChild(item);
+    });
+    sugg.style.display = 'block';
+  }
+
+  input.oninput = () => { state.names[i] = input.value; updateSuggestions(); };
+  input.onfocus = () => { updateSuggestions(); };
+  input.onblur = () => { setTimeout(() => { sugg.style.display = 'none'; }, 150); };
+
+  return wrapper;
+}
+
+function startGame(){
+  const civilCount = state.numPlayers - state.numUndercover - state.numMrWhite;
+  if(state.numUndercover + state.numMrWhite < 1){ alert("Choisis au moins 1 infiltré ou 1 Mr. White pour commencer !"); return; }
+  if(civilCount < 1){ alert("Il faut garder au moins 1 civil ! Réduis le nombre d'infiltrés ou de Mr. White."); return; }
+
+  const pair = WORD_PAIRS[Math.floor(Math.random()*WORD_PAIRS.length)];
+  const [civilWord, undercoverWord] = pair;
+
+  // Pioche 100% aléatoire : on mélange un vrai paquet de rôles (Fisher-Yates)
+  let roles = [];
+  for(let i=0;i<civilCount;i++) roles.push('civil');
+  for(let i=0;i<state.numUndercover;i++) roles.push('undercover');
+  for(let i=0;i<state.numMrWhite;i++) roles.push('mrwhite');
+  for(let i=roles.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [roles[i],roles[j]]=[roles[j],roles[i]]; }
+
+  state.players = [];
+  for(let i=0;i<state.numPlayers;i++){
+    const finalName = (state.names[i] && state.names[i].trim()) ? state.names[i].trim() : ('Joueur ' + (i+1));
+    state.names[i] = finalName;
+    getOrCreateRosterEntry(finalName);
+    state.players.push({ name: finalName, role: roles[i], word: roles[i]==='civil' ? civilWord : (roles[i]==='undercover' ? undercoverWord : null), eliminated:false });
+  }
+
+  state.civilWord = civilWord;
+  state.undercoverWord = undercoverWord;
+  state.revealIndex = 0;
+  state.revealed = false;
+  state.chosenCard = null;
+  state.starterIndex = null;
+  state.screen = 'reveal';
+  render();
+}
+
+// ---------- REVEAL SCREEN : pioche de carte ----------
+function renderReveal(){
+  const wrap = el('div','screen');
+  const p = state.players[state.revealIndex];
+
+  wrap.appendChild(el('div','subtitle', '📱 Passe le téléphone !'));
+  const revealWrap = el('div','reveal-wrap');
+  const badge = el('div','avatar-badge', p.name.charAt(0).toUpperCase());
+  revealWrap.appendChild(badge);
+  revealWrap.appendChild(el('h2', null, p.name));
+  revealWrap.appendChild(el('div','subtitle', state.chosenCard===null ? 'Pioche une carte au hasard 🎴' : ''));
+
+  const cardsRow = el('div','cards-row');
+  for(let c=0;c<3;c++){
+    const flipped = state.chosenCard === c;
+    const disabled = state.chosenCard !== null && state.chosenCard !== c;
+    const mini = el('div','mini-flip' + (flipped ? ' flipped' : '') + (disabled ? ' disabled' : ''));
+    const inner = el('div','mini-inner');
+    const front = el('div','mini-face mini-front','🎴');
+    const back = el('div','mini-face mini-back');
+    if(p.role === 'mrwhite'){
+      back.innerHTML = '<div class="icon">🤍</div><div class="word">Mr. White</div>';
+    } else {
+      back.innerHTML = '<div class="word">' + p.word + '</div>';
+    }
+    inner.appendChild(front); inner.appendChild(back);
+    mini.appendChild(inner);
+    mini.onclick = () => {
+      if(state.chosenCard === null){ state.chosenCard = c; state.revealed = true; render(); }
+    };
+    cardsRow.appendChild(mini);
+  }
+  revealWrap.appendChild(cardsRow);
+
+  if(state.revealed && p.role === 'mrwhite'){
+    revealWrap.appendChild(el('div','footer-note', "🤫 Tu n'as pas de mot ! Écoute bien les autres et fais semblant."));
+  } else if(state.revealed){
+    revealWrap.appendChild(el('div','footer-note', "Décris ce mot sans jamais le dire !"));
+  }
+
+  wrap.appendChild(revealWrap);
+
+  const btn = el('div','btn ' + (state.revealed ? 'btn-primary' : 'btn-ghost'),
+    state.revealed ? "J'ai vu, cacher et continuer ➡️" : "🎴 Choisis une des 3 cartes");
+  btn.onclick = () => {
+    if(!state.revealed) return;
+    state.revealed = false;
+    state.chosenCard = null;
+    if(state.revealIndex < state.players.length - 1){
+      state.revealIndex++;
+      render();
+    } else {
+      state.starterIndex = Math.floor(Math.random()*state.players.length);
+      state.screen = 'starter';
+      render();
+    }
+  };
+  wrap.appendChild(btn);
+  wrap.appendChild(el('div','footer-note', 'Joueur ' + (state.revealIndex+1) + ' / ' + state.players.length));
+  return wrap;
+}
+
+// ---------- STARTER SCREEN : le jeu tire au sort qui commence ----------
+function renderStarter(){
+  const wrap = el('div','screen center');
+  const starter = state.players[state.starterIndex];
+  wrap.appendChild(el('div','title-row','<span class="emoji">🎲</span><h1 class="main">C\'est parti !</h1>'));
+  wrap.appendChild(el('div','starter-icon','🎙️'));
+  const card = el('div','card center');
+  card.innerHTML = '<div style="font-size:16px;font-weight:700;color:#3a5170;margin-bottom:10px;">Le sort a désigné...</div>' +
+    '<div style="font-family:\'Arial Rounded MT Bold\';font-size:26px;font-weight:800;color:var(--berry);">' + starter.name + '</div>' +
+    '<div style="font-size:14px;font-weight:700;color:#7a8aa0;margin-top:8px;">C\'est ce joueur qui décrit son mot en premier !</div>';
+  wrap.appendChild(card);
+
+  const btn = el('div','btn btn-primary','🗳️ Passer au vote quand vous êtes prêts');
+  btn.onclick = () => { state.screen = 'discussion'; render(); };
+  wrap.appendChild(btn);
+  return wrap;
+}
+
+// ---------- DISCUSSION / VOTE SCREEN ----------
+function renderDiscussion(){
+  const wrap = el('div','screen');
+  wrap.appendChild(el('div','title-row','<span class="emoji">🗳️</span><h1 class="main">Qui est démasqué ?</h1>'));
+  wrap.appendChild(el('div','subtitle','Discutez à voix haute, puis touchez le joueur éliminé par le vote.'));
+
+  const list = el('div','players-list');
+  state.players.forEach((p, idx) => {
+    const b = el('div','player-btn' + (p.eliminated ? ' eliminated' : ''));
+    b.innerHTML = '<div class="dot">' + p.name.charAt(0).toUpperCase() + '</div><div>' + p.name + '</div>';
+    if(!p.eliminated){
+      b.onclick = () => eliminatePlayer(idx);
+    }
+    list.appendChild(b);
+  });
+  wrap.appendChild(list);
+
+  const forgotBtn = el('div','btn btn-ghost','❓ J\'ai oublié mon mot');
+  forgotBtn.style.marginTop = '16px';
+  forgotBtn.onclick = showForgotWordPicker;
+  wrap.appendChild(forgotBtn);
+
+  return wrap;
+}
+
+function showForgotWordPicker(){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.appendChild(el('h3', null, '🙈 Qui a oublié son mot ?'));
+  modal.appendChild(el('p', null, 'Choisis ton nom, personne d\'autre ne doit regarder l\'écran !'));
+
+  const list = el('div','players-list');
+  state.players.forEach((p) => {
+    const b = el('div','player-btn');
+    b.innerHTML = '<div class="dot">' + p.name.charAt(0).toUpperCase() + '</div><div>' + p.name + '</div>';
+    b.onclick = () => { bg.remove(); showWordReminder(p); };
+    list.appendChild(b);
+  });
+  modal.appendChild(list);
+
+  const closeBtn = el('div','btn btn-ghost','Annuler');
+  closeBtn.style.marginTop = '14px';
+  closeBtn.onclick = () => bg.remove();
+  modal.appendChild(closeBtn);
+
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
+}
+
+function showWordReminder(p){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.appendChild(el('h3', null, p.name));
+  if(p.role === 'mrwhite'){
+    modal.innerHTML += '<div class="starter-icon">🤍</div><p>Tu es Mr. White, tu n\'as pas de mot ! Continue à faire semblant 🤫</p>';
+  } else {
+    modal.innerHTML += '<div style="font-family:\'Arial Rounded MT Bold\';font-size:30px;font-weight:800;color:var(--ink);margin:14px 0;">' + p.word + '</div><p>Décris-le sans le dire !</p>';
+  }
+  const btn = el('div','btn btn-primary','J\'ai vu, cacher');
+  btn.onclick = () => bg.remove();
+  modal.appendChild(btn);
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
+}
+
+function eliminatePlayer(idx){
+  const p = state.players[idx];
+  p.eliminated = true;
+
+  if(p.role === 'mrwhite'){
+    showMrWhiteGuessModal(idx);
+    return;
+  }
+  showEliminationResult(p);
+}
+
+function showEliminationResult(p){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  const roleLabel = p.role==='civil' ? '👨‍👩‍👧 Civil' : (p.role==='undercover' ? '🕶️ Infiltré' : '🤍 Mr. White');
+  const badgeClass = p.role==='civil' ? 'civil' : (p.role==='undercover' ? 'undercover' : 'mrwhite');
+  modal.innerHTML = '<h3>' + p.name + ' est éliminé(e) !</h3>' +
+    '<span class="badge ' + badgeClass + '">' + roleLabel + '</span>' +
+    (p.word ? '<p style="margin-top:14px;">Son mot était : <b>' + p.word + '</b></p>' : '<p style="margin-top:14px;">Il n\'avait pas de mot !</p>');
+  const btn = el('div','btn btn-primary','Continuer ➡️');
+  btn.onclick = () => { bg.remove(); checkWinConditionOrContinue(); };
+  modal.appendChild(btn);
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
+}
+
+function showMrWhiteGuessModal(idx){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.innerHTML = '<h3>🤍 Mr. White démasqué !</h3><p>Il a droit à une dernière chance : quel est le mot des civils ?</p>';
+  const input = el('input','name-input');
+  input.placeholder = 'Sa réponse...';
+  modal.appendChild(input);
+  const btn = el('div','btn btn-secondary','Valider la réponse');
+  btn.onclick = () => {
+    const guess = input.value.trim().toLowerCase();
+    const correct = guess === state.civilWord.toLowerCase();
+    bg.remove();
+    if(correct){
+      finishGame('mrwhite');
+    } else {
+      checkWinConditionOrContinue();
+    }
+  };
+  modal.appendChild(btn);
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
+}
+
+function checkWinConditionOrContinue(){
+  const active = state.players.filter(p => !p.eliminated);
+  const civils = active.filter(p => p.role==='civil').length;
+  const infiltres = active.filter(p => p.role==='undercover' || p.role==='mrwhite').length;
+
+  if(infiltres === 0){
+    finishGame('civils');
+  } else if(infiltres >= civils){
+    finishGame('undercover');
+  } else {
+    state.screen = 'discussion';
+    render();
+  }
+}
+
+function finishGame(winnerKey){
+  state.winner = winnerKey;
+  state.players.forEach(p => {
+    const entry = getOrCreateRosterEntry(p.name);
+    entry.parties += 1;
+    let pts = 0;
+    if(winnerKey === 'civils' && p.role === 'civil') pts = 2;
+    if(winnerKey === 'undercover'){
+      if(p.role === 'undercover') pts = 3;
+      else if(p.role === 'mrwhite' && !p.eliminated) pts = 1;
+    }
+    if(winnerKey === 'mrwhite' && p.role === 'mrwhite') pts = 5;
+    entry.points += pts;
+  });
+  state.screen = 'result';
+  render();
+}
+
+// ---------- RESULT SCREEN ----------
+function renderResult(){
+  const wrap = el('div','screen center');
+  let emoji, title, desc, color;
+  if(state.winner === 'civils'){ emoji='🎉'; title='Les Civils gagnent !'; desc='Tous les infiltrés ont été démasqués, bravo !'; color='#3DBE7C'; }
+  else if(state.winner === 'undercover'){ emoji='🕶️'; title='Les Infiltrés gagnent !'; desc='Ils étaient trop malins, ils ont survécu au vote !'; color='#FF5D8F'; }
+  else { emoji='🤍'; title='Mr. White gagne !'; desc='Il a deviné le mot secret : ' + state.civilWord + ' !'; color='#8E6BFF'; }
+
+  wrap.appendChild(el('div','result-emoji', emoji));
+  const h = el('h1', null, title); h.style.color = color; h.style.fontSize="28px";
+  wrap.appendChild(h);
+  wrap.appendChild(el('div','subtitle', desc));
+
+  const card = el('div','card');
+  card.innerHTML = '<div style="font-weight:800;margin-bottom:10px;">🎴 Le mot des civils : <b>' + state.civilWord + '</b></div>' +
+    '<div style="font-weight:800;">🕶️ Le mot des infiltrés : <b>' + state.undercoverWord + '</b></div>';
+  wrap.appendChild(card);
+
+  const scoreCard = el('div','card');
+  scoreCard.appendChild(el('label','field-label','🏆 Scores de la session'));
+  const rows = state.players
+    .slice()
+    .sort((a,b) => {
+      const ea = roster.find(r=>r.name===a.name) || {points:0};
+      const eb = roster.find(r=>r.name===b.name) || {points:0};
+      return eb.points - ea.points;
+    });
+  rows.forEach(p => {
+    const entry = roster.find(r => r.name === p.name) || {parties:0, points:0};
+    const row = el('div','role-row');
+    row.innerHTML = '<div><div class="label">' + p.name + '</div><div class="desc">' + entry.parties + ' parties jouées</div></div><div style="font-family:\'Arial Rounded MT Bold\';font-weight:800;font-size:18px;color:#8a6d1a;">' + entry.points + ' pts</div>';
+    scoreCard.appendChild(row);
+  });
+  wrap.appendChild(scoreCard);
+  wrap.appendChild(el('div','footer-note','Les scores restent affichés tant que tu ne fermes pas le jeu.'));
+
+  const replay = el('div','btn btn-primary','🔁 Rejouer avec les mêmes joueurs');
+  replay.style.marginTop = '14px';
+  replay.onclick = () => { startGame(); };
+  wrap.appendChild(replay);
+
+  const newGame = el('div','btn btn-ghost','⚙️ Nouvelle configuration');
+  newGame.style.marginTop = '12px';
+  newGame.onclick = () => { state.screen = 'setup'; render(); };
+  wrap.appendChild(newGame);
+
+  return wrap;
+}
+
+try{
+  render();
+}catch(e){
+  console.error('Erreur au premier affichage', e);
+}
+</script>
+</body>
+</html>
