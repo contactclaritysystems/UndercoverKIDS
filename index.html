@@ -87,6 +87,10 @@
   .mini-stepper button:disabled{opacity:.3; cursor:not-allowed;}
   .mini-stepper button:active{transform:translateY(2px);}
   .mini-stepper .value{min-width:24px; text-align:center; font-weight:800; font-size:17px;}
+  .switch{position:relative; width:52px; height:30px; border-radius:20px; background:#dfe6ee; cursor:pointer; transition:.2s; flex-shrink:0;}
+  .switch.on{background:var(--leaf);}
+  .switch .knob{position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:white; transition:.2s; box-shadow:0 2px 4px rgba(0,0,0,.2);}
+  .switch.on .knob{left:25px;}
 
   .name-field-wrap{position:relative; margin-bottom:12px;}
   input.name-input{
@@ -280,6 +284,7 @@ let state = {
   civilWord: null,
   undercoverWord: null,
   starterIndex: null,
+  allowInfiltratedStarter: true,
   winner: null
 };
 
@@ -360,6 +365,14 @@ function renderSetup(){
     () => state.numPlayers - 1 - state.numUndercover
   ));
   card2.appendChild(row2);
+
+  const row3 = el('div','role-row');
+  row3.innerHTML = '<div><div class="label">🎙️ Un infiltré peut commencer</div><div class="desc">Sinon, seul un civil sera tiré au sort</div></div>';
+  const sw = el('div','switch' + (state.allowInfiltratedStarter ? ' on' : ''));
+  sw.appendChild(el('div','knob'));
+  sw.onclick = () => { state.allowInfiltratedStarter = !state.allowInfiltratedStarter; render(); };
+  row3.appendChild(sw);
+  card2.appendChild(row3);
 
   wrap.appendChild(card2);
 
@@ -527,7 +540,11 @@ function renderReveal(){
       state.revealIndex++;
       render();
     } else {
-      state.starterIndex = Math.floor(Math.random()*state.players.length);
+      const pool = state.allowInfiltratedStarter
+        ? state.players.map((p,i) => i)
+        : state.players.map((p,i) => p.role === 'civil' ? i : null).filter(i => i !== null);
+      const candidates = pool.length > 0 ? pool : state.players.map((p,i) => i);
+      state.starterIndex = candidates[Math.floor(Math.random()*candidates.length)];
       state.screen = 'starter';
       render();
     }
@@ -575,6 +592,17 @@ function renderStarter(){
   const btn = el('div','btn btn-primary','🗳️ Passer au vote quand vous êtes prêts');
   btn.onclick = () => { state.screen = 'discussion'; render(); };
   wrap.appendChild(btn);
+
+  const forgotBtn = el('div','btn btn-ghost','❓ J\'ai oublié mon mot');
+  forgotBtn.style.marginTop = '12px';
+  forgotBtn.onclick = showForgotWordPicker;
+  wrap.appendChild(forgotBtn);
+
+  const manageBtn = el('div','btn btn-ghost','⚙️ Gérer les joueurs');
+  manageBtn.style.marginTop = '12px';
+  manageBtn.onclick = showManagePlayers;
+  wrap.appendChild(manageBtn);
+
   return wrap;
 }
 
@@ -600,6 +628,11 @@ function renderDiscussion(){
   forgotBtn.onclick = showForgotWordPicker;
   wrap.appendChild(forgotBtn);
 
+  const manageBtn = el('div','btn btn-ghost','⚙️ Gérer les joueurs');
+  manageBtn.style.marginTop = '12px';
+  manageBtn.onclick = showManagePlayers;
+  wrap.appendChild(manageBtn);
+
   return wrap;
 }
 
@@ -613,7 +646,7 @@ function showForgotWordPicker(){
   state.players.forEach((p) => {
     const b = el('div','player-btn');
     b.innerHTML = '<div class="dot">' + p.name.charAt(0).toUpperCase() + '</div><div>' + p.name + '</div>';
-    b.onclick = () => { bg.remove(); showWordReminder(p); };
+    b.onclick = () => { bg.remove(); showConfirmIdentity(p); };
     list.appendChild(b);
   });
   modal.appendChild(list);
@@ -623,6 +656,22 @@ function showForgotWordPicker(){
   closeBtn.onclick = () => bg.remove();
   modal.appendChild(closeBtn);
 
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
+}
+
+function showConfirmIdentity(p){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.appendChild(el('h3', null, '🙈 C\'est bien toi, ' + p.name + ' ?'));
+  modal.appendChild(el('p', null, 'Les autres joueurs ne doivent pas regarder l\'écran maintenant.'));
+  const yesBtn = el('div','btn btn-primary','Oui, c\'est bien moi 👀');
+  yesBtn.onclick = () => { bg.remove(); showWordReminder(p); };
+  modal.appendChild(yesBtn);
+  const noBtn = el('div','btn btn-ghost','Non, ce n\'est pas moi');
+  noBtn.style.marginTop = '10px';
+  noBtn.onclick = () => bg.remove();
+  modal.appendChild(noBtn);
   bg.appendChild(modal);
   document.body.appendChild(bg);
 }
@@ -639,6 +688,85 @@ function showWordReminder(p){
   const btn = el('div','btn btn-primary','J\'ai vu, cacher');
   btn.onclick = () => bg.remove();
   modal.appendChild(btn);
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
+}
+
+// ---------- Gérer les joueurs en cours de partie ----------
+function showManagePlayers(){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.style.maxHeight = '85vh';
+  modal.style.overflowY = 'auto';
+  modal.appendChild(el('h3', null, '⚙️ Gérer les joueurs'));
+  modal.appendChild(el('p', null, 'Renomme un joueur (par ex. si deux joueurs ont échangé leur place), ou ajoute/supprime un joueur.'));
+
+  const list = el('div','players-list');
+
+  function refreshList(){
+    list.innerHTML = '';
+    state.players.forEach((p, idx) => {
+      const row = el('div','name-field-wrap');
+      row.style.display = 'flex';
+      row.style.gap = '8px';
+      row.style.alignItems = 'center';
+
+      const input = document.createElement('input');
+      input.className = 'name-input';
+      input.type = 'text';
+      input.value = p.name;
+      input.style.flex = '1';
+      input.onchange = () => {
+        const newName = input.value.trim();
+        if(newName) p.name = newName;
+        else input.value = p.name;
+      };
+      row.appendChild(input);
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.style.width = '44px';
+      delBtn.style.height = '44px';
+      delBtn.style.border = 'none';
+      delBtn.style.borderRadius = '12px';
+      delBtn.style.background = '#FDE3EA';
+      delBtn.style.fontSize = '18px';
+      delBtn.style.cursor = 'pointer';
+      delBtn.onclick = () => {
+        if(state.players.length <= 3){ alert('Il faut garder au moins 3 joueurs.'); return; }
+        state.players.splice(idx, 1);
+        if(state.starterIndex !== null && state.starterIndex >= state.players.length) state.starterIndex = 0;
+        refreshList();
+      };
+      row.appendChild(delBtn);
+
+      list.appendChild(row);
+    });
+  }
+  refreshList();
+  modal.appendChild(list);
+
+  const addBtn = el('div','btn btn-secondary','➕ Ajouter un joueur');
+  addBtn.style.marginTop = '14px';
+  addBtn.onclick = () => {
+    const name = prompt('Prénom du nouveau joueur :');
+    if(!name || !name.trim()) return;
+    state.players.push({
+      name: name.trim(),
+      role: 'civil',
+      word: state.civilWord,
+      eliminated: false
+    });
+    refreshList();
+  };
+  modal.appendChild(addBtn);
+  modal.appendChild(el('div','footer-note','Un joueur ajouté en cours de partie devient automatiquement Civil. Il peut voir son mot via "J\'ai oublié mon mot".'));
+
+  const closeBtn = el('div','btn btn-primary','Terminé');
+  closeBtn.style.marginTop = '14px';
+  closeBtn.onclick = () => { bg.remove(); render(); };
+  modal.appendChild(closeBtn);
+
   bg.appendChild(modal);
   document.body.appendChild(bg);
 }
