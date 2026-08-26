@@ -91,6 +91,8 @@
   .switch.on{background:var(--leaf);}
   .switch .knob{position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:white; transition:.2s; box-shadow:0 2px 4px rgba(0,0,0,.2);}
   .switch.on .knob{left:25px;}
+  .player-row.dragging{opacity:.85; box-shadow:0 10px 20px rgba(32,51,74,.3); background:#fbfcfe; border-radius:14px;}
+  .drag-handle{user-select:none;}
 
   .name-field-wrap{position:relative; margin-bottom:12px;}
   input.name-input{
@@ -475,7 +477,7 @@ function startGame(){
     const finalName = (state.names[i] && state.names[i].trim()) ? state.names[i].trim() : ('Joueur ' + (i+1));
     state.names[i] = finalName;
     getOrCreateRosterEntry(finalName);
-    state.players.push({ name: finalName, role: roles[i], word: roles[i]==='civil' ? civilWord : (roles[i]==='undercover' ? undercoverWord : null), eliminated:false });
+    state.players.push({ id: 'p_' + i + '_' + Math.random().toString(36).slice(2,7), name: finalName, role: roles[i], word: roles[i]==='civil' ? civilWord : (roles[i]==='undercover' ? undercoverWord : null), eliminated:false });
   }
 
   state.civilWord = civilWord;
@@ -552,7 +554,7 @@ function renderReveal(){
   wrap.appendChild(btn);
   wrap.appendChild(el('div','footer-note', 'Joueur ' + (state.revealIndex+1) + ' / ' + state.players.length));
 
-  if(state.revealIndex === 0 && state.chosenCard === null){
+  if(state.revealIndex >= 1 && state.chosenCard === null){
     const reroll = el('div','btn btn-ghost','🔄 Mot trop dur ? En tirer un autre');
     reroll.style.marginTop = '10px';
     reroll.onclick = rerollWord;
@@ -589,7 +591,7 @@ function renderStarter(){
     '<div style="font-size:14px;font-weight:700;color:#7a8aa0;margin-top:8px;">C\'est ce joueur qui décrit son mot en premier !</div>';
   wrap.appendChild(card);
 
-  const btn = el('div','btn btn-primary','🗳️ Passer au vote quand vous êtes prêts');
+  const btn = el('div','btn btn-primary','🗳️ Passer au vote pour éliminer');
   btn.onclick = () => { state.screen = 'discussion'; render(); };
   wrap.appendChild(btn);
 
@@ -617,7 +619,7 @@ function renderDiscussion(){
     const b = el('div','player-btn' + (p.eliminated ? ' eliminated' : ''));
     b.innerHTML = '<div class="dot">' + p.name.charAt(0).toUpperCase() + '</div><div>' + p.name + '</div>';
     if(!p.eliminated){
-      b.onclick = () => eliminatePlayer(idx);
+      b.onclick = () => confirmEliminate(idx);
     }
     list.appendChild(b);
   });
@@ -699,17 +701,76 @@ function showManagePlayers(){
   modal.style.maxHeight = '85vh';
   modal.style.overflowY = 'auto';
   modal.appendChild(el('h3', null, '⚙️ Gérer les joueurs'));
-  modal.appendChild(el('p', null, 'Renomme un joueur (par ex. si deux joueurs ont échangé leur place), ou ajoute/supprime un joueur.'));
+  modal.appendChild(el('p', null, 'Reste appuyé sur ⠿ pour déplacer un joueur (échanger leur place), modifie un nom, ou ajoute/supprime un joueur.'));
 
   const list = el('div','players-list');
+  let dragId = null;
+  let dragStartY = 0;
+
+  function getRowEl(id){
+    return list.querySelector('[data-player-id="' + id + '"]');
+  }
+
+  function onPointerMove(e){
+    if(!dragId) return;
+    const row = getRowEl(dragId);
+    if(!row) return;
+    row.style.transform = 'translateY(' + (e.clientY - dragStartY) + 'px)';
+    row.style.zIndex = '5';
+
+    const overEl = document.elementFromPoint(e.clientX, e.clientY);
+    const overRow = overEl ? overEl.closest('.player-row') : null;
+    if(overRow && overRow.dataset.playerId && overRow.dataset.playerId !== dragId){
+      const fromIdx = state.players.findIndex(p => p.id === dragId);
+      const toIdx = state.players.findIndex(p => p.id === overRow.dataset.playerId);
+      if(fromIdx > -1 && toIdx > -1){
+        const [moved] = state.players.splice(fromIdx, 1);
+        state.players.splice(toIdx, 0, moved);
+        dragStartY = e.clientY;
+        refreshList();
+        const newRow = getRowEl(dragId);
+        if(newRow){ newRow.style.transform = 'translateY(0px)'; newRow.classList.add('dragging'); }
+      }
+    }
+  }
+
+  function onPointerUp(){
+    if(dragId){
+      const row = getRowEl(dragId);
+      if(row){ row.style.transform = ''; row.style.zIndex = ''; row.classList.remove('dragging'); }
+    }
+    dragId = null;
+    document.removeEventListener('pointermove', onPointerMove);
+    document.removeEventListener('pointerup', onPointerUp);
+  }
 
   function refreshList(){
     list.innerHTML = '';
-    state.players.forEach((p, idx) => {
-      const row = el('div','name-field-wrap');
+    state.players.forEach((p) => {
+      const row = el('div','name-field-wrap player-row');
+      row.dataset.playerId = p.id;
       row.style.display = 'flex';
       row.style.gap = '8px';
       row.style.alignItems = 'center';
+      row.style.transition = 'transform .15s';
+
+      const handle = document.createElement('div');
+      handle.textContent = '⠿';
+      handle.className = 'drag-handle';
+      handle.style.fontSize = '22px';
+      handle.style.color = '#aab4c2';
+      handle.style.cursor = 'grab';
+      handle.style.padding = '6px 4px';
+      handle.style.touchAction = 'none';
+      handle.onpointerdown = (e) => {
+        e.preventDefault();
+        dragId = p.id;
+        dragStartY = e.clientY;
+        row.classList.add('dragging');
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
+      };
+      row.appendChild(handle);
 
       const input = document.createElement('input');
       input.className = 'name-input';
@@ -734,8 +795,8 @@ function showManagePlayers(){
       delBtn.style.cursor = 'pointer';
       delBtn.onclick = () => {
         if(state.players.length <= 3){ alert('Il faut garder au moins 3 joueurs.'); return; }
-        state.players.splice(idx, 1);
-        if(state.starterIndex !== null && state.starterIndex >= state.players.length) state.starterIndex = 0;
+        const idx = state.players.findIndex(pl => pl.id === p.id);
+        if(idx > -1) state.players.splice(idx, 1);
         refreshList();
       };
       row.appendChild(delBtn);
@@ -752,6 +813,7 @@ function showManagePlayers(){
     const name = prompt('Prénom du nouveau joueur :');
     if(!name || !name.trim()) return;
     state.players.push({
+      id: 'p_new_' + Math.random().toString(36).slice(2,7),
       name: name.trim(),
       role: 'civil',
       word: state.civilWord,
@@ -767,6 +829,23 @@ function showManagePlayers(){
   closeBtn.onclick = () => { bg.remove(); render(); };
   modal.appendChild(closeBtn);
 
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
+}
+
+function confirmEliminate(idx){
+  const p = state.players[idx];
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.appendChild(el('h3', null, '⚠️ Éliminer ' + p.name + ' ?'));
+  modal.appendChild(el('p', null, 'Vérifiez bien que c\'est le joueur désigné par le vote avant de valider !'));
+  const yesBtn = el('div','btn btn-primary','✅ Oui, c\'est le bon joueur');
+  yesBtn.onclick = () => { bg.remove(); eliminatePlayer(idx); };
+  modal.appendChild(yesBtn);
+  const noBtn = el('div','btn btn-ghost','Annuler');
+  noBtn.style.marginTop = '10px';
+  noBtn.onclick = () => bg.remove();
+  modal.appendChild(noBtn);
   bg.appendChild(modal);
   document.body.appendChild(bg);
 }
