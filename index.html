@@ -176,16 +176,85 @@
 <script>
 // ---------- Word pairs faciles ET proches, pour enfants ----------
 const WORD_PAIRS = [
-  ["Chat","Chaton"], ["Chien","Loup"], ["Pomme","Poire"], ["Banane","Ananas"],
-  ["Lion","Tigre"], ["Panda","Ours"], ["Robot","Androïde"], ["Dinosaure","Dragon"],
-  ["Pirate","Corsaire"], ["Sorcière","Magicienne"], ["Princesse","Reine"], ["Vélo","Trottinette"],
-  ["Voiture","Camion"], ["Pizza","Quiche"], ["Glace","Sorbet"], ["Doudou","Peluche"],
-  ["Soleil","Étoile"], ["Piscine","Baignoire"], ["École","Collège"], ["Licorne","Cheval"],
-  ["Footballeur","Basketteur"]
+  // Animaux
+  ["Chat","Chaton"], ["Chien","Loup"], ["Zèbre","Âne"], ["Lapin","Écureuil"],
+  ["Grenouille","Crapaud"], ["Dauphin","Baleine"], ["Tortue","Escargot"], ["Papillon","Coccinelle"],
+  ["Abeille","Guêpe"], ["Hibou","Chouette"], ["Aigle","Faucon"], ["Serpent","Lézard"],
+  ["Souris","Hamster"], ["Cochon","Sanglier"], ["Vache","Taureau"], ["Mouton","Chèvre"],
+  ["Poule","Coq"], ["Canard","Oie"], ["Girafe","Chameau"], ["Éléphant","Rhinocéros"],
+  ["Singe","Gorille"], ["Kangourou","Koala"], ["Pingouin","Phoque"], ["Hérisson","Castor"],
+  ["Requin","Orque"], ["Lion","Tigre"], ["Panda","Ours"], ["Licorne","Cheval"],
+
+  // Nourriture
+  ["Pomme","Poire"], ["Banane","Ananas"], ["Fraise","Framboise"], ["Orange","Citron"],
+  ["Pizza","Quiche"], ["Glace","Glaçon"], ["Gâteau","Tarte"], ["Bonbon","Chocolat"],
+  ["Frites","Chips"], ["Croissant","Pain au chocolat"], ["Crêpe","Gaufre"], ["Soupe","Purée"],
+  ["Fromage","Yaourt"], ["Riz","Pâtes"], ["Miel","Confiture"], ["Sandwich","Hot-dog"],
+
+  // Personnages et fantastique
+  ["Robot","Machine"], ["Dinosaure","Dragon"], ["Pirate","Marin"], ["Sorcière","Magicienne"],
+  ["Princesse","Reine"], ["Chevalier","Guerrier"], ["Roi","Empereur"], ["Fée","Elfe"],
+  ["Fantôme","Vampire"], ["Ninja","Samouraï"], ["Cowboy","Shérif"], ["Génie","Magicien"],
+
+  // Transports
+  ["Vélo","Trottinette"], ["Voiture","Camion"], ["Bus","Car"], ["Train","Métro"],
+  ["Avion","Hélicoptère"], ["Bateau","Voilier"], ["Moto","Scooter"], ["Fusée","Navette"],
+  ["Camion de pompier","Voiture de police"],
+
+  // École et objets
+  ["École","Collège"], ["Cahier","Livre"], ["Stylo","Crayon"], ["Trousse","Cartable"],
+  ["Tableau","Ardoise"],
+
+  // Nature
+  ["Soleil","Étoile"], ["Nuage","Brouillard"], ["Montagne","Colline"], ["Rivière","Fleuve"],
+  ["Forêt","Jungle"], ["Mer","Océan"], ["Fleur","Plante"], ["Arbre","Buisson"],
+  ["Piscine","Baignoire"],
+
+  // Sports
+  ["Footballeur","Basketteur"], ["Nageur","Plongeur"], ["Cycliste","Coureur"], ["Judoka","Karatéka"],
+  ["Danseur","Gymnaste"], ["Skieur","Patineur"],
+
+  // Jouets
+  ["Doudou","Peluche"], ["Poupée","Marionnette"], ["Puzzle","Jeu de société"], ["Toupie","Yoyo"],
+  ["Trampoline","Balançoire"],
+
+  // Métiers
+  ["Docteur","Infirmier"], ["Pompier","Policier"], ["Boulanger","Pâtissier"], ["Fermier","Jardinier"],
+  ["Chanteur","Musicien"], ["Peintre","Dessinateur"],
+
+  // Lieux et saisons
+  ["Maison","Appartement"], ["Cinéma","Théâtre"], ["Zoo","Cirque"], ["Château","Palais"],
+  ["Été","Printemps"], ["Hiver","Automne"], ["Pluie","Orage"], ["Vent","Tempête"]
 ];
 
 // ---------- Historique des joueurs (en mémoire, le temps de la session) ----------
 let roster = [];
+
+// ---------- Pioche de mots sans répétition ----------
+// On mélange toute la liste, on tire dedans une par une, et on ne remélange
+// que lorsqu'on est passé par tous les mots : jamais 2 fois le même trop vite.
+let wordQueue = [];
+
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function drawWordPair(avoidPair){
+  if(wordQueue.length === 0){
+    wordQueue = shuffleArray(WORD_PAIRS);
+  }
+  let pair = wordQueue.pop();
+  // sécurité : si jamais on retombe pile sur le mot qu'on vient de jouer
+  // (possible seulement au moment où la pioche se remélange), on en reprend un autre
+  if(avoidPair && pair[0] === avoidPair[0] && wordQueue.length > 0){
+    const other = wordQueue.pop();
+    wordQueue.unshift(pair);
+    pair = other;
+  }
+  return pair;
+}
 
 function getOrCreateRosterEntry(name){
   if(!name) return null;
@@ -378,7 +447,7 @@ function startGame(){
   if(state.numUndercover + state.numMrWhite < 1){ alert("Choisis au moins 1 infiltré ou 1 Mr. White pour commencer !"); return; }
   if(civilCount < 1){ alert("Il faut garder au moins 1 civil ! Réduis le nombre d'infiltrés ou de Mr. White."); return; }
 
-  const pair = WORD_PAIRS[Math.floor(Math.random()*WORD_PAIRS.length)];
+  const pair = drawWordPair(state.civilWord ? [state.civilWord, state.undercoverWord] : null);
   const [civilWord, undercoverWord] = pair;
 
   // Pioche 100% aléatoire : on mélange un vrai paquet de rôles (Fisher-Yates)
@@ -465,7 +534,30 @@ function renderReveal(){
   };
   wrap.appendChild(btn);
   wrap.appendChild(el('div','footer-note', 'Joueur ' + (state.revealIndex+1) + ' / ' + state.players.length));
+
+  if(state.revealIndex === 0 && state.chosenCard === null){
+    const reroll = el('div','btn btn-ghost','🔄 Mot trop dur ? En tirer un autre');
+    reroll.style.marginTop = '10px';
+    reroll.onclick = rerollWord;
+    wrap.appendChild(reroll);
+  }
+
   return wrap;
+}
+
+function rerollWord(){
+  const pair = drawWordPair([state.civilWord, state.undercoverWord]);
+  const [civilWord, undercoverWord] = pair;
+  state.civilWord = civilWord;
+  state.undercoverWord = undercoverWord;
+  state.players.forEach(p => {
+    if(p.role === 'civil') p.word = civilWord;
+    else if(p.role === 'undercover') p.word = undercoverWord;
+  });
+  state.revealIndex = 0;
+  state.revealed = false;
+  state.chosenCard = null;
+  render();
 }
 
 // ---------- STARTER SCREEN : le jeu tire au sort qui commence ----------
