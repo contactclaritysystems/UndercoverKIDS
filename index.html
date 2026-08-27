@@ -55,14 +55,30 @@
   #app{
     width:100%;
     max-width:480px;
-    height:100dvh;
     height:100vh;
+    height:100dvh;
     padding:18px 18px calc(14px + env(safe-area-inset-bottom));
     position:relative;
     z-index:1;
     display:flex;
     flex-direction:column;
     overflow:hidden;
+  }
+  /* En mode "app installée" (écran d'accueil), la barre de statut recouvre
+     le contenu au lieu de le pousser : on ajoute la marge nous-mêmes.
+     Ce bloc ne s'applique jamais dans un onglet de navigateur classique. */
+  @media (display-mode: standalone){
+    #app{
+      padding-top: calc(18px + env(safe-area-inset-top));
+    }
+  }
+  .quit-btn{
+    position:fixed; top:16px; right:16px; width:40px; height:40px; border-radius:50%;
+    background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center;
+    font-size:16px; box-shadow:0 4px 10px rgba(32,51,74,.25); z-index:60; cursor:pointer;
+  }
+  @media (display-mode: standalone){
+    .quit-btn{ top: calc(16px + env(safe-area-inset-top)); }
   }
   h1,h2,h3{font-family:-apple-system, 'SF Pro Display', sans-serif; margin:0;}
   .screen{
@@ -455,20 +471,7 @@ function render(){
     const quit = document.createElement('div');
     quit.textContent = '✖️';
     quit.title = 'Quitter la partie';
-    quit.style.position = 'fixed';
-    quit.style.top = '16px';
-    quit.style.right = '16px';
-    quit.style.width = '40px';
-    quit.style.height = '40px';
-    quit.style.borderRadius = '50%';
-    quit.style.background = 'rgba(255,255,255,0.85)';
-    quit.style.display = 'flex';
-    quit.style.alignItems = 'center';
-    quit.style.justifyContent = 'center';
-    quit.style.fontSize = '16px';
-    quit.style.boxShadow = '0 4px 10px rgba(32,51,74,.25)';
-    quit.style.zIndex = '60';
-    quit.style.cursor = 'pointer';
+    quit.className = 'quit-btn';
     quit.onclick = showQuitConfirm;
     app.appendChild(quit);
   }
