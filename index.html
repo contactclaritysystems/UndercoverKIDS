@@ -311,6 +311,44 @@ function render(){
   if(state.screen === 'starter') app.appendChild(renderStarter());
   if(state.screen === 'discussion') app.appendChild(renderDiscussion());
   if(state.screen === 'result') app.appendChild(renderResult());
+
+  if(state.screen !== 'setup'){
+    const quit = document.createElement('div');
+    quit.textContent = '✖️';
+    quit.title = 'Quitter la partie';
+    quit.style.position = 'fixed';
+    quit.style.top = '16px';
+    quit.style.right = '16px';
+    quit.style.width = '40px';
+    quit.style.height = '40px';
+    quit.style.borderRadius = '50%';
+    quit.style.background = 'rgba(255,255,255,0.85)';
+    quit.style.display = 'flex';
+    quit.style.alignItems = 'center';
+    quit.style.justifyContent = 'center';
+    quit.style.fontSize = '16px';
+    quit.style.boxShadow = '0 4px 10px rgba(32,51,74,.25)';
+    quit.style.zIndex = '60';
+    quit.style.cursor = 'pointer';
+    quit.onclick = showQuitConfirm;
+    app.appendChild(quit);
+  }
+}
+
+function showQuitConfirm(){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.appendChild(el('h3', null, '🚪 Quitter la partie ?'));
+  modal.appendChild(el('p', null, 'Tu vas revenir au menu principal. La partie en cours sera perdue.'));
+  const yesBtn = el('div','btn btn-primary','Oui, quitter');
+  yesBtn.onclick = () => { bg.remove(); state.screen = 'setup'; render(); };
+  modal.appendChild(yesBtn);
+  const noBtn = el('div','btn btn-ghost','Annuler');
+  noBtn.style.marginTop = '10px';
+  noBtn.onclick = () => bg.remove();
+  modal.appendChild(noBtn);
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
 }
 
 function el(tag, cls, html){
@@ -625,16 +663,6 @@ function renderDiscussion(){
   });
   wrap.appendChild(list);
 
-  const forgotBtn = el('div','btn btn-ghost','❓ J\'ai oublié mon mot');
-  forgotBtn.style.marginTop = '16px';
-  forgotBtn.onclick = showForgotWordPicker;
-  wrap.appendChild(forgotBtn);
-
-  const manageBtn = el('div','btn btn-ghost','⚙️ Gérer les joueurs');
-  manageBtn.style.marginTop = '12px';
-  manageBtn.onclick = showManagePlayers;
-  wrap.appendChild(manageBtn);
-
   return wrap;
 }
 
@@ -706,6 +734,7 @@ function showManagePlayers(){
   const list = el('div','players-list');
   let dragId = null;
   let dragStartY = 0;
+  let changed = false;
 
   function getRowEl(id){
     return list.querySelector('[data-player-id="' + id + '"]');
@@ -726,6 +755,7 @@ function showManagePlayers(){
       if(fromIdx > -1 && toIdx > -1){
         const [moved] = state.players.splice(fromIdx, 1);
         state.players.splice(toIdx, 0, moved);
+        changed = true;
         dragStartY = e.clientY;
         refreshList();
         const newRow = getRowEl(dragId);
@@ -779,7 +809,7 @@ function showManagePlayers(){
       input.style.flex = '1';
       input.onchange = () => {
         const newName = input.value.trim();
-        if(newName) p.name = newName;
+        if(newName && newName !== p.name){ p.name = newName; changed = true; }
         else input.value = p.name;
       };
       row.appendChild(input);
@@ -797,6 +827,7 @@ function showManagePlayers(){
         if(state.players.length <= 3){ alert('Il faut garder au moins 3 joueurs.'); return; }
         const idx = state.players.findIndex(pl => pl.id === p.id);
         if(idx > -1) state.players.splice(idx, 1);
+        changed = true;
         refreshList();
       };
       row.appendChild(delBtn);
@@ -810,6 +841,7 @@ function showManagePlayers(){
   const addBtn = el('div','btn btn-secondary','➕ Ajouter un joueur');
   addBtn.style.marginTop = '14px';
   addBtn.onclick = () => {
+    if(state.players.length >= 10){ alert('Maximum 10 joueurs.'); return; }
     const name = prompt('Prénom du nouveau joueur :');
     if(!name || !name.trim()) return;
     state.players.push({
@@ -819,6 +851,7 @@ function showManagePlayers(){
       word: state.civilWord,
       eliminated: false
     });
+    changed = true;
     refreshList();
   };
   modal.appendChild(addBtn);
@@ -826,8 +859,37 @@ function showManagePlayers(){
 
   const closeBtn = el('div','btn btn-primary','Terminé');
   closeBtn.style.marginTop = '14px';
-  closeBtn.onclick = () => { bg.remove(); render(); };
+  closeBtn.onclick = () => {
+    bg.remove();
+    if(changed){ showApplyChangesChoice(); }
+    else { render(); }
+  };
   modal.appendChild(closeBtn);
+
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
+}
+
+function showApplyChangesChoice(){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.appendChild(el('h3', null, '✅ Comment appliquer ces changements ?'));
+  modal.appendChild(el('p', null, 'Tu peux continuer la partie en cours (les changements s\'appliquent tout de suite, dès le prochain tour), ou relancer une toute nouvelle partie avec ces joueurs (nouveaux rôles et nouveau mot tirés).'));
+
+  const continueBtn = el('div','btn btn-primary','➡️ Continuer cette partie');
+  continueBtn.onclick = () => { bg.remove(); render(); };
+  modal.appendChild(continueBtn);
+
+  const restartBtn = el('div','btn btn-secondary','🔁 Relancer une nouvelle partie');
+  restartBtn.style.marginTop = '10px';
+  restartBtn.onclick = () => {
+    bg.remove();
+    state.numPlayers = state.players.length;
+    state.names = state.players.map(p => p.name);
+    clampRoles();
+    startGame();
+  };
+  modal.appendChild(restartBtn);
 
   bg.appendChild(modal);
   document.body.appendChild(bg);
@@ -868,7 +930,7 @@ function showEliminationResult(p){
   const badgeClass = p.role==='civil' ? 'civil' : (p.role==='undercover' ? 'undercover' : 'mrwhite');
   modal.innerHTML = '<h3>' + p.name + ' est éliminé(e) !</h3>' +
     '<span class="badge ' + badgeClass + '">' + roleLabel + '</span>' +
-    (p.word ? '<p style="margin-top:14px;">Son mot était : <b>' + p.word + '</b></p>' : '<p style="margin-top:14px;">Il n\'avait pas de mot !</p>');
+    '<p style="margin-top:14px;">Le mot sera révélé à la fin de la manche.</p>';
   const btn = el('div','btn btn-primary','Continuer ➡️');
   btn.onclick = () => { bg.remove(); checkWinConditionOrContinue(); };
   modal.appendChild(btn);
