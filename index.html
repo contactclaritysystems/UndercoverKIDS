@@ -29,25 +29,25 @@
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color: transparent; touch-action:manipulation;}
   html,body{min-height:100%; overscroll-behavior-y:none; touch-action:manipulation;}
+  html{
+    /* Le dégradé est peint directement sur la page entière (pas en position
+       fixe) pour qu'il couvre toute la hauteur, même si le contenu défile
+       et dépasse un écran : jamais de bande blanche en bas ou en haut. */
+    background:
+      radial-gradient(38% 22% at 15% 6%, rgba(94,92,230,0.35), rgba(94,92,230,0) 70%),
+      radial-gradient(45% 26% at 90% 9%, rgba(255,55,95,0.28), rgba(255,55,95,0) 70%),
+      radial-gradient(50% 26% at 30% 97%, rgba(48,209,88,0.22), rgba(48,209,88,0) 70%),
+      radial-gradient(45% 26% at 95% 94%, rgba(64,200,224,0.25), rgba(64,200,224,0) 70%),
+      linear-gradient(180deg, #f7f7fb 0%, #eef0f6 100%);
+    background-attachment:local;
+  }
   body{
     margin:0;
     font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
     color:var(--ink);
-    background:#f4f4f8;
+    background:transparent;
     min-height:100%;
     position:relative;
-  }
-  /* Fond façon "wallpaper" Apple : taches douces et floutées, pas de dessin cartoon */
-  body::before{
-    content:'';
-    position:fixed; inset:0; z-index:0;
-    background:
-      radial-gradient(38% 30% at 15% 12%, rgba(94,92,230,0.35), rgba(94,92,230,0) 70%),
-      radial-gradient(45% 35% at 90% 15%, rgba(255,55,95,0.28), rgba(255,55,95,0) 70%),
-      radial-gradient(50% 40% at 30% 95%, rgba(48,209,88,0.22), rgba(48,209,88,0) 70%),
-      radial-gradient(45% 35% at 95% 90%, rgba(64,200,224,0.25), rgba(64,200,224,0) 70%),
-      linear-gradient(180deg, #f7f7fb 0%, #eef0f6 100%);
-    filter: blur(0px);
   }
   #app{
     width:100%;
