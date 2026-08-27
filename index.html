@@ -28,18 +28,9 @@
     --shadow: rgba(28,28,30,0.10);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color: transparent; touch-action:manipulation;}
-  html,body{min-height:100%; overscroll-behavior-y:none; touch-action:manipulation;}
+  html{height:100%; overscroll-behavior-y:none; touch-action:manipulation;}
   html{
-    /* Le dégradé est peint directement sur la page entière (pas en position
-       fixe) pour qu'il couvre toute la hauteur, même si le contenu défile
-       et dépasse un écran : jamais de bande blanche en bas ou en haut. */
-    background:
-      radial-gradient(38% 22% at 15% 6%, rgba(94,92,230,0.35), rgba(94,92,230,0) 70%),
-      radial-gradient(45% 26% at 90% 9%, rgba(255,55,95,0.28), rgba(255,55,95,0) 70%),
-      radial-gradient(50% 26% at 30% 97%, rgba(48,209,88,0.22), rgba(48,209,88,0) 70%),
-      radial-gradient(45% 26% at 95% 94%, rgba(64,200,224,0.25), rgba(64,200,224,0) 70%),
-      linear-gradient(180deg, #f7f7fb 0%, #eef0f6 100%);
-    background-attachment:local;
+    background:#eef0f6; /* filet de sécurité si jamais la div de fond ne charge pas */
   }
   body{
     margin:0;
@@ -48,6 +39,19 @@
     background:transparent;
     min-height:100%;
     position:relative;
+    overscroll-behavior-y:none;
+  }
+  /* Div de fond ordinaire (pas sur html/body) : elle s'étire exactement sur
+     toute la hauteur réelle du contenu, sans le comportement spécial "collé
+     à l'écran" que les navigateurs appliquent au fond de l'élément racine. */
+  #bg-decor{
+    position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(38% 22% at 15% 6%, rgba(94,92,230,0.35), rgba(94,92,230,0) 70%),
+      radial-gradient(45% 26% at 90% 9%, rgba(255,55,95,0.28), rgba(255,55,95,0) 70%),
+      radial-gradient(50% 26% at 30% 97%, rgba(48,209,88,0.22), rgba(48,209,88,0) 70%),
+      radial-gradient(45% 26% at 95% 94%, rgba(64,200,224,0.25), rgba(64,200,224,0) 70%),
+      linear-gradient(180deg, #f7f7fb 0%, #eef0f6 100%);
   }
   #app{
     width:100%;
@@ -238,6 +242,7 @@
 </style>
 </head>
 <body>
+<div id="bg-decor"></div>
 <div id="app"></div>
 
 <script>
