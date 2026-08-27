@@ -2,186 +2,239 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>Undercover Kids</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Démasqué !</title>
+
+<!-- Ajout à l'écran d'accueil (iOS / Android) -->
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAagElEQVR4nO2deXhdR5Xgz6mqe+/bpKfF2ixL8m7HsR3HdhLibMSBhKwTluQDhu7+Os00Dd/QE4YeZtLNR0OTBnoGBuivGz7+GGYSOjhAmi0Ex85mYmdxcBZvcrzJ8ipZy5P09nfvrTrzx31yZFvPenq6kp6l+n31h5d7655369xTp06dqkLwDWTICRSR8v7OeTAaXVxTvaK6akVFRVsk0iZEMBRsYtwAIv+eO3ugVOqMVLlE4kQqfWpg4MDAwL7BocO2PXTuCsYEkSSfXi/6UAUyACSS3l8rKtqaGm6a23RTbc3qcHieYYQROZFS5AKRUg6A1ozSQMYEAGNMIDIi5cpMOt0dG9jb3f3a6TMvDQ4dzF+HHIDOfaWlP29CNyMCME8tTDO6oO2++a13NzZssKxqAJAyK6VNJIe1AQER/VDHWQsBDRtdAgBEzpjBRZAhs+1Eb/9bx09sPtb562TqFOQ/WpiIipTcVIiYV4vKioXLl3xq0cKPVlYsVOS6TkqRCwAICMhKlkxTHJ6FIERhiBDnVird1XnimQMHf9zXvwcAPLNdmrUuRTk8mwYA4dDctVd9cfGCj1lWleumXTcDiIi8hDo1E4dIASnGLcMISzdz4tTWXW9/KzZ4APIqIsdb4biVw3sM54GrVnxu1Yq/CgXrbTuuyEVkAEz7E9MNAhCRROSmUeG4qYNHfvrm7m9nsr0lmJBxKAciAwIC1Vh/3Y3XfqOh7pqcPaSUjch9cWw1vpJXEcuqHop3vLbrKx3Hn4YRVr8Yim3Uc5Wuv+pv1q3+IiLadpIxrRbljlKuEEEhgu2HHnvljS87boohV8V1MUU1rVddKNiwccP3FrTemc3FiAi1s3mZQEQAKhCo7el7+8Udn+8b2F+kfoytHJ6TUVt1xZ23/r/q6OJMtp8x4fVt2mxcRijlmGal4yS3vPyXJ06/yFB4g8pLMEbrelU0N2y4+9bHhQg6TpIxwz+BNVOKIpczU/DgC689fODIpjH141LK4Rmf5oYN9278CWPClTmmh6mXOUQKkRlG5IVX/0v7kScv3b8UVA7vtnkNG+7d+DgyIWWOodAj1RkAEQGiaUSef+Xh9qNPXsJ+jK4c3tiktmrZgx96mnPTsxmkNWNGgIAECgAto/I3L37q2KnnCtmPUZQDAQkgHKx74I5fV4bnOTLNkGu9mEmg178wTqSe2vpAT//uUeMfFysHMmSK1P23Praw5fZMNsaYmBqJNVMMkTSN8ED82KbN9zhuyotwjrzgQuXwLMx1q/76prVfTmd6GTO0nzFzQUVO0KptP/qLza98/uLO5Tzl8GxL05yrP37Hr1yZ0WGMWQAqckOBOc9s/1x7x79fMD83svkRERkzPnnHr+pqVjhOSs+vzgYIiKFw3ORPnrkrme6GvLsKAPCeP8GQKZLrlj80d87adLaXMT1wLV8QFAEC+ZA7hQBKZiOBhhvXfGnzq1/wplfP/RdAvkOhUGDOQ/dsNURQkdQpW2UMOa4luIPo29dLpAwj/MSWD3f1vXOucxk5eUY3rP7rSHCOUjYDRCBdyq8AQ+U4gQ1rf10RHlBK+FUtADGAm9d8iSE/12MwGPZDK8PNKxd82LbjDHXOTjmCAAhKSlERjj1w/9eWLHjDtgOMjTu/azSII7OdxILGG+bVX0ukvHkSBl6yJ8CaxR8PmlFFDgOY7u9Dl1EKAHEm7Vxo3arNRnXiujW/FcxBAuZT5d4f1i37U/AymQEEAiqSllGxcsF/cJ0UBwZE2t0oQxCBFAsF4jdc8xSljMWLdrbObT/Vtdwy00r5kFuDwBw7sXjuLXOiS/qGDiMy5uXsLGu5vTbS5soMAmLegukyjYUQgKHiKDlzvSKYnc2Gr1z6clPbHpUJ8VDquqt/Ix2Do3vuGs4kQ1XycxW5ARG5atHHAACRCc+ALG+5g8j1xJq4DmomDqKy7YCUBhESIABw7gDBTdc/CcSAKciZ665+ZstLfxlP1AEBeWMIJMakaaYBsISHMkBXphc33fIH/r9daSMAVIaaPnP37xnzspNLqVTjLwjkSqN57sHK6NmwlYhWdVdW9FVG+isre9rm7c9fRAjc7epeOjDQNBivT6erBgbmJtJV2Uxl54nVJY9yiZRlVv7kuU8c73lDAMD8hveFrKp0LjZyGKOZRhAJkZQU99353bpFhyA1vOpDIdjB4YsIpGhqbm9q3QsIoACC4MQqHn/iO6Q4F3ZpriOBEsgXz70lrxwLG67HvPHSmlEeEBrMPn162ff+edMDH/3qmnVPu8koA0KmEEdMnCKRHSRCpbgID55oX/vET//pbO/CUHCIFJbWmoxQylxb/XqGTBg80FS9QsoMA9Q9StlARBgMJKRrPP5v34n1t2y8/YfgGCAvTOBFJETJIom9u+7e9LNHHceKhGJKidKbElHKTG2kLRqeJ6orWqrCjVLlELXlKCMQgBQT3BU8/tvf/U1/X+td9307ZKaQzgtREpAEtn3zZ3+3+WHTzFhWWik+kXZEAKVk0Iw21axgjdHllhEiJb1IiC7lU9BbcUIYrejd/sonThxdh1ZmZEiDiKGwEwNNz279XMBMCeYO9yYTfS5nOLfmStFYvZQhDofJNOWI65h1tSdamtvBMRAVUV4/EAlcq6rmVOu8/SdOrbRYxhfHAAFAycboUlEdmgdqeCitKT8YyqwTqG85FqnuJsciQmalAAmQIBeS0uCRVEvz/mMdV6ORQvIhBYcAlHKrQg2iOtJEytEOR9mCSMo12lr3KCHRJRZOnj561XNbPrty5Uvrb/g5d10l+fz5u3fs+KRfMUwEIOVUBuuFKYIAyovXasoQBGJMtrXtYUGVHgpt+/1/fv3VB3J26N32m/btu/XOe77fsPBAS8v+UCBBivn3hZPBDBEN1CnlMADQlqP8QATpmtVV3QsXvrX/tTueffrhs2cXhEJD4dAgAB48cGNnx9r3b/y/N936+Lx57R0d6ywr5dO0KQIo/OrHdgKQjpqXJ4jkOGZdfWd9fefut+8QRs40M0rld75gTErFU8ma5VdsR6SOo+tMM3POXfXh6V/76Ot+1aWZFJCUFI5jBQJJALio7YkxmcuFkSkhbH+9A6H90HKHgDNXBGxPLS5uL1LcMtP5fGNfW1OvZrsMwFEMxnkQMZ/1AgC05bhcKKa38N1t1MqhKYhAvQ25pgDacmgKMoGJf81MR1sOTUG0cmgKoh1STUG0z6EpiN6EQ1MQ7XNoCqKVQ1MQ4d/mMJqZhrYcmoJo5dAURA9lNQXRlkNTEB0h1RREWw5NQXSEVFMQ7ZBqCqJ9Dk1BtM+hKYhWDk1BtM+hKYi2HJqCaIdUUxBtOTQF0T6HpiA6QqopiO5WNAXRaYKagmjLoSmIVg5NQbRyaAqilUNTkMvAIUU2fDp2CaIO30jK19/JAL3TaUqrFQEIiKjMP8yythzIkSQ5KUe5ChFKOS2IiAiYwYyA8GqbqEgMicDNuNKWJYoEQIoYRxEUTDCSVLZbBJejchDkv0s7njNCRvO6xpqlNVVtUREc95EATtodOj7UdzDW297rpFyzwvQ+2fE2hicSItgpGxnOWVZTd8Wc6PxooNICGF/bKpeGTg7FDg/07O3NDGTMsMk4kirHvecnKUKKyCd0KJibc0nS8vuXLr13SfXCqokLFDsycPA3h45sPsINzgw23l6GIRKpXMJpvXHeigdWNKyun/jHnuxOHt3S0f7UAZlxjZBBVPo5aqSIJmECFTfd/aTPNSIQgZOyS7PhyBEAwg2R675wbfN1zQBARKDGuu3SdQ57LSd3nNz5/TdyQzkRECSLPWMGEZSrAHHtf7p62YeXef840R4KARkCQOxI7PVvv973bj8yJHf8vxMBEI2QwTj6fvArPnnXJl/rA3IVMmx7//yKeRUlVJCJZWOH+jf87Q2RxojXft5LnCCkCAiQY/xk/IX/9nw2luUWL8p+IHg2/5avv79xXZN3iz8iEZECxtHNODu+vsOstKKt0RIMeSaWOf7ScTuR4yb313zgz+76qa/1Abl041dubt4wb4I1kSJf2mAkylVMsL723ue/sJWJok4XQIZ23L7+725YePsi73Z/RfLlZw4cHXjpvz/vpBzkDPxTEOad7uZLYQzclNN8fXPzhnnKVSSplKIIAIj81wwAYIIpV81ZUbfqT1Y7SZtxHPMXOcncgtsXTJJmgGeEKD/YLu2NKUdVL6pecu9SN2UzBj42qJ/5HIgAUoZqgwDg2fBxG8lhlwwn7YxbxhkRLX9wRcezhzO9aWawgjIigCIjKFb/+Rogf7qSgg+CkYGT8b00UkCKQnOCQD6f4uin5fBeZdfOU27GZQbzfKXxlSkAARRwk7e9f77M2IwVNB4MwU3bTeuaInMrJsmSjS7eOF8aMxgyPLmtU5jM0w//LIePPgwRN1jqdHzH372w6tNrQ/VhQMBihwRAiqyqwGSY7lFpWj/33Sf2gFKF3gACgisb188FAJiaSBVRdiBb/MdPQEBgx3MHf77v7K4zRtgAObFx3fn4nCZIShkh0ftO17aHfy/CZpG/ExFIkggZt/3gnkBNkIgmr1sByLdyuKnCilrSdrHAsXkIJCwebat6757JgwAASNGrf//i0NEBHhDFRmIQZNZ1M64ZNkipYj/F4vA5CIYAoMgICSCSGadYSRGl7VpR06q0AIo2NqXiaZ5ZaXKBuQH7Um4HkVUVAJh8q+ENmDkzwoaTzCJYRSoHASBDM2IMx1h9PanJXxcmjyIA4EUHuwmBcy96NiVRZAQA4KbY8OhtylHILvVKQ40R8CmwUaRonCPj4zisjYhgcqLvk7lupeiK0ftupnYFDXKsWV43lU8sBiQCNVyKvGXShCmXiTecjlOPSdKYKoyMTeWc6XtDvzJol3JZtzItYiDHMpwtLx+ZyspyTK0kRHbCHjPYbERM5FM0uobysxzTLwR4L6XU3JlxQwAIMidfefi32f5LBUlJwY3/fF+kJToZEz2jgsNBufJQjvJYSI2IKmPLjMMqrKl5opOyc31pN2UzXqDVEWROOkMZaIlOhUAIROQmcogANNXu+aiUh89BxDnaA5lMT9KosAhoUkMdXpAtczbhJnMiIAr1LMiYTNnJk0PVKxsn/TMmQEQ3ZWe649xgkzQ0HS/eGH/6C3KUGTu2txsAih/FlQgRAMT2dFHO8T7T0QsoBIjtPgMw+QFSIiAaOtSb60txMTxRO92lbHwOUtzAM88dmn//lZPueTAEgDMvHOamlz5V4A0oEiHR81qnPZQxKwMwkTy+MSEAhqe2HgLXRWbAhBOhfcHPWdmJzegqI2QM7jtzdnsHMiRfJ5BGQlIh4unnDsXf7RFBAUoVlIqIG8zuTx37+W5AHzLXC4qkCDkmjsW6XzpsRExQctqbwysMCcqmEBO8/Xsv2wMZ5Gwy9IOkQs6yPcl3/2WHsDgodWmRwFVGxDz207dje86gYKXkeI4pkpfcJNW+//WSyjiMIappb4h8KRfLgUCgSFg825PY/Q9blC3z+uHX50pArkLOZMZ552tbnIE0NzkWk/2AgEh7vv5cpiue1w//xhEkFTJEhu3f/cPA7tNG2ARZ2JJNfXnu9h/69VN9ATlz4tmaq5tX/o8PhJqjAEBS5WdqS+jx8/EC8gJZqeMDe7/5/OD+LqMiULxlQo5u2g3UR1Y98oGaq5vB+9w9F6Q0kQCA8iK5yVz7d7edefagER2HSFMDPl9myuE1pJPMmVWhJZ9+X9MHl/GgMfFK3ZR9ZsuBoz/e6cRzImLmFW48IsmsCwDzP7G29SOrrdrwxEUiqXpfPXboR68mj8XMvGaUwwD2PfCF238w3TJcDCFjypFu1om01tTduCB6RWOopYpbBkDRL5AAAGTWSZ0cGGrv7t3RkTo5KEIGE5xUCc1AwBgocpK5QF2k7voFVVfNDbdWG17IrvhRDIGSKnN6MH6ot/eVjvihHsY5D4rJ83YnAr74wX+dbhkKgIAMZdaVWRcYiKBZQgBbSSWzDhDwgJFfqDKxVkCOypFu2gEAbglmjHuFJhHJjEOSmMV5wACY/LhOqZRLnGMUCEASN7kICCIAVUrDco68MoCelyCVD1ZbEuPMigYASlyEyBBYxEREUgSqvJyMCyj73QSJSHp/KjUCJf022e+JVGpGoypXW3E+5TG3UhTl+T7LUyp/KONuRTPdlMuUvaYM0ZZDU5DLyOfQTDXacmgKopVDUxDtkGoKMnVJ99MLIvqSPu5XPZcFs6JbQc5UxiGleMicyG61yFDlHFLEQyYp/3JNypVZoBxEbn8qcmUzrwjE3zwuokFy5dh3XQQK7iYy4SUNLGDEd3WKyiD4ugFXGTKzlQO9nJrmP7l+3qdvBsT2zz6ebD9jVIWAXZATOupLGN6DiiEAuIMpszay5Gv3B5qrTj/26tmndinbBRz/1laXD/jHjf9zumWYLJChm8gs/PK9dfes8ZasyUS287tbY8/tV7bLgiYzhjd+ADjPBng7eHjLFlwlMzYARK9duOBLd1rN1V4iauKdEwc+/wSzxMzVjZltOQi4KXp+sSt63SKzroJcySsCi75yX8NH1539xR/jb3Y6vQlSCjlDxlCwc6aCXKkUkVSIIKrClWsX139kfdWGxQBeIiqqnNO96XUkyi97maHgmxu/Nd0yTCaMyUQmtKRh6ff+o1EbIVcBgpe86QykkntPpQ92Z46edQczTn+SXOnlBRhzIjwSCC2qDy5pjKxqtpqqwMsIUQoFJ1ceeeSpgW0HjKowlXdCxgTBt2a2cgAh524yG2itbf3ihyqvWQgAXgY5np/E5Q1nAAEAecg8r4oR12eO9pz4zub4m51GVYhcWW5Zn/6Cb2/85nTLMLkQEXKmsg4oqr1nTcMn3heYn9/Qh1xFSiEiMBy5zwJJBUSem4Iir0N2T7zv12/2/GynzNg8EoBhMzODwbdv/cZ0yzAVeFsGusksD1vRDUuqN64IX9Vq1EbGvFEmsqn204PbDgxuO+D0J3nYQj7uQxcuU/CdW/9xumWYOryFUjKVQwBjTkVgYX1wUb01v86sqzCbqvIHPgA4fQmnN5E93pc52pM9etY+GydX8rCFBs+vWJkd4O5bH51uGaYYRI5AQK5UOdcLiCFnLPDe6piR/46mYKbwtoKcPWrhMQvzOchbw44cRdjM+w1EI3uK8/6d8jnis+9FzeZZWYL3gpsXZJGPWAUxC3XiHDM6CFY8+h2MhlYOTUFmoc+hKRZtOTQFmcUOqWYsyn6trGb60D6HpiDa59AURCuHpiACtW5oCiAAfD41TjNjEN25obZgja1crSKaCxA55bJpOkVLU85IInEqO7Aq0pDzEqk1GgACMpk4nhkUpzJDnHQkTHMeArA7GxcHUmcJCFF3K5o8RGQAezfVI/Ylz2akLQAmun2rZqaASERqd7JLHE33d9vxViuaI6mNhwYABGBSZvckukRC2vuTZ5eFarOOw3C2bNehKYQiCnGxL9V/JN0vAODVwRMP1l8JRDqUriFSAeS7hk47pAQAvBjrSLgZA5F0tGPWw4AAaGvsMAAIhtiRGXgzceaGytaEtGfNlkaaUVAAASaOZWOvD54CAMEAXVC/6zt0W9X8hJQI4z4jQjNjIFIVwvpZz7EhmeOITBIBwK963u3KJSzkQNN/nKku01U4QE65/9a1FwAAUBAQR9ZlJ3/Td/Azc6+OORk+a7YY1IxEEVVwc/vgyZ3x0wgoPYeUiBDgR6ff+rOGlRwRgWb3Qq/ZCAJIIIuxH515iwA4oiQSAKCAOGJ7um9z7OhH5iwdcLNcBzxmGQqogou3E91bYh0IqEgBgBh5xd93bv9QzXyhx7SzDyIVYPyrndszyuWI3k6LeeWQRBzxUDr24649X5i3vsdJG9p4zBpcohphbY11bI51MEQ1vJTpPQOBgAhQLaydaz/VYIRzSuqYx2zAUwQD2Q3vbNqb6h2pHCM2wgJChH43+1+PvhRmgkB5Z0DrMrOLJFljBB498freVC8foRkAgBfoEUcmSf1wyW1/1bSmT3cuMx2XVFRY24dO37H33xWAOn+zswuVAwEQMcjEy6sfXBWek5C20PmDMxQFZCBPSud972zqzMYZ4AV7/Y/S8F6vszJcu331gwLRJeKAOhVo5qGAKoX14fanf9vf4fUYF1wwulXwYiC3V7U+u/L+pHQIiIFe/TSjkKSqzPDnD7/wL127BTL3Is2AQsoBAN4NDzVc8X+WfDAhbQDSC1tmDJJU1Ah988TOvz3+WiHNgEsoB5ynHx9IStuzH5MjrWaKoGHN+NaJNx45/po3PCnUJ4zR2CP047aMcl0lOTLQ/sdlSd7fjBjBb51445HOMTQDxlQOAPB80vtrFvxk6QfCzEhIW49vL0dcUgHGDSYePrb9+2f2jKkZUIxywLD9uDZS/9iS25aHa5NOhiHqLuZygQBcUhXC6nMynzn6h1/2d3gDjjFvLLaBPf2oEda/Lrzp4/XLXWnnlCu0CSl7vFkzSwS2D578iyPbDmeHLuGBXsA4vv5z6vZQ/fJ/mn/dHDOcdXNEpOf3yxMFpIhCwspK55un3/7GqbdcIs9JKLKG8XUNXvxUES2wKh5tu+aTc5YAQFbaXnrIeGvTTBKKiICC3ABkLwyeeuT4zj8mewHg4hjopSmlOc+ZkJsrG/+hZf0t0WYAcKXjkmKIOhwyXRCQImKIJjcA2f5U31dO7vplfycACEQ5lvt5MSU2JAMEBG8G786qls81XPGh6hbBDVCuLV0vzZDpSZkpQUH+fEuLceAGKPlKvPsHZ9t/GevMKnnO2JdQ84Tab6TTe1Wo5qH6pXdWtSwJVQEyUBKUdICICFF3OX6STxUnQgCBDBkHxgGgKxvfMnT6sZ7D2+Jd3pVFjkoK4UOTcUQi8DqzAOM3VTTeVTXv5srGpYHKiLDyxx+Rolly9tUkgwCIDBABGRDlpHMkF38t0fvM4MmX490xN+ddVkwYo5hn+QMDZIgjx0hLg9H14dprwnNWhqrnW5EWM2ii3jB5okiik076lJ3enx7clep7M9W/Lz1w7rVzRO8aX571/wHa0Z2ib0HLcwAAAABJRU5ErkJggg==">
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAEcklEQVR4nK1WTWxVRRT+zszcn/dDy7P89QFWftSKlUQiNmoJEkVQDAujC4IuZOOCFSZuXBpD3BnFhe4MQVgYE4UoxEgkUjABjQughGKUagspUl95r+27992Zc1zc9rWVn7YvfJubO2fmfOdnzpxDAIi0iMtlix1r3lq+dHMuVyQygGBuIBE7Onatf+D4+YufjYz8naql9LPy/pc2dH6Qyxadi5jt3LWPcyhltA7HqoPdZ979/co3RJoArFq+Zfum/YmrWltVpEHUiG6IABAIrFZZ38sdObHrct8RymeXvL71cDa8z9qIlG7MdCKx1icSInbOaDOmVRgnlQNHt5v1D73RkllYrQ37ZMC2IfUiTJlgeP26w5nMze6fd8RxTmylEBQ629807cWNZEd8MEnSiHaAIM55TfnStuf3+flSb09X/8AjvsewlfbWLtOSadEuUg1mFQAgMMTVcvP3x3Z7Ji4PLQkpJmYgKoQFE0DQqO1ToYjPdr/CojLhiE9x3WDjSUNxvxWMvF8GhJ3WxPVl490L8+scADR4aryN19jNmTXuXYhmSUBqsoxpvDonIJL+EgGK6nH43zbhaRdyOoGIrTpMqGHHdT5h0b7WvgbgYudqri5iFtJq4hS8wEx9bKYkWUBaLX60oIwCwVZt28a2+SuaRUBAXI7PH7pQ6a+A0Nya79jZETYHAhDh5l/lKz/2mVBDwE6G/yixZdAkgQVAIHbs54J1ux7zcz5bzi9t8vL+VGebluZ/2P2tsDy1Z9PCtYvr68UnWldvWTEyUFGabNWefv+nqJQoowQCgL7e+vlkKFnYCSmqVeKn975Q7GoDC2lKn0kiGuq5DpaWjkUiAIEAcQJFg2f6u9855uV9YVGaSJHcptAERIABaSLlJKopo8a5AQDRjdGej0+K4/V7X8wumTcu0gDAUS0g63tGnACQyTqD8ackOQ03ABWg79CvzQ8UMsWmVGTHar2fnh65MADg0icn23d3mdx4AKPBSt+BX0IfyiVprQnqKQCd2LwP0yEAEbnYKk97TSFEQMSxTUZiHRoALrImH+jApKKkHHHidGBE5NZWdftCE4HnE8RyqQwBKUKU+IrICgDtEinFCD1hAcHXCj4JJ7dthHeu5DRLClDE1dr8Z1YJUfnsnwCaOtvI6OFTl1XGAwuE7/LYG48t7t6DGUyOB/9d9NqTi557GAASd/2rsx45xTNPB3Tu2fdm7vGKuJqIY29BHqDkRoW0Gjd/Jky7RXeEAwICaamMAghzGgK4Wb3zRnFNk5p5Y2pr6qxzs1GdHjI3otKKTKEmjmZIxdwgEEP6Wlw2x4d69yzvLLnEzMaPWcMKNxt9cOgyLQvmnXp853wTxmx1QzPdrXAiPulRTrp++4IAvLrgwS/XvFy1tUhcg4PjBARwkIB01vg7L3538J9LpImcyI4Fqz9auWGhl7FsrTQ+Ixkio8xQEr195dT+65c0EQFIOVaF8/a0rt1WWFb0MmrufgggwNWkenS4/8Or53qjm6na/wBtKChAFbyTAQAAAABJRU5ErkJggg==">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Démasqué !">
+<meta name="theme-color" content="#5E5CE6">
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22D%C3%A9masqu%C3%A9%22,%22short_name%22:%22D%C3%A9masqu%C3%A9%22,%22display%22:%22standalone%22,%22background_color%22:%22%235E5CE6%22,%22theme_color%22:%22%235E5CE6%22}">
 <style>
   :root{
-    --sky-top:#6FD7F0;
-    --sky-bottom:#FFD166;
-    --sun:#FFB703;
-    --leaf:#3DBE7C;
-    --berry:#FF5D8F;
-    --grape:#8E6BFF;
-    --ink:#20334A;
+    --ink:#1c1c1e;
+    --ink-soft:#6e6e73;
+    --indigo:#5E5CE6;
+    --pink:#FF375F;
+    --mint:#30D158;
+    --amber:#FF9F0A;
+    --teal:#40C8E0;
     --card:#FFFFFF;
-    --shadow: rgba(32,51,74,0.25);
+    --line:#eceef1;
+    --shadow: rgba(28,28,30,0.10);
   }
-  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
-  html,body{height:100%;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent; touch-action:manipulation;}
+  html,body{height:100%; overflow:hidden; overscroll-behavior:none; touch-action:manipulation;}
   body{
     margin:0;
-    font-family:'Trebuchet MS',Verdana,sans-serif;
+    font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
     color:var(--ink);
-    background:
-      radial-gradient(circle at 85% 8%, #FFE28A 0%, rgba(255,226,138,0) 30%),
-      linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
-    min-height:100vh;
+    background:#f4f4f8;
+    height:100%;
     display:flex;
-    align-items:flex-start;
+    align-items:center;
     justify-content:center;
-    overflow-x:hidden;
+    position:relative;
+  }
+  /* Fond façon "wallpaper" Apple : taches douces et floutées, pas de dessin cartoon */
+  body::before{
+    content:'';
+    position:fixed; inset:0; z-index:0;
+    background:
+      radial-gradient(38% 30% at 15% 12%, rgba(94,92,230,0.35), rgba(94,92,230,0) 70%),
+      radial-gradient(45% 35% at 90% 15%, rgba(255,55,95,0.28), rgba(255,55,95,0) 70%),
+      radial-gradient(50% 40% at 30% 95%, rgba(48,209,88,0.22), rgba(48,209,88,0) 70%),
+      radial-gradient(45% 35% at 95% 90%, rgba(64,200,224,0.25), rgba(64,200,224,0) 70%),
+      linear-gradient(180deg, #f7f7fb 0%, #eef0f6 100%);
+    filter: blur(0px);
   }
   #app{
     width:100%;
     max-width:480px;
-    min-height:100vh;
-    padding:22px 18px 40px;
+    height:100dvh;
+    height:100vh;
+    padding:18px 18px calc(14px + env(safe-area-inset-bottom));
     position:relative;
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
   }
-  h1,h2,h3{font-family:'Arial Rounded MT Bold','Trebuchet MS',sans-serif; margin:0;}
-  .hills{
-    position:fixed; left:0; right:0; bottom:0; height:120px;
-    background:var(--leaf);
-    border-radius:50% 50% 0 0 / 100% 100% 0 0;
-    transform:scale(1.6);
-    z-index:0; opacity:0.9;
+  h1,h2,h3{font-family:-apple-system, 'SF Pro Display', sans-serif; margin:0;}
+  .screen{
+    position:relative; z-index:1; animation: pop .3s ease;
+    display:flex; flex-direction:column;
+    flex:1; min-height:0;
   }
-  .screen{position:relative; z-index:1; animation: pop .35s ease;}
-  @keyframes pop{ from{opacity:0; transform:translateY(10px) scale(.98);} to{opacity:1; transform:none;} }
+  @keyframes pop{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
 
-  .title-row{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
-  .title-row span.emoji{font-size:34px;}
-  h1.main{font-size:30px; color:var(--ink); text-shadow: 2px 2px 0 rgba(255,255,255,.5);}
-  .subtitle{font-size:15px; font-weight:700; color:#3a5170; margin-top:4px; margin-bottom:22px;}
+  /* Zone défilable interne : seule cette zone scrolle, jamais la page entière */
+  .scroll-area{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-right:2px;}
+  .scroll-area.center{display:flex; flex-direction:column; justify-content:center; align-items:stretch;}
+  .fixed-part{flex-shrink:0;}
+
+  .title-row{display:flex; align-items:center; gap:10px; margin-bottom:2px;}
+  .title-row span.emoji{font-size:26px;}
+  h1.main{font-size:22px; color:var(--ink); font-weight:800; letter-spacing:-0.02em;}
+  .subtitle{font-size:13px; font-weight:600; color:var(--ink-soft); margin-top:2px; margin-bottom:12px;}
 
   .card{
     background:var(--card);
-    border-radius:26px;
-    padding:20px;
-    box-shadow: 0 10px 0 var(--shadow), 0 14px 30px rgba(32,51,74,0.18);
-    margin-bottom:18px;
+    border-radius:20px;
+    padding:16px;
+    box-shadow: 0 1px 2px var(--shadow), 0 8px 20px rgba(28,28,30,0.06);
+    margin-bottom:12px;
     position:relative;
   }
 
-  label.field-label{display:block; font-weight:800; font-size:14px; color:var(--ink); margin-bottom:8px;}
+  label.field-label{display:block; font-weight:700; font-size:13px; color:var(--ink); margin-bottom:8px; letter-spacing:-0.01em;}
 
-  .stepper{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px;}
+  .stepper{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px;}
   .stepper button{
-    width:48px; height:48px; border-radius:50%; border:none;
-    background:var(--sun); color:white; font-size:26px; font-weight:800;
-    box-shadow: 0 4px 0 #C98600; cursor:pointer;
+    width:40px; height:40px; border-radius:50%; border:none;
+    background:var(--indigo); color:white; font-size:20px; font-weight:700;
+    box-shadow:0 2px 6px rgba(94,92,230,0.35); cursor:pointer; transition:transform .1s, opacity .1s;
   }
-  .stepper button:disabled{opacity:.35; cursor:not-allowed;}
-  .stepper button:active{transform:translateY(3px); box-shadow:none;}
-  .stepper .value{font-family:'Arial Rounded MT Bold'; font-size:30px; font-weight:800; min-width:50px; text-align:center;}
+  .stepper button:disabled{opacity:.3; cursor:not-allowed;}
+  .stepper button:active{transform:scale(0.92);}
+  .stepper .value{font-size:22px; font-weight:800; min-width:40px; text-align:center;}
 
-  .role-row{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:2px dashed #eef1f6;}
+  .role-row{display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line);}
   .role-row:last-child{border-bottom:none;}
-  .role-row .label{font-weight:800; font-size:15px;}
-  .role-row .desc{font-size:12px; color:#7a8aa0; font-weight:600;}
-  .mini-stepper{display:flex; align-items:center; gap:10px;}
+  .role-row .label{font-weight:700; font-size:14px;}
+  .role-row .desc{font-size:11px; color:var(--ink-soft); font-weight:500;}
+  .mini-stepper{display:flex; align-items:center; gap:8px;}
   .mini-stepper button{
-    width:36px; height:36px; border-radius:50%; border:none; background:#eef1f6; color:var(--ink);
-    font-size:20px; font-weight:800; cursor:pointer;
+    width:30px; height:30px; border-radius:50%; border:none; background:#f0f0f4; color:var(--ink);
+    font-size:16px; font-weight:700; cursor:pointer; transition:transform .1s;
   }
   .mini-stepper button:disabled{opacity:.3; cursor:not-allowed;}
-  .mini-stepper button:active{transform:translateY(2px);}
-  .mini-stepper .value{min-width:24px; text-align:center; font-weight:800; font-size:17px;}
-  .switch{position:relative; width:52px; height:30px; border-radius:20px; background:#dfe6ee; cursor:pointer; transition:.2s; flex-shrink:0;}
-  .switch.on{background:var(--leaf);}
-  .switch .knob{position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:white; transition:.2s; box-shadow:0 2px 4px rgba(0,0,0,.2);}
-  .switch.on .knob{left:25px;}
-  .player-row.dragging{opacity:.85; box-shadow:0 10px 20px rgba(32,51,74,.3); background:#fbfcfe; border-radius:14px;}
+  .mini-stepper button:active{transform:scale(0.9);}
+  .mini-stepper .value{min-width:20px; text-align:center; font-weight:700; font-size:15px;}
+  .switch{position:relative; width:46px; height:27px; border-radius:20px; background:#e2e2e7; cursor:pointer; transition:.2s; flex-shrink:0;}
+  .switch.on{background:var(--mint);}
+  .switch .knob{position:absolute; top:2.5px; left:2.5px; width:22px; height:22px; border-radius:50%; background:white; transition:.2s; box-shadow:0 2px 4px rgba(0,0,0,.2);}
+  .switch.on .knob{left:21.5px;}
+  .player-row.dragging{opacity:.9; box-shadow:0 10px 24px rgba(28,28,30,.18); background:#fbfbfd; border-radius:14px;}
   .drag-handle{user-select:none;}
 
-  .name-field-wrap{position:relative; margin-bottom:12px;}
+  .name-field-wrap{position:relative; margin-bottom:8px;}
   input.name-input{
-    width:100%; padding:12px 14px; border-radius:14px; border:2px solid #e4e9f0;
-    font-size:15px; font-weight:700; font-family:'Trebuchet MS'; background:#fbfcfe;
+    width:100%; padding:10px 12px; border-radius:12px; border:1.5px solid var(--line);
+    font-size:14px; font-weight:600; font-family:inherit; background:#fafafc;
   }
-  input.name-input:focus{outline:none; border-color:var(--sun);}
+  input.name-input:focus{outline:none; border-color:var(--indigo);}
   .suggestions{
     position:absolute; left:0; right:0; top:calc(100% + 4px); background:white; border-radius:14px;
-    box-shadow:0 8px 20px rgba(32,51,74,.25); z-index:30; overflow-y:auto; max-height:220px; display:none;
+    box-shadow:0 8px 20px rgba(28,28,30,.18); z-index:30; overflow-y:auto; max-height:180px; display:none;
   }
   .suggestion-item{
-    display:flex; justify-content:space-between; align-items:center; padding:10px 14px;
-    font-weight:700; font-size:14px; cursor:pointer; border-bottom:1px solid #f1f3f7;
+    display:flex; justify-content:space-between; align-items:center; padding:9px 14px;
+    font-weight:600; font-size:13px; cursor:pointer; border-bottom:1px solid var(--line);
   }
   .suggestion-item:last-child{border-bottom:none;}
-  .suggestion-item:active{background:#f5f7fb;}
-  .sugg-stats{font-size:11px; color:#8a97ab; font-weight:700;}
+  .suggestion-item:active{background:#f5f5f8;}
+  .sugg-stats{font-size:10px; color:var(--ink-soft); font-weight:600;}
 
   .btn{
-    display:block; width:100%; text-align:center; padding:16px; border-radius:20px;
-    font-family:'Arial Rounded MT Bold','Trebuchet MS'; font-size:20px; font-weight:700; border:none; cursor:pointer; color:white;
-    user-select:none;
+    display:block; width:100%; text-align:center; padding:13px; border-radius:16px;
+    font-family:inherit; font-size:15px; font-weight:700; border:none; cursor:pointer; color:white;
+    user-select:none; transition:transform .1s, opacity .1s;
   }
-  .btn:active{transform:translateY(4px); box-shadow:none !important;}
-  .btn-primary{background:var(--berry); box-shadow:0 6px 0 #C23A66;}
-  .btn-secondary{background:var(--grape); box-shadow:0 6px 0 #5C3FCC;}
-  .btn-ghost{background:#eef1f6; color:var(--ink); box-shadow:0 6px 0 #cfd6e0;}
+  .btn:active{transform:scale(0.97); opacity:.9;}
+  .btn-primary{background:var(--pink); box-shadow:0 4px 12px rgba(255,55,95,0.3);}
+  .btn-secondary{background:var(--indigo); box-shadow:0 4px 12px rgba(94,92,230,0.3);}
+  .btn-ghost{background:#f0f0f4; color:var(--ink); box-shadow:none;}
 
   .center{text-align:center;}
 
-  .reveal-wrap{display:flex; flex-direction:column; align-items:center; margin-top:10px;}
+  .reveal-wrap{display:flex; flex-direction:column; align-items:center; margin-top:4px;}
   .avatar-badge{
-    width:64px; height:64px; border-radius:50%; background:var(--grape); color:white;
-    display:flex; align-items:center; justify-content:center; font-family:'Arial Rounded MT Bold'; font-size:26px; font-weight:800;
-    margin-bottom:10px; box-shadow:0 5px 0 #5C3FCC;
+    width:52px; height:52px; border-radius:50%; background:var(--indigo); color:white;
+    display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800;
+    margin-bottom:6px; box-shadow:0 4px 10px rgba(94,92,230,0.35);
   }
 
-  .cards-row{display:flex; gap:14px; justify-content:center; margin:18px 0; flex-wrap:wrap;}
-  .mini-flip{width:96px; height:140px; perspective:800px; cursor:pointer;}
-  .mini-flip.disabled{opacity:.35; pointer-events:none;}
-  .mini-inner{position:relative; width:100%; height:100%; transition: transform .5s; transform-style:preserve-3d;}
-  .mini-flip.flipped .mini-inner{transform:rotateY(180deg);}
-  .mini-face{
-    position:absolute; inset:0; backface-visibility:hidden; border-radius:18px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px;
-    box-shadow:0 6px 0 var(--shadow), 0 8px 16px rgba(32,51,74,.18); text-align:center;
+  /* Paquet de cartes : toujours autant de cartes que de joueurs, elles ne disparaissent jamais */
+  .deck-grid{display:flex; gap:8px; justify-content:center; margin:14px 0; flex-wrap:wrap; max-width:340px;}
+  .deck-card{
+    width:48px; height:68px; border-radius:12px; cursor:pointer;
+    background:linear-gradient(160deg, var(--indigo), #4744c9); color:white;
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+    box-shadow:0 1px 2px var(--shadow), 0 6px 14px rgba(28,28,30,.12);
+    transition:transform .1s, background .2s;
   }
-  .mini-front{background:linear-gradient(160deg, var(--grape), #6f4de0); color:white; font-size:30px;}
-  .mini-back{background:var(--card); transform:rotateY(180deg);}
-  .mini-back .word{font-family:'Arial Rounded MT Bold'; font-size:16px; font-weight:800; color:var(--ink);}
-  .mini-back .icon{font-size:26px; margin-bottom:4px;}
+  .deck-card:active{transform:scale(0.92);}
+  .deck-card.used{
+    background:#e2e2e7; color:#9a9aa2; cursor:default; box-shadow:none;
+  }
 
-  .players-list{display:flex; flex-direction:column; gap:10px;}
+  /* Grande carte retournée : le mot doit se voir grand et net */
+  .big-flip{width:240px; height:300px; perspective:1000px; margin:6px auto;}
+  .big-flip .flip-inner{position:relative; width:100%; height:100%; transition: transform .5s; transform-style:preserve-3d;}
+  .big-flip.flipped .flip-inner{transform:rotateY(180deg);}
+  .big-face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:24px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px;
+    box-shadow:0 2px 4px var(--shadow), 0 10px 24px rgba(28,28,30,.16); text-align:center;
+  }
+  .big-front{background:linear-gradient(160deg, var(--indigo), #4744c9); color:white; font-size:56px;}
+  .big-back{background:var(--card); transform:rotateY(180deg);}
+  .big-back .word{font-weight:800; color:var(--ink); line-height:1.15; word-break:break-word;}
+  .big-back .icon{font-size:44px; margin-bottom:8px;}
+
+  .players-list{display:flex; flex-direction:column; gap:8px;}
   .player-btn{
-    display:flex; align-items:center; gap:12px; width:100%; padding:14px 16px; border-radius:18px;
-    background:var(--card); border:2px solid #eef1f6; cursor:pointer; font-family:'Trebuchet MS'; font-weight:800; font-size:16px;
-    color:var(--ink); box-shadow:0 4px 0 #e4e9f0;
+    display:flex; align-items:center; gap:10px; width:100%; padding:11px 14px; border-radius:16px;
+    background:var(--card); border:1.5px solid var(--line); cursor:pointer; font-weight:700; font-size:14px;
+    color:var(--ink); box-shadow:0 1px 2px var(--shadow);
   }
-  .player-btn:active{transform:translateY(3px); box-shadow:none;}
-  .player-btn .dot{width:34px; height:34px; border-radius:50%; background:var(--sun); color:white; display:flex; align-items:center; justify-content:center; font-family:'Arial Rounded MT Bold'; font-weight:800;}
+  .player-btn:active{transform:scale(0.98);}
+  .player-btn .dot{width:28px; height:28px; border-radius:50%; background:var(--amber); color:white; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px;}
   .player-btn.eliminated{opacity:.4; text-decoration:line-through; pointer-events:none;}
 
   .modal-bg{
-    position:fixed; inset:0; background:rgba(20,30,45,0.55); display:flex; align-items:center; justify-content:center;
+    position:fixed; inset:0; background:rgba(20,20,25,0.45); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center;
     z-index:50; padding:20px;
   }
-  .modal{background:white; border-radius:24px; padding:24px; width:100%; max-width:340px; text-align:center;}
-  .modal h3{margin-bottom:10px; font-size:22px;}
-  .modal p{font-size:14px; color:#516078; font-weight:700; margin-bottom:16px;}
+  .modal{background:white; border-radius:22px; padding:22px; width:100%; max-width:340px; text-align:center; max-height:85vh; overflow-y:auto;}
+  .modal h3{margin-bottom:8px; font-size:19px;}
+  .modal p{font-size:13px; color:var(--ink-soft); font-weight:500; margin-bottom:14px; line-height:1.4;}
 
-  .badge{display:inline-block; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:800; margin-top:6px;}
-  .badge.civil{background:#DFF6E7; color:#1E8A4C;}
-  .badge.undercover{background:#FDE3EA; color:#C23A66;}
-  .badge.mrwhite{background:#EDE7FF; color:#5C3FCC;}
+  .badge{display:inline-block; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; margin-top:4px;}
+  .badge.civil{background:#DEF7E5; color:#1E8A4C;}
+  .badge.undercover{background:#FFE1E8; color:#C23A66;}
+  .badge.mrwhite{background:#EAE7FF; color:#5C3FCC;}
 
-  .result-emoji{font-size:64px; margin-bottom:6px;}
-  .footer-note{text-align:center; font-size:12px; color:#5b6a80; font-weight:700; margin-top:8px;}
-  .warn{font-size:12px; color:#C23A66; font-weight:800; margin-top:-6px; margin-bottom:14px;}
-  .starter-icon{font-size:70px; margin:10px 0;}
+  .result-emoji{font-size:50px; margin-bottom:4px;}
+  .footer-note{text-align:center; font-size:11px; color:var(--ink-soft); font-weight:500; margin-top:6px;}
+  .warn{font-size:11px; color:var(--pink); font-weight:700; margin-top:-4px; margin-bottom:10px;}
+  .starter-icon{font-size:48px; margin:6px 0;}
+
+  .help-btn{
+    position:absolute; top:0; right:0; width:34px; height:34px; border-radius:50%;
+    background:#f0f0f4; color:var(--indigo); display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 1px 2px var(--shadow);
+  }
+  .level-row{display:flex; gap:8px;}
+  .level-btn{
+    flex:1; text-align:center; padding:9px 4px; border-radius:12px; background:#f0f0f4;
+    font-size:12px; font-weight:700; color:var(--ink-soft); cursor:pointer; transition:transform .1s;
+  }
+  .level-btn:active{transform:scale(0.96);}
+  .level-btn.active{background:var(--indigo); color:white; box-shadow:0 3px 10px rgba(94,92,230,0.35);}
 </style>
 </head>
 <body>
-<div class="hills"></div>
 <div id="app"></div>
 
 <script>
-// ---------- Word pairs faciles ET proches, pour enfants ----------
-const WORD_PAIRS = [
+// ---------- Mots par niveau ----------
+const WORD_PAIRS_KIDS = [
   // Animaux
   ["Chat","Chaton"], ["Chien","Loup"], ["Zèbre","Âne"], ["Lapin","Écureuil"],
   ["Grenouille","Crapaud"], ["Dauphin","Baleine"], ["Tortue","Escargot"], ["Papillon","Coccinelle"],
@@ -233,13 +286,92 @@ const WORD_PAIRS = [
   ["Été","Printemps"], ["Hiver","Automne"], ["Pluie","Orage"], ["Vent","Tempête"]
 ];
 
+const WORD_PAIRS_ADOS = [
+  ["Smartphone","Ordinateur"], ["Wifi","Bluetooth"], ["TikTok","Instagram"], ["YouTube","Twitch"],
+  ["Netflix","Disney+"], ["Fortnite","Minecraft"], ["Manette","Clavier"], ["Casque audio","Écouteurs"],
+  ["Selfie","Story"], ["Influenceur","Streamer"], ["Podcast","Chaîne YouTube"], ["Collège","Lycée"],
+  ["Bac","Brevet"], ["Prof","Surveillant"], ["Cantine","Self"], ["Récré","Pause déjeuner"],
+  ["Rentrée","Vacances"], ["Contrôle","Examen"], ["Rap","Pop"], ["Concert","Festival"],
+  ["Skateboard","Roller"], ["Trottinette électrique","Vélo électrique"], ["Sneakers","Baskets"], ["Jean","Legging"],
+  ["Crush","Meilleur ami"], ["Groupe WhatsApp","Groupe Snapchat"], ["Manga","Comics"], ["Console","PC gamer"],
+  ["Batterie","Chargeur"], ["Data mobile","Wifi"], ["Abonnement","Forfait"], ["Instagram","Snapchat"],
+  ["Mème","GIF"], ["Story","Publication"], ["Chewing-gum","Bonbon"], ["Milkshake","Smoothie"],
+  ["Kebab","Burger"], ["Distributeur","Supérette"], ["Enceinte Bluetooth","Baladeur"], ["Anglais","Espagnol"],
+
+  // Ajouts (2)
+  ["Mathématiques","Physique-Chimie"], ["Français","Histoire-Géo"], ["SVT","Technologie"], ["Permis","Code de la route"],
+  ["BAFA","Job d'été"], ["Petit-déjeuner","Goûter"], ["Piercing","Tatouage"], ["Casquette","Bonnet"],
+  ["Sweat à capuche","Blouson"], ["Legging","Jogging"], ["Playlist","Album"], ["Enceinte Bluetooth","Casque audio"],
+  ["Manga","Anime"], ["Cosplay","Déguisement"], ["Escape game","Laser game"], ["Bowling","Karting"],
+  ["Piscine municipale","Centre aéré"], ["Colonie de vacances","Camp d'été"], ["BTS","Licence"], ["Stage","Alternance"],
+  ["Petit boulot","Baby-sitting"], ["Métro","Tramway"], ["Correspondance","Ligne directe"], ["Carte de bus","Abonnement"],
+  ["Groupe de musique","Chanteur solo"], ["Freestyle","Battle"], ["Salle de sport","Terrain de basket"], ["Musculation","Cardio"],
+  ["Compétition","Entraînement"], ["Coach","Arbitre"], ["Maillot","Short"], ["Podium","Médaille"],
+  ["Trophée","Coupe"], ["Appel vidéo","Appel vocal"], ["Notification","Message"], ["Émoji","Autocollant"],
+  ["Filtre photo","Effet spécial"], ["Caméra frontale","Appareil photo"], ["Powerbank","Chargeur"], ["Casque VR","Lunettes 3D"],
+  ["Jeu de société","Jeu de cartes"], ["Chatbot","Intelligence artificielle"], ["Application","Site internet"], ["Mot de passe","Code secret"],
+  ["Devoirs","Révisions"], ["Interro surprise","Contrôle continu"], ["Délégué de classe","Chef d'équipe"], ["Correspondant","Ami virtuel"],
+  ["Sortie scolaire","Voyage scolaire"], ["Internat","Externat"], ["Photocopie","Impression"], ["Clé USB","Disque dur"],
+  ["Casier","Sac à dos"], ["Uniforme","Tenue correcte exigée"], ["Coupe de cheveux","Couleur de cheveux"], ["Maquillage","Vernis à ongles"],
+  ["Parfum","Déodorant"], ["Marque","Contrefaçon"], ["Soldes","Promotion"], ["Centre commercial","Boutique en ligne"],
+  ["Livraison","Retrait en magasin"], ["Anniversaire","Fête surprise"], ["Pyjama party","Soirée jeux"], ["Trottinette","Skateboard"],
+  ["Vélo BMX","VTT"], ["Randonnée scolaire","Sortie nature"],
+];
+
+const WORD_PAIRS_ADULTS = [
+  ["Facture","Impôts"], ["Loyer","Crédit"], ["Banque","Assurance"], ["Collègue","Patron"],
+  ["Réunion","Entretien"], ["CV","Lettre de motivation"], ["Salaire","Prime"], ["Mariage","Divorce"],
+  ["Notaire","Avocat"], ["Médecin","Pharmacien"], ["Rendez-vous","Consultation"], ["Métro","RER"],
+  ["Embouteillage","Circulation"], ["Supermarché","Hypermarché"], ["Randonnée","Trek"], ["Apéritif","Cocktail"],
+  ["Restaurant","Brasserie"], ["Voisin","Colocataire"], ["Jardinage","Bricolage"], ["Aspirateur","Balai"],
+  ["Machine à laver","Sèche-linge"], ["Four","Micro-ondes"], ["Café","Thé"], ["Vin","Bière"],
+  ["Yoga","Pilates"], ["Jogging","Marche"], ["Chômage","Retraite"], ["CDI","CDD"],
+  ["Vacances","Week-end"], ["Camping","Hôtel"], ["Location","Achat"], ["Facteur","Livreur"],
+  ["Conférence","Séminaire"], ["Ordinateur portable","Tablette"], ["Journal","Magazine"], ["Carte bancaire","Chèque"],
+  ["Péage","Parking"], ["Essence","Diesel"], ["Assurance auto","Assurance habitation"], ["Mutuelle","Sécurité sociale"],
+
+  // Ajouts (2)
+  ["Congés payés","RTT"], ["Arrêt maladie","Convalescence"], ["Retraite","Pension"], ["Investissement","Épargne"],
+  ["Actions","Obligations"], ["Livret A","Compte courant"], ["Virement","Prélèvement"], ["Facture d'eau","Facture d'électricité"],
+  ["Chaudière","Climatisation"], ["Peinture","Papier peint"], ["Étagère","Meuble"], ["Canapé","Fauteuil"],
+  ["Tondeuse","Taille-haie"], ["Potager","Balcon"], ["Compost","Poubelle de tri"], ["Covoiturage","Autopartage"],
+  ["GPS","Carte routière"], ["Contrôle technique","Vidange"], ["Pneu","Batterie de voiture"], ["Rond-point","Feu rouge"],
+  ["Autoroute","Route nationale"], ["Aéroport","Gare"], ["Valise","Sac à dos"], ["Passeport","Carte d'identité"],
+  ["Visa","Douane"], ["Guide touristique","Application de voyage"], ["Croisière","Séjour all-inclusive"], ["Massage","Spa"],
+  ["Coiffeur","Institut de beauté"], ["Diététicien","Nutritionniste"], ["Ostéopathe","Kinésithérapeute"], ["Dentiste","Orthodontiste"],
+  ["Ordonnance","Pharmacie de garde"], ["Lunettes","Lentilles de contact"], ["Vaccin","Rappel"], ["Baby-sitter","Nounou"],
+  ["Crèche","Assistante maternelle"], ["Devoirs","Réunion parents-profs"], ["Belle-mère","Beau-père"], ["Cousin","Neveu"],
+  ["Mariage civil","Mariage religieux"], ["Baptême","Communion"], ["Testament","Héritage"], ["Syndic","Copropriété"],
+  ["Charges","Provision"], ["Déménagement","Cartons"], ["Garde-meuble","Box de stockage"], ["Courtier","Agent immobilier"],
+  ["Bail","État des lieux"], ["Caution","Dépôt de garantie"], ["Colocation","Sous-location"], ["Cheminée","Poêle à bois"],
+  ["Volets","Rideaux"], ["Panneaux solaires","Chauffe-eau"], ["Facture de gaz","Facture de téléphone"], ["Imprimante","Scanner"],
+  ["Visioconférence","Appel téléphonique"], ["Open space","Bureau fermé"], ["Télétravail","Présentiel"], ["Note de frais","Remboursement"],
+  ["Augmentation","Prime de fin d'année"], ["Démission","Licenciement"], ["Préavis","Rupture conventionnelle"], ["Livraison à domicile","Click and collect"],
+  ["Panier moyen","Liste de courses"],
+];
+
+const WORD_LEVELS = {
+  kids: { label: '🧒 Enfants', pairs: WORD_PAIRS_KIDS },
+  ados: { label: '🧑 Ados', pairs: WORD_PAIRS_ADOS },
+  adults: { label: '🧑‍💼 Adultes', pairs: WORD_PAIRS_ADULTS }
+};
+
 // ---------- Historique des joueurs (en mémoire, le temps de la session) ----------
 let roster = [];
 
-// ---------- Pioche de mots sans répétition ----------
+// ---------- Pioche de mots sans répétition (une pile distincte par niveau) ----------
 // On mélange toute la liste, on tire dedans une par une, et on ne remélange
 // que lorsqu'on est passé par tous les mots : jamais 2 fois le même trop vite.
-let wordQueue = [];
+let wordQueues = { kids: [], ados: [], adults: [] };
+
+function wordFontSize(word, base){
+  base = base || 24;
+  const len = (word || '').length;
+  if(len > 20) return Math.round(base * 0.55);
+  if(len > 14) return Math.round(base * 0.7);
+  if(len > 9) return Math.round(base * 0.85);
+  return base;
+}
 
 function shuffleArray(arr){
   const a = arr.slice();
@@ -248,15 +380,17 @@ function shuffleArray(arr){
 }
 
 function drawWordPair(avoidPair){
-  if(wordQueue.length === 0){
-    wordQueue = shuffleArray(WORD_PAIRS);
+  const level = state.wordLevel || 'kids';
+  const pairsForLevel = (WORD_LEVELS[level] || WORD_LEVELS.kids).pairs;
+  if(!wordQueues[level] || wordQueues[level].length === 0){
+    wordQueues[level] = shuffleArray(pairsForLevel);
   }
-  let pair = wordQueue.pop();
+  let pair = wordQueues[level].pop();
   // sécurité : si jamais on retombe pile sur le mot qu'on vient de jouer
   // (possible seulement au moment où la pioche se remélange), on en reprend un autre
-  if(avoidPair && pair[0] === avoidPair[0] && wordQueue.length > 0){
-    const other = wordQueue.pop();
-    wordQueue.unshift(pair);
+  if(avoidPair && pair[0] === avoidPair[0] && wordQueues[level].length > 0){
+    const other = wordQueues[level].pop();
+    wordQueues[level].unshift(pair);
     pair = other;
   }
   return pair;
@@ -286,7 +420,12 @@ let state = {
   civilWord: null,
   undercoverWord: null,
   starterIndex: null,
-  allowInfiltratedStarter: true,
+  allowBluffeurStarter: false,
+  wordLevel: 'kids',
+  revealOrder: [],
+  roundNumber: 1,
+  lastEliminatedIdx: null,
+  pendingPlayers: [],
   winner: null
 };
 
@@ -364,8 +503,27 @@ function renderSetup(){
   clampRoles();
   const wrap = el('div','screen');
 
-  wrap.appendChild(el('div','title-row','<span class="emoji">🕵️‍♀️</span><h1 class="main">Undercover Kids</h1>'));
-  wrap.appendChild(el('div','subtitle','Le jeu du mot secret, en mode facile pour les enfants !'));
+  const header = el('div','fixed-part');
+  header.style.position = 'relative';
+  header.appendChild(el('div','title-row','<span class="emoji">🕵️‍♀️</span><h1 class="main">Démasqué !</h1>'));
+  header.appendChild(el('div','subtitle','Le jeu du mot secret, pour toute la famille !'));
+  const helpBtn = el('div','help-btn','?');
+  helpBtn.onclick = showRulesModal;
+  header.appendChild(helpBtn);
+  wrap.appendChild(header);
+
+  const scrollArea = el('div','scroll-area');
+
+  const levelCard = el('div','card');
+  levelCard.appendChild(el('label','field-label','🎓 Niveau des mots'));
+  const levelRow = el('div','level-row');
+  Object.keys(WORD_LEVELS).forEach(lvl => {
+    const b = el('div','level-btn' + (state.wordLevel === lvl ? ' active' : ''), WORD_LEVELS[lvl].label);
+    b.onclick = () => { state.wordLevel = lvl; render(); };
+    levelRow.appendChild(b);
+  });
+  levelCard.appendChild(levelRow);
+  scrollArea.appendChild(levelCard);
 
   const card1 = el('div','card');
   card1.appendChild(el('label','field-label','👥 Nombre de joueurs'));
@@ -383,7 +541,7 @@ function renderSetup(){
   for(let i=0;i<state.numPlayers;i++){
     card1.appendChild(createNameField(i));
   }
-  wrap.appendChild(card1);
+  scrollArea.appendChild(card1);
 
   const card2 = el('div','card');
   card2.appendChild(el('label','field-label','🎭 Rôles spéciaux'));
@@ -398,7 +556,7 @@ function renderSetup(){
   card2.appendChild(row1);
 
   const row2 = el('div','role-row');
-  row2.innerHTML = '<div><div class="label">🤍 Mr. White</div><div class="desc">N\'a aucun mot, doit deviner</div></div>';
+  row2.innerHTML = '<div><div class="label">🤍 Bluffeur</div><div class="desc">N\'a aucun mot, doit deviner</div></div>';
   row2.appendChild(createRoleStepper(
     state.numMrWhite,
     (v) => { state.numMrWhite = v; },
@@ -407,30 +565,55 @@ function renderSetup(){
   card2.appendChild(row2);
 
   const row3 = el('div','role-row');
-  row3.innerHTML = '<div><div class="label">🎙️ Un infiltré peut commencer</div><div class="desc">Sinon, seul un civil sera tiré au sort</div></div>';
-  const sw = el('div','switch' + (state.allowInfiltratedStarter ? ' on' : ''));
+  row3.innerHTML = '<div><div class="label">🎙️ Le Bluffeur peut commencer</div><div class="desc">Sinon, seul un civil ou un infiltré sera tiré au sort</div></div>';
+  const sw = el('div','switch' + (state.allowBluffeurStarter ? ' on' : ''));
   sw.appendChild(el('div','knob'));
-  sw.onclick = () => { state.allowInfiltratedStarter = !state.allowInfiltratedStarter; render(); };
+  sw.onclick = () => { state.allowBluffeurStarter = !state.allowBluffeurStarter; render(); };
   row3.appendChild(sw);
   card2.appendChild(row3);
 
-  wrap.appendChild(card2);
+  scrollArea.appendChild(card2);
 
   const civilCount = state.numPlayers - state.numUndercover - state.numMrWhite;
   const info = el('div','card center');
-  info.style.background = '#FFF7E0';
-  info.innerHTML = '<div style="font-size:14px;font-weight:800;color:#8a6d1a;">💡 ' + civilCount + ' civil(s), ' + state.numUndercover + ' infiltré(s)' + (state.numMrWhite>0 ? ', ' + state.numMrWhite + ' Mr. White' : '') + '</div>';
-  wrap.appendChild(info);
+  info.style.background = '#FFF3D9';
+  info.innerHTML = '<div style="font-size:13px;font-weight:700;color:#8a6d1a;">💡 ' + civilCount + ' civil(s), ' + state.numUndercover + ' infiltré(s)' + (state.numMrWhite>0 ? ', ' + state.numMrWhite + ' Bluffeur' : '') + '</div>';
+  scrollArea.appendChild(info);
 
   if(state.numUndercover + state.numMrWhite < 1){
-    wrap.appendChild(el('div','warn center','⚠️ Choisis au moins 1 infiltré ou 1 Mr. White pour jouer.'));
+    scrollArea.appendChild(el('div','warn center','⚠️ Choisis au moins 1 infiltré ou 1 Bluffeur pour jouer.'));
   }
 
+  wrap.appendChild(scrollArea);
+
+  const footer = el('div','fixed-part');
+  footer.style.paddingTop = '10px';
   const startBtn = el('div','btn btn-primary','▶️ Commencer la partie');
   startBtn.onclick = startGame;
-  wrap.appendChild(startBtn);
+  footer.appendChild(startBtn);
+  wrap.appendChild(footer);
 
   return wrap;
+}
+
+function showRulesModal(){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.style.textAlign = 'left';
+  modal.innerHTML =
+    '<h3 style="text-align:center;">📖 Comment jouer ?</h3>' +
+    '<p><b>🎯 Le but :</b> tout le monde a le même mot secret... sauf les infiltrés, qui ont un mot presque pareil, et le Bluffeur, qui n\'a aucun mot !</p>' +
+    '<p><b>👨‍👩‍👧 Civil :</b> connaît le mot secret. Il doit le décrire sans le dire, et démasquer les infiltrés.</p>' +
+    '<p><b>🕶️ Infiltré :</b> a un mot presque pareil, mais pas identique. Il doit faire semblant de connaître le bon mot !</p>' +
+    '<p><b>🤍 Bluffeur :</b> n\'a aucun mot. Il doit deviner ce que les autres décrivent et bluffer à fond !</p>' +
+    '<p><b>🎮 Le déroulé :</b> chacun pioche une carte pour découvrir son mot en privé, puis à voix haute, chacun donne un indice sur son mot (sans le dire). Ensuite, tout le monde vote pour éliminer celui qu\'il soupçonne.</p>' +
+    '<p><b>🏆 Qui gagne ?</b> Les civils gagnent s\'ils éliminent tous les infiltrés et le Bluffeur. Les infiltrés gagnent s\'il n\'en reste plus assez pour les repérer. Le Bluffeur gagne tout seul s\'il devine le mot des civils quand il est démasqué !</p>';
+  const btn = el('div','btn btn-primary','Compris, on joue ! 🎉');
+  btn.style.marginTop = '6px';
+  btn.onclick = () => bg.remove();
+  modal.appendChild(btn);
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
 }
 
 function createRoleStepper(value, onChange, getMax){
@@ -496,9 +679,19 @@ function createNameField(i){
 }
 
 function startGame(){
+  // Fusionne les joueurs en attente (ajoutés en cours de manche précédente)
+  if(state.pendingPlayers && state.pendingPlayers.length){
+    state.pendingPlayers.forEach(pp => {
+      state.names.push(pp.name);
+      state.numPlayers++;
+    });
+    state.pendingPlayers = [];
+    clampRoles();
+  }
+
   const civilCount = state.numPlayers - state.numUndercover - state.numMrWhite;
-  if(state.numUndercover + state.numMrWhite < 1){ alert("Choisis au moins 1 infiltré ou 1 Mr. White pour commencer !"); return; }
-  if(civilCount < 1){ alert("Il faut garder au moins 1 civil ! Réduis le nombre d'infiltrés ou de Mr. White."); return; }
+  if(state.numUndercover + state.numMrWhite < 1){ alert("Choisis au moins 1 infiltré ou 1 Bluffeur pour commencer !"); return; }
+  if(civilCount < 1){ alert("Il faut garder au moins 1 civil ! Réduis le nombre d'infiltrés ou de Bluffeurs."); return; }
 
   const pair = drawWordPair(state.civilWord ? [state.civilWord, state.undercoverWord] : null);
   const [civilWord, undercoverWord] = pair;
@@ -518,86 +711,122 @@ function startGame(){
     state.players.push({ id: 'p_' + i + '_' + Math.random().toString(36).slice(2,7), name: finalName, role: roles[i], word: roles[i]==='civil' ? civilWord : (roles[i]==='undercover' ? undercoverWord : null), eliminated:false });
   }
 
+  // L'ordre autour de la table est fixe (ordre de saisie des joueurs), mais le
+  // point de départ change à chaque partie : ce n'est pas toujours le même
+  // joueur qui pioche (et décrit) en premier. Un infiltré peut toujours
+  // commencer sans souci ; seul le Bluffeur (qui n'a pas de mot) est
+  // exclu par défaut, sauf si le réglage l'autorise.
+  const startCandidates = state.allowBluffeurStarter
+    ? state.players.map((p,i) => i)
+    : state.players.map((p,i) => p.role !== 'mrwhite' ? i : null).filter(i => i !== null);
+  const validStarts = startCandidates.length > 0 ? startCandidates : state.players.map((p,i) => i);
+  const startIdx = validStarts[Math.floor(Math.random()*validStarts.length)];
+  state.revealOrder = buildRotationOrder(startIdx, state.players.length);
+  state.usedCardSlots = new Array(state.revealOrder.length).fill(false);
+  state.starterIndex = startIdx; // le premier à piocher est aussi le premier à décrire
+
   state.civilWord = civilWord;
   state.undercoverWord = undercoverWord;
   state.revealIndex = 0;
   state.revealed = false;
   state.chosenCard = null;
-  state.starterIndex = null;
+  state.roundNumber = 1;
+  state.lastEliminatedIdx = null;
   state.screen = 'reveal';
   render();
+}
+
+function buildRotationOrder(startIdx, n){
+  const order = [];
+  for(let i=0;i<n;i++) order.push((startIdx + i) % n);
+  return order;
 }
 
 // ---------- REVEAL SCREEN : pioche de carte ----------
 function renderReveal(){
   const wrap = el('div','screen');
-  const p = state.players[state.revealIndex];
+  const playerIdx = state.revealOrder[state.revealIndex];
+  const p = state.players[playerIdx];
+  const totalCards = state.revealOrder.length; // toujours autant de cartes que de joueurs
 
-  wrap.appendChild(el('div','subtitle', '📱 Passe le téléphone !'));
+  wrap.appendChild(el('div','subtitle fixed-part', '📱 Passe le téléphone !'));
+
+  const scrollArea = el('div','scroll-area center');
   const revealWrap = el('div','reveal-wrap');
   const badge = el('div','avatar-badge', p.name.charAt(0).toUpperCase());
   revealWrap.appendChild(badge);
   revealWrap.appendChild(el('h2', null, p.name));
-  revealWrap.appendChild(el('div','subtitle', state.chosenCard===null ? 'Pioche une carte au hasard 🎴' : ''));
 
-  const cardsRow = el('div','cards-row');
-  for(let c=0;c<3;c++){
-    const flipped = state.chosenCard === c;
-    const disabled = state.chosenCard !== null && state.chosenCard !== c;
-    const mini = el('div','mini-flip' + (flipped ? ' flipped' : '') + (disabled ? ' disabled' : ''));
-    const inner = el('div','mini-inner');
-    const front = el('div','mini-face mini-front','🎴');
-    const back = el('div','mini-face mini-back');
+  if(state.chosenCard === null){
+    // Le paquet garde toujours le même nombre de cartes : celles déjà
+    // prises restent visibles, juste grisées, elles ne disparaissent pas.
+    revealWrap.appendChild(el('div','subtitle', 'Pioche une carte du paquet 🎴'));
+    const grid = el('div','deck-grid');
+    for(let c=0;c<totalCards;c++){
+      const isUsed = !!state.usedCardSlots[c];
+      const card = el('div','deck-card' + (isUsed ? ' used' : ''), isUsed ? '✅' : '🎴');
+      if(!isUsed){
+        card.onclick = () => {
+          state.usedCardSlots[c] = true;
+          state.chosenCard = c;
+          state.revealed = true;
+          render();
+        };
+      }
+      grid.appendChild(card);
+    }
+    revealWrap.appendChild(grid);
+  } else {
+    // Grande carte retournée, mot bien lisible
+    const big = el('div','big-flip flipped');
+    const inner = el('div','flip-inner');
+    const front = el('div','big-face big-front','🎴');
+    const back = el('div','big-face big-back');
     if(p.role === 'mrwhite'){
-      back.innerHTML = '<div class="icon">🤍</div><div class="word">Mr. White</div>';
+      back.innerHTML = '<div class="icon">🤍</div><div class="word">Bluffeur</div>';
     } else {
-      back.innerHTML = '<div class="word">' + p.word + '</div>';
+      back.innerHTML = '<div class="word" style="font-size:' + wordFontSize(p.word, 36) + 'px;">' + p.word + '</div>';
     }
     inner.appendChild(front); inner.appendChild(back);
-    mini.appendChild(inner);
-    mini.onclick = () => {
-      if(state.chosenCard === null){ state.chosenCard = c; state.revealed = true; render(); }
-    };
-    cardsRow.appendChild(mini);
-  }
-  revealWrap.appendChild(cardsRow);
+    big.appendChild(inner);
+    revealWrap.appendChild(big);
 
-  if(state.revealed && p.role === 'mrwhite'){
-    revealWrap.appendChild(el('div','footer-note', "🤫 Tu n'as pas de mot ! Écoute bien les autres et fais semblant."));
-  } else if(state.revealed){
-    revealWrap.appendChild(el('div','footer-note', "Décris ce mot sans jamais le dire !"));
+    if(p.role === 'mrwhite'){
+      revealWrap.appendChild(el('div','footer-note', "🤫 Tu n'as pas de mot ! Écoute bien les autres et fais semblant."));
+    } else {
+      revealWrap.appendChild(el('div','footer-note', "Décris ce mot sans jamais le dire !"));
+    }
   }
 
-  wrap.appendChild(revealWrap);
+  scrollArea.appendChild(revealWrap);
+  wrap.appendChild(scrollArea);
 
+  const footer = el('div','fixed-part');
   const btn = el('div','btn ' + (state.revealed ? 'btn-primary' : 'btn-ghost'),
-    state.revealed ? "J'ai vu, cacher et continuer ➡️" : "🎴 Choisis une des 3 cartes");
+    state.revealed ? "J'ai vu, cacher et continuer ➡️" : "🎴 Choisis une carte du paquet");
   btn.onclick = () => {
     if(!state.revealed) return;
     state.revealed = false;
     state.chosenCard = null;
-    if(state.revealIndex < state.players.length - 1){
+    if(state.revealIndex < state.revealOrder.length - 1){
       state.revealIndex++;
       render();
     } else {
-      const pool = state.allowInfiltratedStarter
-        ? state.players.map((p,i) => i)
-        : state.players.map((p,i) => p.role === 'civil' ? i : null).filter(i => i !== null);
-      const candidates = pool.length > 0 ? pool : state.players.map((p,i) => i);
-      state.starterIndex = candidates[Math.floor(Math.random()*candidates.length)];
+      // Le joueur qui a pioché en premier est aussi celui qui décrit en premier
       state.screen = 'starter';
       render();
     }
   };
-  wrap.appendChild(btn);
-  wrap.appendChild(el('div','footer-note', 'Joueur ' + (state.revealIndex+1) + ' / ' + state.players.length));
+  footer.appendChild(btn);
+  footer.appendChild(el('div','footer-note', 'Joueur ' + (state.revealIndex+1) + ' / ' + state.revealOrder.length));
 
   if(state.revealIndex >= 1 && state.chosenCard === null){
     const reroll = el('div','btn btn-ghost','🔄 Mot trop dur ? En tirer un autre');
-    reroll.style.marginTop = '10px';
+    reroll.style.marginTop = '8px';
     reroll.onclick = rerollWord;
-    wrap.appendChild(reroll);
+    footer.appendChild(reroll);
   }
+  wrap.appendChild(footer);
 
   return wrap;
 }
@@ -621,37 +850,78 @@ function rerollWord(){
 function renderStarter(){
   const wrap = el('div','screen center');
   const starter = state.players[state.starterIndex];
-  wrap.appendChild(el('div','title-row','<span class="emoji">🎲</span><h1 class="main">C\'est parti !</h1>'));
-  wrap.appendChild(el('div','starter-icon','🎙️'));
-  const card = el('div','card center');
-  card.innerHTML = '<div style="font-size:16px;font-weight:700;color:#3a5170;margin-bottom:10px;">Le sort a désigné...</div>' +
-    '<div style="font-family:\'Arial Rounded MT Bold\';font-size:26px;font-weight:800;color:var(--berry);">' + starter.name + '</div>' +
-    '<div style="font-size:14px;font-weight:700;color:#7a8aa0;margin-top:8px;">C\'est ce joueur qui décrit son mot en premier !</div>';
-  wrap.appendChild(card);
+  const isFirstRound = state.roundNumber <= 1;
 
+  const scrollArea = el('div','scroll-area center');
+
+  if(isFirstRound){
+    scrollArea.appendChild(el('div','title-row','<span class="emoji">🎲</span><h1 class="main">C\'est parti !</h1>'));
+    scrollArea.appendChild(el('div','starter-icon','🎙️'));
+    const card = el('div','card center');
+    card.innerHTML = '<div style="font-size:14px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">Le sort a désigné...</div>' +
+      '<div style="font-size:24px;font-weight:800;color:var(--pink);">' + starter.name + '</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--ink-soft);margin-top:6px;">C\'est ce joueur qui décrit son mot en premier !</div>';
+    scrollArea.appendChild(card);
+  } else {
+    scrollArea.appendChild(el('div','title-row','<span class="emoji">🔁</span><h1 class="main">Tour ' + state.roundNumber + ' !</h1>'));
+    scrollArea.appendChild(el('div','starter-icon','🎙️'));
+    const card = el('div','card center');
+    card.innerHTML = '<div style="font-size:14px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">Ce n\'était pas le bon joueur ! On continue avec...</div>' +
+      '<div style="font-size:24px;font-weight:800;color:var(--pink);">' + starter.name + '</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--ink-soft);margin-top:6px;">Chacun donne un nouvel indice sur son mot, en commençant par ce joueur !</div>';
+    scrollArea.appendChild(card);
+  }
+  wrap.appendChild(scrollArea);
+
+  const footer = el('div','fixed-part');
   const btn = el('div','btn btn-primary','🗳️ Passer au vote pour éliminer');
   btn.onclick = () => { state.screen = 'discussion'; render(); };
-  wrap.appendChild(btn);
+  footer.appendChild(btn);
 
   const forgotBtn = el('div','btn btn-ghost','❓ J\'ai oublié mon mot');
-  forgotBtn.style.marginTop = '12px';
+  forgotBtn.style.marginTop = '8px';
   forgotBtn.onclick = showForgotWordPicker;
-  wrap.appendChild(forgotBtn);
+  footer.appendChild(forgotBtn);
 
   const manageBtn = el('div','btn btn-ghost','⚙️ Gérer les joueurs');
-  manageBtn.style.marginTop = '12px';
+  manageBtn.style.marginTop = '8px';
   manageBtn.onclick = showManagePlayers;
-  wrap.appendChild(manageBtn);
+  footer.appendChild(manageBtn);
+
+  const changeWordBtn = el('div','btn btn-ghost','🔄 Changer le mot de la manche');
+  changeWordBtn.style.marginTop = '8px';
+  changeWordBtn.onclick = showChangeWordConfirm;
+  footer.appendChild(changeWordBtn);
+  wrap.appendChild(footer);
 
   return wrap;
+}
+
+function showChangeWordConfirm(){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.appendChild(el('h3', null, '🔄 Changer le mot ?'));
+  modal.appendChild(el('p', null, 'Ça relance une toute nouvelle manche avec un nouveau mot : les rôles sont retirés au sort et tous les joueurs (même déjà éliminés) reviennent en jeu.'));
+  const yesBtn = el('div','btn btn-primary','Oui, nouvelle manche');
+  yesBtn.onclick = () => { bg.remove(); startGame(); };
+  modal.appendChild(yesBtn);
+  const noBtn = el('div','btn btn-ghost','Annuler');
+  noBtn.style.marginTop = '10px';
+  noBtn.onclick = () => bg.remove();
+  modal.appendChild(noBtn);
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
 }
 
 // ---------- DISCUSSION / VOTE SCREEN ----------
 function renderDiscussion(){
   const wrap = el('div','screen');
-  wrap.appendChild(el('div','title-row','<span class="emoji">🗳️</span><h1 class="main">Qui est démasqué ?</h1>'));
-  wrap.appendChild(el('div','subtitle','Discutez à voix haute, puis touchez le joueur éliminé par le vote.'));
+  const header = el('div','fixed-part');
+  header.appendChild(el('div','title-row','<span class="emoji">🗳️</span><h1 class="main">Qui est démasqué ?</h1>'));
+  header.appendChild(el('div','subtitle','Discutez à voix haute, puis touchez le joueur éliminé par le vote.'));
+  wrap.appendChild(header);
 
+  const scrollArea = el('div','scroll-area');
   const list = el('div','players-list');
   state.players.forEach((p, idx) => {
     const b = el('div','player-btn' + (p.eliminated ? ' eliminated' : ''));
@@ -661,7 +931,8 @@ function renderDiscussion(){
     }
     list.appendChild(b);
   });
-  wrap.appendChild(list);
+  scrollArea.appendChild(list);
+  wrap.appendChild(scrollArea);
 
   return wrap;
 }
@@ -711,9 +982,9 @@ function showWordReminder(p){
   const modal = el('div','modal');
   modal.appendChild(el('h3', null, p.name));
   if(p.role === 'mrwhite'){
-    modal.innerHTML += '<div class="starter-icon">🤍</div><p>Tu es Mr. White, tu n\'as pas de mot ! Continue à faire semblant 🤫</p>';
+    modal.innerHTML += '<div class="starter-icon">🤍</div><p>Tu es le Bluffeur, tu n\'as pas de mot ! Continue à faire semblant 🤫</p>';
   } else {
-    modal.innerHTML += '<div style="font-family:\'Arial Rounded MT Bold\';font-size:30px;font-weight:800;color:var(--ink);margin:14px 0;">' + p.word + '</div><p>Décris-le sans le dire !</p>';
+    modal.innerHTML += '<div style="font-family:-apple-system,sans-serif;font-size:' + wordFontSize(p.word, 34) + 'px;font-weight:800;color:var(--ink);margin:14px 0;line-height:1.15;">' + p.word + '</div><p>Décris-le sans le dire !</p>';
   }
   const btn = el('div','btn btn-primary','J\'ai vu, cacher');
   btn.onclick = () => bg.remove();
@@ -834,6 +1105,39 @@ function showManagePlayers(){
 
       list.appendChild(row);
     });
+
+    if(state.pendingPlayers.length > 0){
+      const pendingLabel = el('div','field-label','🕒 Rejoindront à la prochaine manche');
+      pendingLabel.style.marginTop = '16px';
+      list.appendChild(pendingLabel);
+      state.pendingPlayers.forEach((pp) => {
+        const prow = el('div','name-field-wrap');
+        prow.style.display = 'flex';
+        prow.style.gap = '8px';
+        prow.style.alignItems = 'center';
+        prow.style.opacity = '.7';
+        const label = el('div', null, '⏳ ' + pp.name);
+        label.style.flex = '1';
+        label.style.fontWeight = '700';
+        label.style.padding = '10px 4px';
+        prow.appendChild(label);
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '🗑️';
+        cancelBtn.style.width = '44px';
+        cancelBtn.style.height = '44px';
+        cancelBtn.style.border = 'none';
+        cancelBtn.style.borderRadius = '12px';
+        cancelBtn.style.background = '#FDE3EA';
+        cancelBtn.style.fontSize = '18px';
+        cancelBtn.style.cursor = 'pointer';
+        cancelBtn.onclick = () => {
+          state.pendingPlayers = state.pendingPlayers.filter(x => x.id !== pp.id);
+          refreshList();
+        };
+        prow.appendChild(cancelBtn);
+        list.appendChild(prow);
+      });
+    }
   }
   refreshList();
   modal.appendChild(list);
@@ -841,27 +1145,24 @@ function showManagePlayers(){
   const addBtn = el('div','btn btn-secondary','➕ Ajouter un joueur');
   addBtn.style.marginTop = '14px';
   addBtn.onclick = () => {
-    if(state.players.length >= 10){ alert('Maximum 10 joueurs.'); return; }
+    if(state.players.length + state.pendingPlayers.length >= 10){ alert('Maximum 10 joueurs.'); return; }
     const name = prompt('Prénom du nouveau joueur :');
     if(!name || !name.trim()) return;
-    state.players.push({
-      id: 'p_new_' + Math.random().toString(36).slice(2,7),
-      name: name.trim(),
-      role: 'civil',
-      word: state.civilWord,
-      eliminated: false
+    state.pendingPlayers.push({
+      id: 'pending_' + Math.random().toString(36).slice(2,7),
+      name: name.trim()
     });
-    changed = true;
     refreshList();
   };
   modal.appendChild(addBtn);
-  modal.appendChild(el('div','footer-note','Un joueur ajouté en cours de partie devient automatiquement Civil. Il peut voir son mot via "J\'ai oublié mon mot".'));
+  modal.appendChild(el('div','footer-note','Un joueur ne peut pas rejoindre en pleine manche (il n\'a pas de mot). Il attend automatiquement la prochaine manche, sauf si tu choisis de relancer tout de suite.'));
 
   const closeBtn = el('div','btn btn-primary','Terminé');
   closeBtn.style.marginTop = '14px';
   closeBtn.onclick = () => {
     bg.remove();
-    if(changed){ showApplyChangesChoice(); }
+    if(state.pendingPlayers.length > 0){ showApplyChangesChoice(); }
+    else if(changed){ render(); }
     else { render(); }
   };
   modal.appendChild(closeBtn);
@@ -873,21 +1174,22 @@ function showManagePlayers(){
 function showApplyChangesChoice(){
   const bg = el('div','modal-bg');
   const modal = el('div','modal');
-  modal.appendChild(el('h3', null, '✅ Comment appliquer ces changements ?'));
-  modal.appendChild(el('p', null, 'Tu peux continuer la partie en cours (les changements s\'appliquent tout de suite, dès le prochain tour), ou relancer une toute nouvelle partie avec ces joueurs (nouveaux rôles et nouveau mot tirés).'));
+  const names = state.pendingPlayers.map(p => p.name).join(', ');
+  modal.appendChild(el('h3', null, '🕒 Nouveau joueur en attente'));
+  modal.appendChild(el('p', null, names + ' n\'a pas encore de mot, il ne peut pas rejoindre en pleine manche. Deux choix :'));
 
-  const continueBtn = el('div','btn btn-primary','➡️ Continuer cette partie');
-  continueBtn.onclick = () => { bg.remove(); render(); };
-  modal.appendChild(continueBtn);
+  const laterBtn = el('div','btn btn-primary','⏳ Il rejoindra à la prochaine manche');
+  laterBtn.onclick = () => { bg.remove(); render(); };
+  modal.appendChild(laterBtn);
+  modal.appendChild(el('div','footer-note','La partie en cours continue normalement pour l\'instant.'));
 
-  const restartBtn = el('div','btn btn-secondary','🔁 Relancer une nouvelle partie');
-  restartBtn.style.marginTop = '10px';
+  const restartBtn = el('div','btn btn-secondary','🔁 Relancer une nouvelle manche tout de suite avec lui/eux');
+  restartBtn.style.marginTop = '14px';
   restartBtn.onclick = () => {
     bg.remove();
     state.numPlayers = state.players.length;
     state.names = state.players.map(p => p.name);
-    clampRoles();
-    startGame();
+    startGame(); // fusionne automatiquement state.pendingPlayers
   };
   modal.appendChild(restartBtn);
 
@@ -915,6 +1217,7 @@ function confirmEliminate(idx){
 function eliminatePlayer(idx){
   const p = state.players[idx];
   p.eliminated = true;
+  state.lastEliminatedIdx = idx;
 
   if(p.role === 'mrwhite'){
     showMrWhiteGuessModal(idx);
@@ -926,7 +1229,7 @@ function eliminatePlayer(idx){
 function showEliminationResult(p){
   const bg = el('div','modal-bg');
   const modal = el('div','modal');
-  const roleLabel = p.role==='civil' ? '👨‍👩‍👧 Civil' : (p.role==='undercover' ? '🕶️ Infiltré' : '🤍 Mr. White');
+  const roleLabel = p.role==='civil' ? '👨‍👩‍👧 Civil' : (p.role==='undercover' ? '🕶️ Infiltré' : '🤍 Bluffeur');
   const badgeClass = p.role==='civil' ? 'civil' : (p.role==='undercover' ? 'undercover' : 'mrwhite');
   modal.innerHTML = '<h3>' + p.name + ' est éliminé(e) !</h3>' +
     '<span class="badge ' + badgeClass + '">' + roleLabel + '</span>' +
@@ -941,7 +1244,7 @@ function showEliminationResult(p){
 function showMrWhiteGuessModal(idx){
   const bg = el('div','modal-bg');
   const modal = el('div','modal');
-  modal.innerHTML = '<h3>🤍 Mr. White démasqué !</h3><p>Il a droit à une dernière chance : quel est le mot des civils ?</p>';
+  modal.innerHTML = '<h3>🤍 Bluffeur démasqué !</h3><p>Il a droit à une dernière chance : quel est le mot des civils ?</p>';
   const input = el('input','name-input');
   input.placeholder = 'Sa réponse...';
   modal.appendChild(input);
@@ -961,6 +1264,15 @@ function showMrWhiteGuessModal(idx){
   document.body.appendChild(bg);
 }
 
+function getNextActivePlayerAfter(idx){
+  const n = state.players.length;
+  for(let step=1; step<=n; step++){
+    const candidate = (idx + step) % n;
+    if(!state.players[candidate].eliminated) return candidate;
+  }
+  return null;
+}
+
 function checkWinConditionOrContinue(){
   const active = state.players.filter(p => !p.eliminated);
   const civils = active.filter(p => p.role==='civil').length;
@@ -971,7 +1283,11 @@ function checkWinConditionOrContinue(){
   } else if(infiltres >= civils){
     finishGame('undercover');
   } else {
-    state.screen = 'discussion';
+    // Mauvaise élimination : nouveau tour de description, à partir du joueur suivant
+    state.roundNumber = (state.roundNumber || 1) + 1;
+    const nextIdx = state.lastEliminatedIdx !== null ? getNextActivePlayerAfter(state.lastEliminatedIdx) : null;
+    state.starterIndex = nextIdx !== null ? nextIdx : (active.length ? state.players.indexOf(active[0]) : 0);
+    state.screen = 'starter';
     render();
   }
 }
@@ -998,19 +1314,22 @@ function finishGame(winnerKey){
 function renderResult(){
   const wrap = el('div','screen center');
   let emoji, title, desc, color;
-  if(state.winner === 'civils'){ emoji='🎉'; title='Les Civils gagnent !'; desc='Tous les infiltrés ont été démasqués, bravo !'; color='#3DBE7C'; }
-  else if(state.winner === 'undercover'){ emoji='🕶️'; title='Les Infiltrés gagnent !'; desc='Ils étaient trop malins, ils ont survécu au vote !'; color='#FF5D8F'; }
-  else { emoji='🤍'; title='Mr. White gagne !'; desc='Il a deviné le mot secret : ' + state.civilWord + ' !'; color='#8E6BFF'; }
+  if(state.winner === 'civils'){ emoji='🎉'; title='Les Civils gagnent !'; desc='Tous les infiltrés ont été démasqués, bravo !'; color='var(--mint)'; }
+  else if(state.winner === 'undercover'){ emoji='🕶️'; title='Les Infiltrés gagnent !'; desc='Ils étaient trop malins, ils ont survécu au vote !'; color='var(--pink)'; }
+  else { emoji='🤍'; title='Le Bluffeur gagne !'; desc='Il a deviné le mot secret : ' + state.civilWord + ' !'; color='var(--indigo)'; }
 
-  wrap.appendChild(el('div','result-emoji', emoji));
-  const h = el('h1', null, title); h.style.color = color; h.style.fontSize="28px";
-  wrap.appendChild(h);
-  wrap.appendChild(el('div','subtitle', desc));
+  const header = el('div','fixed-part center');
+  header.appendChild(el('div','result-emoji', emoji));
+  const h = el('h1', null, title); h.style.color = color; h.style.fontSize="22px";
+  header.appendChild(h);
+  header.appendChild(el('div','subtitle', desc));
+  wrap.appendChild(header);
 
+  const scrollArea = el('div','scroll-area');
   const card = el('div','card');
-  card.innerHTML = '<div style="font-weight:800;margin-bottom:10px;">🎴 Le mot des civils : <b>' + state.civilWord + '</b></div>' +
-    '<div style="font-weight:800;">🕶️ Le mot des infiltrés : <b>' + state.undercoverWord + '</b></div>';
-  wrap.appendChild(card);
+  card.innerHTML = '<div style="font-weight:700;margin-bottom:8px;font-size:14px;">🎴 Le mot des civils : <b>' + state.civilWord + '</b></div>' +
+    '<div style="font-weight:700;font-size:14px;">🕶️ Le mot des infiltrés : <b>' + state.undercoverWord + '</b></div>';
+  scrollArea.appendChild(card);
 
   const scoreCard = el('div','card');
   scoreCard.appendChild(el('label','field-label','🏆 Scores de la session'));
@@ -1024,21 +1343,23 @@ function renderResult(){
   rows.forEach(p => {
     const entry = roster.find(r => r.name === p.name) || {parties:0, points:0};
     const row = el('div','role-row');
-    row.innerHTML = '<div><div class="label">' + p.name + '</div><div class="desc">' + entry.parties + ' parties jouées</div></div><div style="font-family:\'Arial Rounded MT Bold\';font-weight:800;font-size:18px;color:#8a6d1a;">' + entry.points + ' pts</div>';
+    row.innerHTML = '<div><div class="label">' + p.name + '</div><div class="desc">' + entry.parties + ' parties jouées</div></div><div style="font-weight:800;font-size:16px;color:var(--amber);">' + entry.points + ' pts</div>';
     scoreCard.appendChild(row);
   });
-  wrap.appendChild(scoreCard);
-  wrap.appendChild(el('div','footer-note','Les scores restent affichés tant que tu ne fermes pas le jeu.'));
+  scrollArea.appendChild(scoreCard);
+  scrollArea.appendChild(el('div','footer-note','Les scores restent affichés tant que tu ne fermes pas le jeu.'));
+  wrap.appendChild(scrollArea);
 
+  const footer = el('div','fixed-part');
   const replay = el('div','btn btn-primary','🔁 Rejouer avec les mêmes joueurs');
-  replay.style.marginTop = '14px';
+  footer.appendChild(replay);
   replay.onclick = () => { startGame(); };
-  wrap.appendChild(replay);
 
   const newGame = el('div','btn btn-ghost','⚙️ Nouvelle configuration');
-  newGame.style.marginTop = '12px';
+  newGame.style.marginTop = '8px';
   newGame.onclick = () => { state.screen = 'setup'; render(); };
-  wrap.appendChild(newGame);
+  footer.appendChild(newGame);
+  wrap.appendChild(footer);
 
   return wrap;
 }
@@ -1048,6 +1369,17 @@ try{
 }catch(e){
   console.error('Erreur au premier affichage', e);
 }
+
+// Verrouille le zoom (pincement, double-tap) au cas où le navigateur ignorerait le viewport
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+document.addEventListener('gesturechange', (e) => e.preventDefault());
+document.addEventListener('touchmove', (e) => { if(e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if(now - lastTouchEnd <= 300) e.preventDefault();
+  lastTouchEnd = now;
+}, { passive: false });
 </script>
 </body>
 </html>
