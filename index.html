@@ -45,7 +45,8 @@
      toute la hauteur réelle du contenu, sans le comportement spécial "collé
      à l'écran" que les navigateurs appliquent au fond de l'élément racine. */
   #bg-decor{
-    position:absolute; inset:0; z-index:0; pointer-events:none;
+    position:absolute; top:0; left:0; right:0; z-index:0; pointer-events:none;
+    height:100vh;
     background:
       radial-gradient(38% 22% at 15% 6%, rgba(94,92,230,0.35), rgba(94,92,230,0) 70%),
       radial-gradient(45% 26% at 90% 9%, rgba(255,55,95,0.28), rgba(255,55,95,0) 70%),
@@ -472,7 +473,31 @@ function render(){
     quit.onclick = showQuitConfirm;
     app.appendChild(quit);
   }
+
+  syncBgHeight();
 }
+
+// Calcule la vraie hauteur du contenu (via JS, pas via le %CSS qui se
+// comporte différemment selon les écrans/navigateurs) et l'applique au
+// fond, pour qu'il couvre toujours toute la page, sur chaque écran.
+function syncBgHeight(){
+  const bg = document.getElementById('bg-decor');
+  if(!bg) return;
+  // On repart d'une hauteur neutre avant de mesurer, sinon l'ancienne
+  // valeur peut fausser la mesure du scrollHeight réel du document.
+  bg.style.height = '100vh';
+  requestAnimationFrame(() => {
+    const h = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight,
+      window.innerHeight
+    );
+    bg.style.height = h + 'px';
+  });
+}
+
+window.addEventListener('resize', syncBgHeight);
+window.addEventListener('orientationchange', syncBgHeight);
 
 function showQuitConfirm(){
   const bg = el('div','modal-bg');
