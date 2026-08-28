@@ -658,11 +658,12 @@ function showRulesModal(){
     '<h3 style="text-align:center;">📖 Comment jouer ?</h3>' +
     '<p><b>🪑 Installation :</b> installez-vous assis en cercle ou autour d\'une table. Entrez les prénoms dans l\'ordre où vous êtes assis, dans le sens des aiguilles d\'une montre : le jeu s\'en sert pour faire parler chacun à son tour, dans cet ordre.</p>' +
     '<p><b>🎯 Le but :</b> tout le monde a le même mot secret... sauf les infiltrés, qui ont un mot presque pareil, et le Bluffeur, qui n\'a aucun mot !</p>' +
-    '<p><b>👨‍👩‍👧 Civil :</b> connaît le mot secret. Il doit le décrire sans le dire, et démasquer les infiltrés.</p>' +
-    '<p><b>🕶️ Infiltré :</b> a un mot presque pareil, mais pas identique. Il doit faire semblant de connaître le bon mot !</p>' +
-    '<p><b>🤍 Bluffeur :</b> n\'a aucun mot. Il doit deviner ce que les autres décrivent et bluffer à fond !</p>' +
-    '<p><b>🎮 Le déroulé :</b> chacun pioche une carte à son tour pour découvrir son mot en privé (sans le montrer aux autres). Une fois que tout le monde a vu son mot, le jeu tire au sort qui commence, puis chacun donne un indice sur son mot à voix haute, chacun son tour, en suivant l\'ordre des sièges. Ensuite, tout le monde vote ensemble pour éliminer celui qu\'il soupçonne.</p>' +
-    '<p><b>🏆 Qui gagne ?</b> Les civils gagnent s\'ils éliminent tous les infiltrés et le Bluffeur. Les infiltrés gagnent s\'il n\'en reste plus assez pour les repérer. Le Bluffeur gagne tout seul s\'il devine le mot des civils quand il est démasqué !</p>';
+    '<p><b>👨‍👩‍👧 Civil :</b> connaît le mot secret. Il doit le décrire sans le dire, et surtout repérer qui sont l\'infiltré et le Bluffeur pour les faire éliminer par le vote.</p>' +
+    '<p><b>🕶️ Infiltré :</b> a un mot presque pareil, mais pas identique. Il doit faire semblant de connaître le bon mot pour ne pas se faire éliminer !</p>' +
+    '<p><b>🤍 Bluffeur :</b> n\'a aucun mot. Il doit deviner ce que les autres décrivent et bluffer à fond pour ne pas se faire éliminer !</p>' +
+    '<p><b>🎮 Le déroulé :</b> chacun pioche une carte à son tour pour découvrir son mot en privé (sans le montrer aux autres). Une fois que tout le monde a vu son mot, le jeu tire au sort qui commence, puis chacun donne un indice sur son mot à voix haute, chacun son tour, en suivant l\'ordre des sièges. Ensuite, tout le monde vote ensemble pour éliminer celui qu\'il soupçonne d\'être l\'infiltré ou le Bluffeur.</p>' +
+    '<p><b>🔁 Si ce n\'était pas le bon :</b> tant qu\'il reste au moins un infiltré ou le Bluffeur en jeu, la partie continue : on refait un tour complet où chacun donne un nouvel indice sur son mot, puis on revote pour éliminer quelqu\'un d\'autre. Et ainsi de suite jusqu\'à ce que les civils gagnent, ou qu\'il ne reste plus assez de civils.</p>' +
+    '<p><b>🏆 Qui gagne ?</b> Les civils gagnent s\'ils réussissent à éliminer, par le vote, tous les infiltrés et le Bluffeur. Les infiltrés gagnent s\'il ne reste plus assez de civils pour les repérer. Le Bluffeur gagne tout seul s\'il devine le mot des civils au moment où il est démasqué !</p>';
   const btn = el('div','btn btn-primary','Compris, on joue ! 🎉');
   btn.style.marginTop = '6px';
   btn.onclick = () => bg.remove();
@@ -1311,9 +1312,24 @@ function showEliminationResult(p){
   const modal = el('div','modal');
   const roleLabel = p.role==='civil' ? '👨‍👩‍👧 Civil' : (p.role==='undercover' ? '🕶️ Infiltré' : '🤍 Bluffeur');
   const badgeClass = p.role==='civil' ? 'civil' : (p.role==='undercover' ? 'undercover' : 'mrwhite');
+
+  let outcomeHtml;
+  if(p.role === 'civil'){
+    outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--pink);">❌ Non, ce n\'était qu\'un Civil ! Refaites un tour, chacun donne un nouvel indice.</p>';
+  } else {
+    const remaining = state.players.filter(pl => !pl.eliminated && (pl.role==='undercover' || pl.role==='mrwhite')).length;
+    const roleWord = p.role==='undercover' ? 'un Infiltré' : 'le Bluffeur';
+    if(remaining > 0){
+      outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--mint);">✅ Bien joué, c\'était ' + roleWord + ' ! Encore ' + remaining + ' ' + (remaining>1 ? 'suspects (infiltré ou Bluffeur) à démasquer' : 'suspect (infiltré ou Bluffeur) à démasquer') + '.</p>';
+    } else {
+      outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--mint);">✅ Bien joué, c\'était ' + roleWord + ' !</p>';
+    }
+  }
+
   modal.innerHTML = '<h3>' + p.name + ' est éliminé(e) !</h3>' +
     '<span class="badge ' + badgeClass + '">' + roleLabel + '</span>' +
-    '<p style="margin-top:14px;">Le mot sera révélé à la fin de la manche.</p>';
+    outcomeHtml +
+    '<p style="margin-top:8px;">Le mot sera révélé à la fin de la manche.</p>';
   const btn = el('div','btn btn-primary','Continuer ➡️');
   btn.onclick = () => { bg.remove(); checkWinConditionOrContinue(); };
   modal.appendChild(btn);
@@ -1336,7 +1352,7 @@ function showMrWhiteGuessModal(idx){
     if(correct){
       finishGame('mrwhite');
     } else {
-      checkWinConditionOrContinue();
+      showEliminationResult(state.players[idx]);
     }
   };
   modal.appendChild(btn);
