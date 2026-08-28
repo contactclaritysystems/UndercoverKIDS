@@ -247,8 +247,8 @@
   .badge.civil{background:#DEF7E5; color:#1E8A4C;}
   .badge.undercover{background:#FFE1E8; color:#C23A66;}
   .badge.mrwhite{background:#EAE7FF; color:#5C3FCC;}
-  .role-chip{display:inline-block; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800;}
-  .status-row{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
+  .role-chip{display:inline-flex; align-items:center; white-space:nowrap; padding:5px 8px; border-radius:20px; font-size:11px; font-weight:800; flex-shrink:0;}
+  .status-row{display:flex; gap:6px; flex-wrap:nowrap; margin-top:8px; overflow-x:auto;}
   .order-row{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;}
   .order-pill{
     display:flex; align-items:center; justify-content:center; gap:6px;
@@ -668,7 +668,7 @@ function renderSetup(){
   const info = el('div','card center');
   info.style.background = '#fafafc';
   info.innerHTML =
-    '<div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">' +
+    '<div style="display:flex; gap:6px; justify-content:center; flex-wrap:nowrap; overflow-x:auto;">' +
       '<span class="role-chip" style="background:#DEF7E5;color:#1E8A4C;">👨‍👩‍👧 ' + civilCount + ' civil(s)</span>' +
       (state.numUndercover > 0 ? '<span class="role-chip" style="background:#FFE1E8;color:#C23A66;">🕶️ ' + state.numUndercover + ' infiltré(s)</span>' : '') +
       (state.numMrWhite > 0 ? '<span class="role-chip" style="background:#EAE7FF;color:#5C3FCC;">🤍 ' + state.numMrWhite + ' Bluffeur</span>' : '') +
