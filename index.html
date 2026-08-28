@@ -679,7 +679,7 @@ function renderSetup(){
   card2.appendChild(el('label','field-label','🎭 Rôles spéciaux'));
 
   const row1 = el('div','role-row role-undercover');
-  row1.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span class="role-icon">🕶️</span><div><div class="label">Infiltré(s)</div><div class="desc">Reçoit un mot presque pareil</div></div></div>';
+  row1.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span class="role-icon">🕶️</span><div><div class="label">Infiltré</div><div class="desc">Reçoit un mot presque pareil</div></div></div>';
   const stepper1 = createRoleStepper(
     state.numUndercover,
     (v) => { state.numUndercover = v; },
