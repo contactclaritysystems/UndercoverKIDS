@@ -854,7 +854,12 @@ function renderReveal(){
     if(totalCards <= 4) perRow = 2;
     else if(totalCards <= 9) perRow = 3;
     else perRow = 4;
-    const cardW = Math.min(130, Math.floor((338 - (perRow-1)*14) / perRow));
+    // Largeur réellement disponible sur CET écran (pas une valeur devinée à
+    // l'avance) : #app fait au plus 480px de large, avec 18px de marge de
+    // chaque côté. On retire encore un peu de marge de sécurité pour éviter
+    // qu'un écran étroit ne fasse basculer une carte à la ligne suivante.
+    const containerWidth = Math.min(480, window.innerWidth) - (18*2) - 6;
+    const cardW = Math.min(130, Math.floor((containerWidth - (perRow-1)*14) / perRow));
     const cardH = Math.round(cardW * 1.2);
     grid.style.gap = '14px';
     for(let c=0;c<totalCards;c++){
