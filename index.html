@@ -186,16 +186,20 @@
   /* Paquet de cartes : toujours autant de cartes que de joueurs, elles ne disparaissent jamais */
   .deck-grid{display:flex; gap:8px; justify-content:center; margin:14px 0; flex-wrap:wrap; max-width:340px;}
   .deck-card{
-    width:48px; height:68px; border-radius:12px; cursor:pointer;
+    position:relative;
+    width:52px; height:72px; border-radius:12px; cursor:pointer;
     background:linear-gradient(160deg, var(--indigo), #4744c9); color:white;
-    display:flex; align-items:center; justify-content:center; font-size:18px;
+    display:flex; align-items:center; justify-content:center;
     box-shadow:0 1px 2px var(--shadow), 0 6px 14px rgba(28,28,30,.12);
     transition:transform .1s, background .2s;
   }
   .deck-card:active{transform:scale(0.92);}
   .deck-card.used{
-    background:#e2e2e7; color:#9a9aa2; cursor:default; box-shadow:none;
+    background:#e2e2e7; box-shadow:none;
   }
+  .deck-card.used .deck-card-icon{opacity:.35;}
+  .deck-card-icon{width:26px; height:26px;}
+  .deck-card-check{font-size:20px;}
 
   /* Grande carte retournée : le mot doit se voir grand et net */
   .big-flip{width:240px; height:300px; perspective:1000px; margin:6px auto;}
@@ -234,6 +238,7 @@
   .badge.undercover{background:#FFE1E8; color:#C23A66;}
   .badge.mrwhite{background:#EAE7FF; color:#5C3FCC;}
   .role-chip{display:inline-block; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800;}
+  .status-row{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
   .confetti-piece{
     position:fixed; top:-20px; width:8px; height:14px; opacity:0.9; border-radius:2px;
     animation-name:confetti-fall; animation-timing-function:linear; animation-fill-mode:forwards;
@@ -799,6 +804,15 @@ function buildRotationOrder(startIdx, n){
 }
 
 // ---------- REVEAL SCREEN : pioche de carte ----------
+function deckCardIconSvg(){
+  return '<svg class="deck-card-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<circle cx="15" cy="13" r="7" fill="white" fill-opacity="0.95"/>' +
+    '<path d="M3 33c0-8 6-13 12-13s12 5 12 9" fill="white" fill-opacity="0.95"/>' +
+    '<circle cx="29" cy="10" r="9" fill="#FFD60A"/>' +
+    '<text x="29" y="15" font-size="13" font-weight="800" text-anchor="middle" fill="#20334A" font-family="-apple-system, sans-serif">?</text>' +
+    '</svg>';
+}
+
 function renderReveal(){
   const wrap = el('div','screen');
   const playerIdx = state.revealOrder[state.revealIndex];
@@ -820,7 +834,7 @@ function renderReveal(){
     const grid = el('div','deck-grid');
     for(let c=0;c<totalCards;c++){
       const isUsed = !!state.usedCardSlots[c];
-      const card = el('div','deck-card' + (isUsed ? ' used' : ''), isUsed ? '✅' : '🎴');
+      const card = el('div','deck-card' + (isUsed ? ' used' : ''), isUsed ? '<span class="deck-card-check">✅</span>' : deckCardIconSvg());
       if(!isUsed){
         card.onclick = () => {
           state.usedCardSlots[c] = true;
@@ -975,6 +989,17 @@ function renderDiscussion(){
   const header = el('div','fixed-part');
   header.appendChild(el('div','title-row','<span class="emoji">🗳️</span><h1 class="main">Qui est démasqué ?</h1>'));
   header.appendChild(el('div','subtitle','Discutez à voix haute, puis touchez le joueur éliminé par le vote.'));
+
+  const active = state.players.filter(p => !p.eliminated);
+  const civilsLeft = active.filter(p => p.role === 'civil').length;
+  const undercoverLeft = active.filter(p => p.role === 'undercover').length;
+  const mrwhiteLeft = active.filter(p => p.role === 'mrwhite').length;
+  const statusRow = el('div','status-row');
+  statusRow.innerHTML =
+    '<span class="role-chip" style="background:#DEF7E5;color:#1E8A4C;">👨‍👩‍👧 ' + civilsLeft + ' civil(s)</span>' +
+    (undercoverLeft > 0 ? '<span class="role-chip" style="background:#FFE1E8;color:#C23A66;">🕶️ ' + undercoverLeft + ' restant(s)</span>' : '') +
+    (mrwhiteLeft > 0 ? '<span class="role-chip" style="background:#EAE7FF;color:#5C3FCC;">🤍 ' + mrwhiteLeft + ' restant(s)</span>' : '');
+  header.appendChild(statusRow);
   wrap.appendChild(header);
 
   const scrollArea = el('div','scroll-area');
