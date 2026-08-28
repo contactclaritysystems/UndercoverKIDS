@@ -656,11 +656,12 @@ function showRulesModal(){
   modal.style.textAlign = 'left';
   modal.innerHTML =
     '<h3 style="text-align:center;">📖 Comment jouer ?</h3>' +
+    '<p><b>🪑 Installation :</b> installez-vous assis en cercle ou autour d\'une table. Entrez les prénoms dans l\'ordre où vous êtes assis, dans le sens des aiguilles d\'une montre : le jeu s\'en sert pour faire parler chacun à son tour, dans cet ordre.</p>' +
     '<p><b>🎯 Le but :</b> tout le monde a le même mot secret... sauf les infiltrés, qui ont un mot presque pareil, et le Bluffeur, qui n\'a aucun mot !</p>' +
     '<p><b>👨‍👩‍👧 Civil :</b> connaît le mot secret. Il doit le décrire sans le dire, et démasquer les infiltrés.</p>' +
     '<p><b>🕶️ Infiltré :</b> a un mot presque pareil, mais pas identique. Il doit faire semblant de connaître le bon mot !</p>' +
     '<p><b>🤍 Bluffeur :</b> n\'a aucun mot. Il doit deviner ce que les autres décrivent et bluffer à fond !</p>' +
-    '<p><b>🎮 Le déroulé :</b> chacun pioche une carte pour découvrir son mot en privé, puis à voix haute, chacun donne un indice sur son mot (sans le dire). Ensuite, tout le monde vote pour éliminer celui qu\'il soupçonne.</p>' +
+    '<p><b>🎮 Le déroulé :</b> chacun pioche une carte à son tour pour découvrir son mot en privé (sans le montrer aux autres). Une fois que tout le monde a vu son mot, le jeu tire au sort qui commence, puis chacun donne un indice sur son mot à voix haute, chacun son tour, en suivant l\'ordre des sièges. Ensuite, tout le monde vote ensemble pour éliminer celui qu\'il soupçonne.</p>' +
     '<p><b>🏆 Qui gagne ?</b> Les civils gagnent s\'ils éliminent tous les infiltrés et le Bluffeur. Les infiltrés gagnent s\'il n\'en reste plus assez pour les repérer. Le Bluffeur gagne tout seul s\'il devine le mot des civils quand il est démasqué !</p>';
   const btn = el('div','btn btn-primary','Compris, on joue ! 🎉');
   btn.style.marginTop = '6px';
