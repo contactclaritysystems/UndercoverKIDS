@@ -239,6 +239,13 @@
   .badge.mrwhite{background:#EAE7FF; color:#5C3FCC;}
   .role-chip{display:inline-block; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800;}
   .status-row{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
+  .order-row{display:flex; align-items:center; flex-wrap:wrap; gap:4px;}
+  .order-pill{
+    padding:7px 12px; border-radius:16px; background:#f0f0f4; color:var(--ink);
+    font-size:13px; font-weight:700;
+  }
+  .order-pill.first{background:linear-gradient(135deg, #FF5C7F 0%, var(--pink) 100%); color:white;}
+  .order-arrow{color:var(--ink-soft); font-size:13px; font-weight:700;}
   .confetti-piece{
     position:fixed; top:-20px; width:8px; height:14px; opacity:0.9; border-radius:2px;
     animation-name:confetti-fall; animation-timing-function:linear; animation-fill-mode:forwards;
@@ -917,6 +924,17 @@ function rerollWord(){
 }
 
 // ---------- STARTER SCREEN : le jeu tire au sort qui commence ----------
+function getSpeakingOrder(startIdx){
+  const n = state.players.length;
+  const order = [];
+  for(let i=0;i<n;i++){
+    const idx = (startIdx + i) % n;
+    const p = state.players[idx];
+    if(!p.eliminated) order.push(p);
+  }
+  return order;
+}
+
 function renderStarter(){
   const wrap = el('div','screen center');
   const starter = state.players[state.starterIndex];
@@ -941,6 +959,24 @@ function renderStarter(){
       '<div style="font-size:13px;font-weight:600;color:var(--ink-soft);margin-top:6px;">Chacun donne un nouvel indice sur son mot, en commençant par ce joueur !</div>';
     scrollArea.appendChild(card);
   }
+
+  // Ordre de parole : à partir du joueur désigné, dans le sens de la table,
+  // en sautant les joueurs déjà éliminés.
+  const order = getSpeakingOrder(state.starterIndex);
+  const orderCard = el('div','card');
+  orderCard.appendChild(el('label','field-label','🎙️ Ordre pour décrire son mot'));
+  const orderRow = el('div','order-row');
+  order.forEach((p, i) => {
+    const pill = el('div','order-pill' + (i===0 ? ' first' : ''), p.name);
+    orderRow.appendChild(pill);
+    if(i < order.length - 1){
+      orderRow.appendChild(el('div','order-arrow','→'));
+    }
+  });
+  orderCard.appendChild(orderRow);
+  orderCard.appendChild(el('div','footer-note','Puis on vote tous ensemble pour éliminer quelqu\'un.'));
+  scrollArea.appendChild(orderCard);
+
   wrap.appendChild(scrollArea);
 
   const footer = el('div','fixed-part');
