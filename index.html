@@ -1069,10 +1069,13 @@ function showChangeWordConfirm(){
 function renderDiscussion(){
   const wrap = el('div','screen');
   const header = el('div','fixed-part');
-  header.style.paddingLeft = '64px';
   header.style.position = 'relative';
-  header.appendChild(el('div','title-row','<span class="emoji">🗳️</span><h1 class="main">Qui est démasqué ?</h1>'));
-  header.appendChild(el('div','subtitle','Discutez à voix haute, puis touchez le joueur éliminé par le vote.'));
+  const titleRow = el('div','title-row','<span class="emoji">🗳️</span><h1 class="main">Qui est démasqué ?</h1>');
+  titleRow.style.paddingLeft = '50px';
+  header.appendChild(titleRow);
+  const subtitleEl = el('div','subtitle','Discutez à voix haute, puis touchez le joueur éliminé par le vote.');
+  subtitleEl.style.paddingLeft = '50px';
+  header.appendChild(subtitleEl);
 
   const backBtn = el('div','back-btn','←');
   backBtn.title = 'Revenir en arrière';
