@@ -184,22 +184,24 @@
   }
 
   /* Paquet de cartes : toujours autant de cartes que de joueurs, elles ne disparaissent jamais */
-  .deck-grid{display:flex; gap:8px; justify-content:center; margin:14px 0; flex-wrap:wrap; max-width:340px;}
+  .deck-grid{display:flex; gap:10px; justify-content:center; align-items:center; margin:18px 0; flex-wrap:wrap; width:100%;}
   .deck-card{
     position:relative;
-    width:52px; height:72px; border-radius:12px; cursor:pointer;
-    background:linear-gradient(160deg, var(--indigo), #4744c9); color:white;
+    width:64px; height:90px; border-radius:18px; cursor:pointer;
+    background:linear-gradient(155deg, #8482f2 0%, var(--indigo) 55%, #4744c9 100%);
+    color:white;
     display:flex; align-items:center; justify-content:center;
-    box-shadow:0 1px 2px var(--shadow), 0 6px 14px rgba(28,28,30,.12);
-    transition:transform .1s, background .2s;
+    box-shadow:0 2px 4px var(--shadow), 0 10px 20px rgba(94,92,230,.28);
+    border:1px solid rgba(255,255,255,0.25);
+    transition:transform .12s, box-shadow .12s;
   }
-  .deck-card:active{transform:scale(0.92);}
+  .deck-card:active{transform:scale(0.93);}
   .deck-card.used{
-    background:#e2e2e7; box-shadow:none;
+    background:#e2e2e7; box-shadow:none; border-color:transparent;
   }
   .deck-card.used .deck-card-icon{opacity:.35;}
-  .deck-card-icon{width:26px; height:26px;}
-  .deck-card-check{font-size:20px;}
+  .deck-card-icon{width:32px; height:32px;}
+  .deck-card-check{font-size:24px;}
 
   /* Grande carte retournée : le mot doit se voir grand et net */
   .big-flip{width:240px; height:300px; perspective:1000px; margin:6px auto;}
@@ -589,9 +591,9 @@ function renderSetup(){
   const val = el('div','value', state.numPlayers);
   const plus = el('button', null, '+');
   minus.disabled = state.numPlayers <= 3;
-  plus.disabled = state.numPlayers >= 10;
+  plus.disabled = state.numPlayers >= 12;
   minus.onclick = () => { if(state.numPlayers>3){ state.numPlayers--; clampRoles(); render(); } };
-  plus.onclick = () => { if(state.numPlayers<10){ state.numPlayers++; render(); } };
+  plus.onclick = () => { if(state.numPlayers<12){ state.numPlayers++; render(); } };
   stepper.appendChild(minus); stepper.appendChild(val); stepper.appendChild(plus);
   card1.appendChild(stepper);
 
@@ -839,10 +841,21 @@ function renderReveal(){
     // prises restent visibles, juste grisées, elles ne disparaissent pas.
     revealWrap.appendChild(el('div','subtitle', 'Pioche une carte du paquet 🎴'));
     const grid = el('div','deck-grid');
+    // Grandes cartes, en lignes de 3 ou 4 selon le nombre de joueurs,
+    // pour éviter une dernière ligne avec une seule carte isolée.
+    // Jusqu'à 9 joueurs : lignes de 3 cartes. À partir de 10 : lignes de 4.
+    const perRow = totalCards >= 10 ? 4 : Math.min(totalCards, 3);
+    const cardW = Math.min(100, Math.floor((338 - (perRow-1)*14) / perRow));
+    const cardH = Math.round(cardW * 1.2);
+    grid.style.gap = '14px';
     for(let c=0;c<totalCards;c++){
       const isUsed = !!state.usedCardSlots[c];
       const card = el('div','deck-card' + (isUsed ? ' used' : ''), isUsed ? '<span class="deck-card-check">✅</span>' : deckCardIconSvg());
+      card.style.width = cardW + 'px';
+      card.style.height = cardH + 'px';
       if(!isUsed){
+        const iconEl = card.querySelector('.deck-card-icon');
+        if(iconEl){ const iconSize = Math.round(cardW * 0.5); iconEl.style.width = iconSize + 'px'; iconEl.style.height = iconSize + 'px'; }
         card.onclick = () => {
           state.usedCardSlots[c] = true;
           state.chosenCard = c;
@@ -1278,7 +1291,7 @@ function showManagePlayers(){
   const addBtn = el('div','btn btn-secondary','➕ Ajouter un joueur');
   addBtn.style.marginTop = '14px';
   addBtn.onclick = () => {
-    if(state.players.length + state.pendingPlayers.length >= 10){ alert('Maximum 10 joueurs.'); return; }
+    if(state.players.length + state.pendingPlayers.length >= 12){ alert('Maximum 12 joueurs.'); return; }
     const name = prompt('Prénom du nouveau joueur :');
     if(!name || !name.trim()) return;
     state.pendingPlayers.push({
@@ -1437,7 +1450,10 @@ function checkWinConditionOrContinue(){
 
   if(infiltres === 0){
     finishGame('civils');
-  } else if(infiltres > civils){
+  } else if(civils <= 1 ? infiltres >= civils : infiltres > civils){
+    // Avec 2 joueurs restants (1 civil, 1 infiltré/Bluffeur), un vote n'a plus de sens :
+    // l'infiltré gagne directement. Au-dessus de 2 civils restants, on laisse une marge
+    // (il faut être strictement plus nombreux) pour ne pas finir sur une seule erreur.
     finishGame('undercover');
   } else {
     // Mauvaise élimination : nouveau tour de description, à partir du joueur suivant
