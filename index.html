@@ -503,10 +503,10 @@ function syncNamesArray(){
 // fois : impossible d'avoir les deux en même temps. Au-delà, la seule règle
 // est de garder au moins 1 civil.
 function maxSpecialTotal(){
-  // Les civils doivent toujours rester strictement plus nombreux que le
-  // total des rôles spéciaux (infiltré + Bluffeur), quel que soit le
-  // nombre de joueurs, pour que la partie reste équilibrée.
-  return Math.floor((state.numPlayers - 1) / 2);
+  // Même ratio que le vrai jeu Undercover : jusqu'à la moitié des joueurs
+  // peuvent être des rôles spéciaux (infiltré + Bluffeur).
+  // Ex : 6 joueurs -> 3, 8 -> 4, 10 -> 5, 12 -> 6.
+  return Math.floor(state.numPlayers / 2);
 }
 
 function clampRoles(){
