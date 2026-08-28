@@ -668,7 +668,7 @@ function showRulesModal(){
     '<p><b>🤍 Bluffeur :</b> n\'a aucun mot. Il doit deviner ce que les autres décrivent et bluffer à fond pour ne pas se faire éliminer !</p>' +
     '<p><b>🎮 Le déroulé :</b> chacun pioche une carte à son tour pour découvrir son mot en privé (sans le montrer aux autres). Une fois que tout le monde a vu son mot, le jeu tire au sort qui commence, puis chacun donne un indice sur son mot à voix haute, chacun son tour, en suivant l\'ordre des sièges. Ensuite, tout le monde vote ensemble pour éliminer celui qu\'il soupçonne d\'être l\'infiltré ou le Bluffeur.</p>' +
     '<p><b>🔁 Si ce n\'était pas le bon :</b> tant qu\'il reste au moins un infiltré ou le Bluffeur en jeu, la partie continue : on refait un tour complet où chacun donne un nouvel indice sur son mot, puis on revote pour éliminer quelqu\'un d\'autre. Et ainsi de suite jusqu\'à ce que les civils gagnent, ou qu\'il ne reste plus assez de civils.</p>' +
-    '<p><b>🏆 Qui gagne ?</b> Les civils gagnent s\'ils réussissent à éliminer, par le vote, tous les infiltrés et le Bluffeur. Les infiltrés gagnent s\'il ne reste plus assez de civils pour les repérer. Le Bluffeur gagne tout seul s\'il devine le mot des civils au moment où il est démasqué !</p>';
+    '<p><b>🏆 Qui gagne ?</b> Les civils gagnent s\'ils réussissent à éliminer, par le vote, tous les infiltrés et le Bluffeur. Les infiltrés gagnent s\'ils deviennent strictement plus nombreux que les civils encore en jeu. Le Bluffeur gagne tout seul s\'il devine le mot des civils au moment où il est démasqué !</p>';
   const btn = el('div','btn btn-primary','Compris, on joue ! 🎉');
   btn.style.marginTop = '6px';
   btn.onclick = () => bg.remove();
@@ -1401,7 +1401,7 @@ function checkWinConditionOrContinue(){
 
   if(infiltres === 0){
     finishGame('civils');
-  } else if(infiltres >= civils){
+  } else if(infiltres > civils){
     finishGame('undercover');
   } else {
     // Mauvaise élimination : nouveau tour de description, à partir du joueur suivant
