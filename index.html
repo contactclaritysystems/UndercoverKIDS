@@ -1232,14 +1232,23 @@ function showManagePlayers(){
   closeBtn.style.marginTop = '14px';
   closeBtn.onclick = () => {
     bg.remove();
+    if(changed){ syncNamesFromPlayers(); }
     if(state.pendingPlayers.length > 0){ showApplyChangesChoice(); }
-    else if(changed){ render(); }
     else { render(); }
   };
   modal.appendChild(closeBtn);
 
   bg.appendChild(modal);
   document.body.appendChild(bg);
+}
+
+// Reporte l'ordre et les noms actuels des joueurs (après renommage,
+// suppression ou glisser-déposer) dans la liste de base, pour qu'une
+// prochaine manche ("Rejouer", "Nouvelle manche"...) parte bien de cet
+// état à jour au lieu de revenir à l'ordre de saisie initial.
+function syncNamesFromPlayers(){
+  state.names = state.players.map(p => p.name);
+  state.numPlayers = state.players.length;
 }
 
 function showApplyChangesChoice(){
