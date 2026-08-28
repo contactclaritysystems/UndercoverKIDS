@@ -241,13 +241,28 @@
   }
   .modal{background:white; border-radius:22px; padding:22px; width:100%; max-width:340px; text-align:center; max-height:85vh; overflow-y:auto;}
   .modal h3{margin-bottom:8px; font-size:19px;}
+  .modal-close-sticky-wrap{position:sticky; top:0; height:0; overflow:visible; z-index:10;}
+  .toast{
+    position:fixed; left:50%; top:50%; transform:translate(-50%, -50%) scale(0.92);
+    background:rgba(22,32,43,0.95); color:#F2ECDC; padding:18px 24px; border-radius:16px;
+    font-size:15px; font-weight:700; max-width:80%; text-align:center; line-height:1.4;
+    box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:200; opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  .toast.show{opacity:1; transform:translate(-50%, -50%) scale(1);}
+  .modal-close-btn{
+    position:absolute; top:0; right:0;
+    width:30px; height:30px; border-radius:50%; background:#f0f0f4; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800;
+    cursor:pointer; z-index:5; box-shadow:0 2px 6px rgba(0,0,0,.15);
+  }
   .modal p{font-size:13px; color:var(--ink-soft); font-weight:500; margin-bottom:14px; line-height:1.4;}
 
   .badge{display:inline-block; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; margin-top:4px;}
   .badge.civil{background:#DEF7E5; color:#1E8A4C;}
   .badge.undercover{background:#FFE1E8; color:#C23A66;}
   .badge.mrwhite{background:#EAE7FF; color:#5C3FCC;}
-  .role-chip{display:inline-flex; align-items:center; white-space:nowrap; padding:5px 7px; border-radius:16px; font-size:10px; font-weight:800; flex-shrink:0;}
+  .role-chip{display:inline-flex; align-items:center; white-space:nowrap; padding:7px 9px; border-radius:16px; font-size:11px; font-weight:800; flex-shrink:0;}
   .status-row{display:flex; align-items:center; gap:5px; flex-wrap:nowrap; margin-top:8px; margin-bottom:16px; overflow-x:auto;}
   .order-row{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;}
   .order-pill{
@@ -583,6 +598,24 @@ function el(tag, cls, html){
   return e;
 }
 
+let toastTimer = null;
+function showToast(message){
+  let toast = document.getElementById('app-toast');
+  if(!toast){
+    toast = el('div', null, '');
+    toast.id = 'app-toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  clearTimeout(toastTimer);
+  // reflow pour redéclencher l'animation même si un toast est déjà affiché
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 2600);
+}
+
 // ---------- SETUP SCREEN ----------
 function renderSetup(){
   syncNamesArray();
@@ -627,6 +660,14 @@ function renderSetup(){
   for(let i=0;i<state.numPlayers;i++){
     card1.appendChild(createNameField(i));
   }
+
+  const nameHint = el('div', null, "✏️ Prénoms dans l'ordre où vous êtes assis");
+  nameHint.style.fontSize = '11.5px';
+  nameHint.style.fontWeight = '600';
+  nameHint.style.color = 'var(--ink-soft)';
+  nameHint.style.marginTop = '4px';
+  card1.appendChild(nameHint);
+
   scrollArea.appendChild(card1);
 
   const card2 = el('div','card');
@@ -666,6 +707,7 @@ function renderSetup(){
 
   const civilCount = state.numPlayers - state.numUndercover - state.numMrWhite;
   const info = el('div','card center');
+  info.style.padding = '10px 16px';
   info.style.background = '#fafafc';
   info.innerHTML =
     '<div style="display:flex; align-items:center; gap:5px; justify-content:center; flex-wrap:nowrap; overflow-x:auto; padding:2px 0;">' +
@@ -695,6 +737,7 @@ function showRulesModal(){
   const bg = el('div','modal-bg');
   const modal = el('div','modal');
   modal.style.textAlign = 'left';
+  modal.style.position = 'relative';
   modal.innerHTML =
     '<h3 style="text-align:center;">📖 Comment jouer ?</h3>' +
     '<p><b>🪑 Installation :</b> installez-vous assis en cercle ou autour d\'une table. Entrez les prénoms dans l\'ordre où vous êtes assis, dans le sens des aiguilles d\'une montre : le jeu s\'en sert pour faire parler chacun à son tour, dans cet ordre.</p>' +
@@ -709,6 +752,13 @@ function showRulesModal(){
   btn.style.marginTop = '6px';
   btn.onclick = () => bg.remove();
   modal.appendChild(btn);
+
+  const closeX = el('div','modal-close-btn','✕');
+  closeX.onclick = () => bg.remove();
+  const closeXSticky = el('div','modal-close-sticky-wrap');
+  closeXSticky.appendChild(closeX);
+  modal.insertBefore(closeXSticky, modal.firstChild);
+
   bg.appendChild(modal);
   document.body.appendChild(bg);
 }
@@ -787,6 +837,8 @@ function startGame(){
   }
 
   const civilCount = state.numPlayers - state.numUndercover - state.numMrWhite;
+  const missingNames = state.names.slice(0, state.numPlayers).some(n => !n || !n.trim());
+  if(missingNames){ showToast("✏️ Merci d'écrire le prénom de chaque joueur avant de commencer !"); return; }
   if(state.numUndercover + state.numMrWhite < 1){ alert("Choisis au moins 1 infiltré ou 1 Bluffeur pour commencer !"); return; }
   if(civilCount < 1){ alert("Il faut garder au moins 1 civil ! Réduis le nombre d'infiltrés ou de Bluffeurs."); return; }
 
