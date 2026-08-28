@@ -78,6 +78,14 @@
   @media (display-mode: standalone){
     .quit-btn{ top: calc(16px + env(safe-area-inset-top)); }
   }
+  .back-btn{
+    position:fixed; top:16px; left:16px; width:40px; height:40px; border-radius:50%;
+    background:rgba(255,255,255,0.85); color:var(--ink); display:flex; align-items:center; justify-content:center;
+    font-size:18px; font-weight:800; box-shadow:0 4px 10px rgba(32,51,74,.25); z-index:60; cursor:pointer;
+  }
+  @media (display-mode: standalone){
+    .back-btn{ top: calc(16px + env(safe-area-inset-top)); }
+  }
   h1,h2,h3{font-family:-apple-system, 'SF Pro Display', sans-serif; margin:0;}
   .screen{
     position:relative; z-index:1; animation: pop .3s ease;
@@ -491,8 +499,19 @@ function syncNamesArray(){
   state.names = state.names.slice(0, n);
 }
 
+// À 3 joueurs, un seul rôle spécial (infiltré OU Bluffeur) est autorisé à la
+// fois : impossible d'avoir les deux en même temps. Au-delà, la seule règle
+// est de garder au moins 1 civil.
+function maxSpecialTotal(){
+  // Les civils doivent toujours rester strictement plus nombreux que le
+  // total des rôles spéciaux (infiltré + Bluffeur), quel que soit le
+  // nombre de joueurs, pour que la partie reste équilibrée.
+  return Math.floor((state.numPlayers - 1) / 2);
+}
+
 function clampRoles(){
-  while(state.numUndercover + state.numMrWhite > state.numPlayers - 1 && (state.numUndercover > 0 || state.numMrWhite > 0)){
+  const max = maxSpecialTotal();
+  while(state.numUndercover + state.numMrWhite > max && (state.numUndercover > 0 || state.numMrWhite > 0)){
     if(state.numMrWhite > 0) state.numMrWhite--;
     else state.numUndercover--;
   }
@@ -618,7 +637,7 @@ function renderSetup(){
   const stepper1 = createRoleStepper(
     state.numUndercover,
     (v) => { state.numUndercover = v; },
-    () => state.numPlayers - 1 - state.numMrWhite
+    () => maxSpecialTotal() - state.numMrWhite
   );
   stepper1.classList.add('tint-undercover');
   row1.appendChild(stepper1);
@@ -629,7 +648,7 @@ function renderSetup(){
   const stepper2 = createRoleStepper(
     state.numMrWhite,
     (v) => { state.numMrWhite = v; },
-    () => state.numPlayers - 1 - state.numUndercover
+    () => maxSpecialTotal() - state.numUndercover
   );
   stepper2.classList.add('tint-mrwhite');
   row2.appendChild(stepper2);
@@ -1050,8 +1069,15 @@ function showChangeWordConfirm(){
 function renderDiscussion(){
   const wrap = el('div','screen');
   const header = el('div','fixed-part');
+  header.style.paddingLeft = '64px';
+  header.style.position = 'relative';
   header.appendChild(el('div','title-row','<span class="emoji">🗳️</span><h1 class="main">Qui est démasqué ?</h1>'));
   header.appendChild(el('div','subtitle','Discutez à voix haute, puis touchez le joueur éliminé par le vote.'));
+
+  const backBtn = el('div','back-btn','←');
+  backBtn.title = 'Revenir en arrière';
+  backBtn.onclick = () => { state.screen = 'starter'; render(); };
+  wrap.appendChild(backBtn);
 
   const active = state.players.filter(p => !p.eliminated);
   const civilsLeft = active.filter(p => p.role === 'civil').length;
