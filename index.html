@@ -1454,6 +1454,17 @@ function renderResult(){
     '<div style="font-weight:700;font-size:14px;">🕶️ Le mot des infiltrés : <b>' + state.undercoverWord + '</b></div>';
   scrollArea.appendChild(card);
 
+  const revealCard = el('div','card');
+  revealCard.appendChild(el('label','field-label','🎭 Qui était qui ?'));
+  state.players.forEach(p => {
+    const roleLabel = p.role==='civil' ? '👨‍👩‍👧 Civil' : (p.role==='undercover' ? '🕶️ Infiltré' : '🤍 Bluffeur');
+    const badgeClass = p.role==='civil' ? 'civil' : (p.role==='undercover' ? 'undercover' : 'mrwhite');
+    const row = el('div','role-row');
+    row.innerHTML = '<div class="label">' + p.name + '</div><span class="badge ' + badgeClass + '">' + roleLabel + '</span>';
+    revealCard.appendChild(row);
+  });
+  scrollArea.appendChild(revealCard);
+
   const scoreCard = el('div','card');
   scoreCard.appendChild(el('label','field-label','🏆 Scores de la session'));
   const rows = state.players
