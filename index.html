@@ -162,7 +162,7 @@
   input.name-input:focus{outline:none; border-color:var(--indigo);}
   .suggestions{
     position:absolute; left:0; right:0; top:calc(100% + 4px); background:white; border-radius:14px;
-    box-shadow:0 8px 20px rgba(28,28,30,.18); z-index:30; overflow-y:auto; max-height:180px; display:none;
+    box-shadow:0 8px 20px rgba(28,28,30,.18); z-index:30; overflow-y:auto; max-height:240px; display:none;
   }
   .suggestion-item{
     display:flex; justify-content:space-between; align-items:center; padding:9px 14px;
@@ -171,6 +171,10 @@
   .suggestion-item:last-child{border-bottom:none;}
   .suggestion-item:active{background:#f5f5f8;}
   .sugg-stats{font-size:10px; color:var(--ink-soft); font-weight:600;}
+  .suggestion-group-label{
+    padding:8px 14px 4px; font-size:10px; font-weight:800; color:var(--ink-soft);
+    text-transform:uppercase; letter-spacing:0.03em; background:#fafafc;
+  }
 
   .btn{
     display:block; width:100%; text-align:center; padding:13px; border-radius:16px;
@@ -438,6 +442,34 @@ const WORD_LEVELS = {
 // ---------- Historique des joueurs (en mémoire, le temps de la session) ----------
 let roster = [];
 
+// ---------- Sauvegarde persistante du classement (localStorage) ----------
+// Contrairement au reste (partie en cours, etc.), le classement des joueurs
+// doit survivre à la fermeture de l'app, pas seulement rester en mémoire le
+// temps que l'onglet reste ouvert.
+const ROSTER_STORAGE_KEY = 'demasque_roster_v1';
+
+function saveRosterToStorage(){
+  try{
+    localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(roster));
+  }catch(e){
+    // Stockage indisponible (navigation privée, quota plein...) : on continue
+    // sans sauvegarder plutôt que de planter le jeu.
+  }
+}
+
+function loadRosterFromStorage(){
+  try{
+    const saved = localStorage.getItem(ROSTER_STORAGE_KEY);
+    if(saved){
+      const parsed = JSON.parse(saved);
+      if(Array.isArray(parsed)) roster = parsed;
+    }
+  }catch(e){
+    roster = [];
+  }
+}
+loadRosterFromStorage();
+
 // ---------- Pioche de mots sans répétition (une pile distincte par niveau) ----------
 // On mélange toute la liste, on tire dedans une par une, et on ne remélange
 // que lorsqu'on est passé par tous les mots : jamais 2 fois le même trop vite.
@@ -479,9 +511,12 @@ function getOrCreateRosterEntry(name){
   if(!name) return null;
   let entry = roster.find(r => r.name.toLowerCase() === name.toLowerCase());
   if(!entry){
-    entry = { name: name, parties: 0, points: 0 };
+    entry = { name: name, parties: 0, points: 0, lastPlayedAt: Date.now() };
     roster.push(entry);
+  } else {
+    entry.lastPlayedAt = Date.now();
   }
+  saveRosterToStorage();
   return entry;
 }
 
@@ -498,12 +533,12 @@ let state = {
   chosenCard: null,
   civilWord: null,
   undercoverWord: null,
-  starterIndex: null,
+  starterId: null,
   allowBluffeurStarter: false,
   wordLevel: 'kids',
   revealOrder: [],
   roundNumber: 1,
-  lastEliminatedIdx: null,
+  lastEliminatedId: null,
   pendingPlayers: [],
   winner: null
 };
@@ -511,7 +546,9 @@ let state = {
 function syncNamesArray(){
   const n = state.numPlayers;
   while(state.names.length < n) state.names.push("");
-  state.names = state.names.slice(0, n);
+  // Pas de troncature : si on réduit puis remonte le nombre de joueurs, les
+  // prénoms déjà tapés au-delà du nombre actuel restent en mémoire au lieu
+  // d'être perdus.
 }
 
 // À 3 joueurs, un seul rôle spécial (infiltré OU Bluffeur) est autorisé à la
@@ -601,6 +638,38 @@ function el(tag, cls, html){
 // Accord simple du pluriel (ajoute un "s" seulement si count > 1)
 function plural(count, word){
   return word + (count > 1 ? 's' : '');
+}
+
+// Échappe le HTML dans un texte fourni par l'utilisateur (prénom...) avant de
+// l'insérer via innerHTML, pour qu'un prénom du style "<b>Test</b>" s'affiche
+// tel quel au lieu d'être interprété comme du vrai code HTML.
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+// Empêche un double-tap accidentel de déclencher deux fois une action qui
+// fait avancer la partie (élimination, changement d'écran...).
+function guardOnce(fn){
+  let done = false;
+  return (...args) => {
+    if(done) return;
+    done = true;
+    fn(...args);
+  };
+}
+
+// Normalise un mot pour la comparaison (minuscules, sans accents, espaces
+// superflus retirés) : le Bluffeur ne doit pas perdre juste parce qu'il a
+// oublié un accent ou tapé en majuscules.
+function normalizeWord(str){
+  return (str || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ');
 }
 
 let toastTimer = null;
@@ -752,7 +821,8 @@ function showRulesModal(){
     '<p><b>🤍 Bluffeur :</b> n\'a aucun mot. Il doit deviner ce que les autres décrivent et bluffer à fond pour ne pas se faire éliminer !</p>' +
     '<p><b>🎮 Le déroulé :</b> chacun pioche une carte à son tour pour découvrir son mot en privé (sans le montrer aux autres). Une fois que tout le monde a vu son mot, le jeu tire au sort qui commence, puis chacun donne un indice sur son mot à voix haute, chacun son tour, en suivant l\'ordre des sièges. Ensuite, tout le monde vote ensemble pour éliminer celui qu\'il soupçonne d\'être l\'infiltré ou le Bluffeur.</p>' +
     '<p><b>🔁 Si ce n\'était pas le bon :</b> tant qu\'il reste au moins un infiltré ou le Bluffeur en jeu, la partie continue : on refait un tour complet où chacun donne un nouvel indice sur son mot, puis on revote pour éliminer quelqu\'un d\'autre. Et ainsi de suite jusqu\'à ce que les civils gagnent, ou qu\'il ne reste plus assez de civils.</p>' +
-    '<p><b>🏆 Qui gagne ?</b> Les civils gagnent s\'ils réussissent à éliminer, par le vote, tous les infiltrés et le Bluffeur. Les infiltrés gagnent s\'ils deviennent strictement plus nombreux que les civils encore en jeu. Le Bluffeur gagne tout seul s\'il devine le mot des civils au moment où il est démasqué !</p>';
+    '<p><b>🏆 Qui gagne ?</b> Les civils gagnent s\'ils réussissent à éliminer, par le vote, tous les infiltrés et le Bluffeur. Les infiltrés gagnent s\'ils deviennent strictement plus nombreux que les civils encore en jeu. Le Bluffeur gagne tout seul s\'il devine le mot des civils au moment où il est démasqué !</p>' +
+    '<p><b>🥇 Les points :</b> les civils gagnent 2 points chacun si leur camp l\'emporte. Les infiltrés et le Bluffeur (s\'il a survécu jusqu\'au bout) gagnent 3 points chacun si leur camp l\'emporte. Et si le Bluffeur devine le mot exact des civils après avoir été démasqué, il gagne 5 points à lui tout seul, le meilleur score possible !</p>';
   const btn = el('div','btn btn-primary','Compris, on joue ! 🎉');
   btn.style.marginTop = '6px';
   btn.onclick = () => bg.remove();
@@ -800,17 +870,17 @@ function createNameField(i){
     const matches = roster
       .filter(r => r.name.toLowerCase().includes(q))
       .filter(r => r.name.toLowerCase() !== q)
-      .sort((a,b) => a.name.localeCompare(b.name))
-      .slice(0,5);
+      .sort((a,b) => (b.lastPlayedAt||0) - (a.lastPlayedAt||0)); // les derniers joueurs en premier, liste complète (pas de plafond)
     if(matches.length === 0){
       sugg.style.display = 'none';
       sugg.innerHTML = '';
       return;
     }
     sugg.innerHTML = '';
-    matches.forEach(r => {
+
+    function addItem(r){
       const item = el('div','suggestion-item');
-      item.innerHTML = '<span>' + r.name + '</span><span class="sugg-stats">' + r.parties + ' parties · ' + r.points + ' pts</span>';
+      item.innerHTML = '<span>' + escapeHtml(r.name) + '</span><span class="sugg-stats">' + r.parties + ' parties · ' + r.points + ' pts</span>';
       item.onmousedown = (ev) => {
         ev.preventDefault();
         input.value = r.name;
@@ -819,7 +889,20 @@ function createNameField(i){
         sugg.innerHTML = '';
       };
       sugg.appendChild(item);
-    });
+    }
+
+    // Sans recherche en cours : on sépare "derniers joueurs" (les 3 plus
+    // récents) du reste de la liste, classé par ordre alphabétique.
+    if(q === '' && matches.length > 3){
+      const recent = matches.slice(0,3);
+      const others = matches.slice(3).sort((a,b) => a.name.localeCompare(b.name));
+      sugg.appendChild(el('div','suggestion-group-label','🕒 Derniers joueurs'));
+      recent.forEach(addItem);
+      sugg.appendChild(el('div','suggestion-group-label','👥 Tous les joueurs'));
+      others.forEach(addItem);
+    } else {
+      matches.forEach(addItem);
+    }
     sugg.style.display = 'block';
   }
 
@@ -844,6 +927,13 @@ function startGame(){
   const civilCount = state.numPlayers - state.numUndercover - state.numMrWhite;
   const missingNames = state.names.slice(0, state.numPlayers).some(n => !n || !n.trim());
   if(missingNames){ showToast("✏️ Merci d'écrire le prénom de chaque joueur avant de commencer !"); return; }
+
+  // Deux joueurs avec le même prénom fausseraient le tableau des scores
+  // (impossible de les distinguer) : on demande un prénom différent.
+  const namesTrimmed = state.names.slice(0, state.numPlayers).map(n => n.trim().toLowerCase());
+  const hasDuplicateNames = namesTrimmed.some((n, i) => namesTrimmed.indexOf(n) !== i);
+  if(hasDuplicateNames){ showToast('👥 Deux joueurs ont le même prénom ! Ajoute une initiale pour les distinguer (ex : "Léa B.").'); return; }
+
   if(state.numUndercover + state.numMrWhite < 1){ alert("Choisis au moins 1 infiltré ou 1 Bluffeur pour commencer !"); return; }
   if(civilCount < 1){ alert("Il faut garder au moins 1 civil ! Réduis le nombre d'infiltrés ou de Bluffeurs."); return; }
 
@@ -877,7 +967,7 @@ function startGame(){
   const startIdx = validStarts[Math.floor(Math.random()*validStarts.length)];
   state.revealOrder = buildRotationOrder(startIdx, state.players.length);
   state.usedCardSlots = new Array(state.revealOrder.length).fill(false);
-  state.starterIndex = startIdx; // le premier à piocher est aussi le premier à décrire
+  state.starterId = state.players[startIdx].id; // le premier à piocher est aussi le premier à décrire
 
   state.civilWord = civilWord;
   state.undercoverWord = undercoverWord;
@@ -885,7 +975,7 @@ function startGame(){
   state.revealed = false;
   state.chosenCard = null;
   state.roundNumber = 1;
-  state.lastEliminatedIdx = null;
+  state.lastEliminatedId = null;
   state.screen = 'reveal';
   render();
 }
@@ -1030,8 +1120,10 @@ function rerollWord(){
 }
 
 // ---------- STARTER SCREEN : le jeu tire au sort qui commence ----------
-function getSpeakingOrder(startIdx){
+function getSpeakingOrder(startId){
   const n = state.players.length;
+  let startIdx = state.players.findIndex(p => p.id === startId);
+  if(startIdx === -1) startIdx = 0; // filet de sécurité si le joueur n'existe plus (supprimé)
   const order = [];
   for(let i=0;i<n;i++){
     const idx = (startIdx + i) % n;
@@ -1043,7 +1135,7 @@ function getSpeakingOrder(startIdx){
 
 function renderStarter(){
   const wrap = el('div','screen center');
-  const starter = state.players[state.starterIndex];
+  const starter = state.players.find(p => p.id === state.starterId) || state.players.find(p => !p.eliminated) || state.players[0];
   const isFirstRound = state.roundNumber <= 1;
 
   const scrollArea = el('div','scroll-area center');
@@ -1053,7 +1145,7 @@ function renderStarter(){
     scrollArea.appendChild(el('div','starter-icon','🎙️'));
     const card = el('div','card center');
     card.innerHTML = '<div style="font-size:14px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">Le sort a désigné...</div>' +
-      '<div style="font-size:24px;font-weight:800;color:var(--pink);">' + starter.name + '</div>' +
+      '<div style="font-size:24px;font-weight:800;color:var(--pink);">' + escapeHtml(starter.name) + '</div>' +
       '<div style="font-size:13px;font-weight:600;color:var(--ink-soft);margin-top:6px;">C\'est ce joueur qui décrit son mot en premier !</div>';
     scrollArea.appendChild(card);
   } else {
@@ -1061,19 +1153,19 @@ function renderStarter(){
     scrollArea.appendChild(el('div','starter-icon','🎙️'));
     const card = el('div','card center');
     card.innerHTML = '<div style="font-size:14px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">Ce n\'était pas le bon joueur ! On continue avec...</div>' +
-      '<div style="font-size:24px;font-weight:800;color:var(--pink);">' + starter.name + '</div>' +
+      '<div style="font-size:24px;font-weight:800;color:var(--pink);">' + escapeHtml(starter.name) + '</div>' +
       '<div style="font-size:13px;font-weight:600;color:var(--ink-soft);margin-top:6px;">Chacun donne un nouvel indice sur son mot, en commençant par ce joueur !</div>';
     scrollArea.appendChild(card);
   }
 
   // Ordre de parole : à partir du joueur désigné, dans le sens de la table,
   // en sautant les joueurs déjà éliminés.
-  const order = getSpeakingOrder(state.starterIndex);
+  const order = getSpeakingOrder(state.starterId);
   const orderCard = el('div','card');
   orderCard.appendChild(el('label','field-label','🎙️ Ordre pour décrire son mot'));
   const orderRow = el('div','order-row');
   order.forEach((p, i) => {
-    const pill = el('div','order-pill' + (i===0 ? ' first' : ''), '<span class="order-num">' + (i+1) + '</span>' + p.name);
+    const pill = el('div','order-pill' + (i===0 ? ' first' : ''), '<span class="order-num">' + (i+1) + '</span>' + escapeHtml(p.name));
     orderRow.appendChild(pill);
   });
   orderCard.appendChild(orderRow);
@@ -1112,7 +1204,7 @@ function showChangeWordConfirm(){
   modal.appendChild(el('h3', null, '🔄 Changer le mot ?'));
   modal.appendChild(el('p', null, 'Ça relance une toute nouvelle manche avec un nouveau mot : les rôles sont retirés au sort et tous les joueurs (même déjà éliminés) reviennent en jeu.'));
   const yesBtn = el('div','btn btn-primary','Oui, nouvelle manche');
-  yesBtn.onclick = () => { bg.remove(); startGame(); };
+  yesBtn.onclick = guardOnce(() => { bg.remove(); startGame(); });
   modal.appendChild(yesBtn);
   const noBtn = el('div','btn btn-ghost','Annuler');
   noBtn.style.marginTop = '10px';
@@ -1155,7 +1247,7 @@ function renderDiscussion(){
   const list = el('div','players-list');
   state.players.forEach((p, idx) => {
     const b = el('div','player-btn' + (p.eliminated ? ' eliminated' : ''));
-    b.innerHTML = '<div class="dot">' + p.name.charAt(0).toUpperCase() + '</div><div>' + p.name + '</div>';
+    b.innerHTML = '<div class="dot">' + escapeHtml(p.name.charAt(0).toUpperCase()) + '</div><div>' + escapeHtml(p.name) + '</div>';
     if(!p.eliminated){
       b.onclick = () => confirmEliminate(idx);
     }
@@ -1174,9 +1266,9 @@ function showForgotWordPicker(){
   modal.appendChild(el('p', null, 'Choisis ton nom, personne d\'autre ne doit regarder l\'écran !'));
 
   const list = el('div','players-list');
-  state.players.forEach((p) => {
+  state.players.filter(p => !p.eliminated).forEach((p) => {
     const b = el('div','player-btn');
-    b.innerHTML = '<div class="dot">' + p.name.charAt(0).toUpperCase() + '</div><div>' + p.name + '</div>';
+    b.innerHTML = '<div class="dot">' + escapeHtml(p.name.charAt(0).toUpperCase()) + '</div><div>' + escapeHtml(p.name) + '</div>';
     b.onclick = () => { bg.remove(); showConfirmIdentity(p); };
     list.appendChild(b);
   });
@@ -1194,7 +1286,7 @@ function showForgotWordPicker(){
 function showConfirmIdentity(p){
   const bg = el('div','modal-bg');
   const modal = el('div','modal');
-  modal.appendChild(el('h3', null, '🙈 C\'est bien toi, ' + p.name + ' ?'));
+  modal.appendChild(el('h3', null, '🙈 C\'est bien toi, ' + escapeHtml(p.name) + ' ?'));
   modal.appendChild(el('p', null, 'Les autres joueurs ne doivent pas regarder l\'écran maintenant.'));
   const yesBtn = el('div','btn btn-primary','Oui, c\'est bien moi 👀');
   yesBtn.onclick = () => { bg.remove(); showWordReminder(p); };
@@ -1326,8 +1418,14 @@ function showManagePlayers(){
       input.style.flex = '1';
       input.onchange = () => {
         const newName = input.value.trim();
-        if(newName && newName !== p.name){ p.name = newName; changed = true; }
-        else input.value = p.name;
+        if(!newName || newName === p.name){ input.value = p.name; return; }
+        const otherNames = state.players.filter(pl => pl.id !== p.id).map(pl => pl.name.toLowerCase());
+        if(otherNames.includes(newName.toLowerCase())){
+          alert('Ce prénom est déjà utilisé par un autre joueur !');
+          input.value = p.name;
+          return;
+        }
+        p.name = newName; changed = true;
       };
       row.appendChild(input);
 
@@ -1362,7 +1460,7 @@ function showManagePlayers(){
         prow.style.gap = '8px';
         prow.style.alignItems = 'center';
         prow.style.opacity = '.7';
-        const label = el('div', null, '⏳ ' + pp.name);
+        const label = el('div', null, '⏳ ' + escapeHtml(pp.name));
         label.style.flex = '1';
         label.style.fontWeight = '700';
         label.style.padding = '10px 4px';
@@ -1394,6 +1492,12 @@ function showManagePlayers(){
     if(state.players.length + state.pendingPlayers.length >= 12){ alert('Maximum 12 joueurs.'); return; }
     const name = prompt('Prénom du nouveau joueur :');
     if(!name || !name.trim()) return;
+    const existingNames = state.players.map(p => p.name.toLowerCase())
+      .concat(state.pendingPlayers.map(p => p.name.toLowerCase()));
+    if(existingNames.includes(name.trim().toLowerCase())){
+      alert('Ce prénom est déjà utilisé par un autre joueur ! Ajoute une initiale pour le distinguer (ex : "Léa B.").');
+      return;
+    }
     state.pendingPlayers.push({
       id: 'pending_' + Math.random().toString(36).slice(2,7),
       name: name.trim()
@@ -1456,10 +1560,10 @@ function confirmEliminate(idx){
   const p = state.players[idx];
   const bg = el('div','modal-bg');
   const modal = el('div','modal');
-  modal.appendChild(el('h3', null, '⚠️ Éliminer ' + p.name + ' ?'));
+  modal.appendChild(el('h3', null, '⚠️ Éliminer ' + escapeHtml(p.name) + ' ?'));
   modal.appendChild(el('p', null, 'Vérifiez bien que c\'est le joueur désigné par le vote avant de valider !'));
   const yesBtn = el('div','btn btn-primary','✅ Oui, c\'est le bon joueur');
-  yesBtn.onclick = () => { bg.remove(); eliminatePlayer(idx); };
+  yesBtn.onclick = guardOnce(() => { bg.remove(); eliminatePlayer(idx); });
   modal.appendChild(yesBtn);
   const noBtn = el('div','btn btn-ghost','Annuler');
   noBtn.style.marginTop = '10px';
@@ -1472,7 +1576,7 @@ function confirmEliminate(idx){
 function eliminatePlayer(idx){
   const p = state.players[idx];
   p.eliminated = true;
-  state.lastEliminatedIdx = idx;
+  state.lastEliminatedId = p.id;
 
   if(p.role === 'mrwhite'){
     showMrWhiteGuessModal(idx);
@@ -1487,25 +1591,41 @@ function showEliminationResult(p){
   const roleLabel = p.role==='civil' ? '👨‍👩‍👧 Civil' : (p.role==='undercover' ? '🕶️ Infiltré' : '🤍 Bluffeur');
   const badgeClass = p.role==='civil' ? 'civil' : (p.role==='undercover' ? 'undercover' : 'mrwhite');
 
+  // Calcul unique, valable pour les 3 rôles : est-ce que CETTE élimination
+  // termine déjà la partie (dans un sens ou dans l'autre) ?
+  const active = state.players.filter(pl => !pl.eliminated);
+  const civilsNow = active.filter(pl => pl.role==='civil').length;
+  const infiltresNow = active.filter(pl => pl.role==='undercover' || pl.role==='mrwhite').length;
+  const civilsWinNow = infiltresNow === 0;
+  const infiltresWinNow = !civilsWinNow && (civilsNow <= 1 ? infiltresNow >= civilsNow : infiltresNow > civilsNow);
+  const gameEndsNow = civilsWinNow || infiltresWinNow;
+
   let outcomeHtml;
   if(p.role === 'civil'){
-    outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--pink);">❌ Non, ce n\'était qu\'un Civil ! Refaites un tour, chacun donne un nouvel indice.</p>';
-  } else {
-    const remaining = state.players.filter(pl => !pl.eliminated && (pl.role==='undercover' || pl.role==='mrwhite')).length;
-    const roleWord = p.role==='undercover' ? 'un Infiltré' : 'le Bluffeur';
-    if(remaining > 0){
-      outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--mint);">✅ Bien joué, c\'était ' + roleWord + ' ! Encore ' + remaining + ' ' + (remaining>1 ? 'suspects (infiltré ou Bluffeur) à démasquer' : 'suspect (infiltré ou Bluffeur) à démasquer') + '.</p>';
+    if(infiltresWinNow){
+      outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--pink);">❌ Non, ce n\'était qu\'un Civil ! Les infiltrés sont maintenant trop nombreux, ils remportent la partie.</p>';
     } else {
-      outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--mint);">✅ Bien joué, c\'était ' + roleWord + ' !</p>';
+      outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--pink);">❌ Non, ce n\'était qu\'un Civil ! Refaites un tour, chacun donne un nouvel indice.</p>';
+    }
+  } else {
+    const roleWord = p.role==='undercover' ? 'un Infiltré' : 'le Bluffeur';
+    if(civilsWinNow){
+      outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--mint);">✅ Bien joué, c\'était ' + roleWord + ' ! Tous les infiltrés sont démasqués, les civils gagnent !</p>';
+    } else {
+      outcomeHtml = '<p style="margin-top:12px;font-weight:800;color:var(--mint);">✅ Bien joué, c\'était ' + roleWord + ' ! Encore ' + infiltresNow + ' ' + (infiltresNow>1 ? 'suspects (infiltré ou Bluffeur) à démasquer' : 'suspect (infiltré ou Bluffeur) à démasquer') + '.</p>';
     }
   }
 
-  modal.innerHTML = '<h3>' + p.name + ' est éliminé(e) !</h3>' +
+  // Cette phrase n'a de sens que si la partie continue : si elle se termine
+  // ici, les mots sont révélés tout de suite sur l'écran suivant, pas "à la fin".
+  const footerNote = gameEndsNow ? '' : '<p style="margin-top:8px;">Le mot sera révélé à la fin de la manche.</p>';
+
+  modal.innerHTML = '<h3>' + escapeHtml(p.name) + ' est éliminé(e) !</h3>' +
     '<span class="badge ' + badgeClass + '">' + roleLabel + '</span>' +
     outcomeHtml +
-    '<p style="margin-top:8px;">Le mot sera révélé à la fin de la manche.</p>';
+    footerNote;
   const btn = el('div','btn btn-primary','Continuer ➡️');
-  btn.onclick = () => { bg.remove(); checkWinConditionOrContinue(); };
+  btn.onclick = guardOnce(() => { bg.remove(); checkWinConditionOrContinue(); });
   modal.appendChild(btn);
   bg.appendChild(modal);
   document.body.appendChild(bg);
@@ -1519,26 +1639,27 @@ function showMrWhiteGuessModal(idx){
   input.placeholder = 'Sa réponse...';
   modal.appendChild(input);
   const btn = el('div','btn btn-secondary','Valider la réponse');
-  btn.onclick = () => {
-    const guess = input.value.trim().toLowerCase();
-    const correct = guess === state.civilWord.toLowerCase();
+  btn.onclick = guardOnce(() => {
+    const correct = normalizeWord(input.value) === normalizeWord(state.civilWord);
     bg.remove();
     if(correct){
       finishGame('mrwhite');
     } else {
       showEliminationResult(state.players[idx]);
     }
-  };
+  });
   modal.appendChild(btn);
   bg.appendChild(modal);
   document.body.appendChild(bg);
 }
 
-function getNextActivePlayerAfter(idx){
+function getNextActivePlayerAfter(afterId){
   const n = state.players.length;
+  let idx = state.players.findIndex(p => p.id === afterId);
+  if(idx === -1) idx = -1; // joueur introuvable (supprimé) : on repart du début de la table
   for(let step=1; step<=n; step++){
     const candidate = (idx + step) % n;
-    if(!state.players[candidate].eliminated) return candidate;
+    if(!state.players[candidate].eliminated) return state.players[candidate].id;
   }
   return null;
 }
@@ -1558,8 +1679,8 @@ function checkWinConditionOrContinue(){
   } else {
     // Mauvaise élimination : nouveau tour de description, à partir du joueur suivant
     state.roundNumber = (state.roundNumber || 1) + 1;
-    const nextIdx = state.lastEliminatedIdx !== null ? getNextActivePlayerAfter(state.lastEliminatedIdx) : null;
-    state.starterIndex = nextIdx !== null ? nextIdx : (active.length ? state.players.indexOf(active[0]) : 0);
+    const nextId = state.lastEliminatedId !== null ? getNextActivePlayerAfter(state.lastEliminatedId) : null;
+    state.starterId = nextId !== null ? nextId : (active.length ? active[0].id : (state.players[0] && state.players[0].id));
     state.screen = 'starter';
     render();
   }
@@ -1574,11 +1695,12 @@ function finishGame(winnerKey){
     if(winnerKey === 'civils' && p.role === 'civil') pts = 2;
     if(winnerKey === 'undercover'){
       if(p.role === 'undercover') pts = 3;
-      else if(p.role === 'mrwhite' && !p.eliminated) pts = 1;
+      else if(p.role === 'mrwhite' && !p.eliminated) pts = 3;
     }
     if(winnerKey === 'mrwhite' && p.role === 'mrwhite') pts = 5;
     entry.points += pts;
   });
+  saveRosterToStorage();
   state.screen = 'result';
   render();
 }
@@ -1609,7 +1731,7 @@ function renderResult(){
     const badgeClass = p.role==='civil' ? 'civil' : (p.role==='undercover' ? 'undercover' : 'mrwhite');
     const wordNote = p.role==='mrwhite' ? '' : ('<span style="font-weight:600;font-size:12px;color:var(--ink-soft);">' + p.word + '</span>');
     const row = el('div','role-row');
-    row.innerHTML = '<div class="label">' + p.name + '</div>' +
+    row.innerHTML = '<div class="label">' + escapeHtml(p.name) + '</div>' +
       '<div style="display:flex;align-items:center;gap:8px;">' + wordNote + '<span class="badge ' + badgeClass + '">' + roleLabel + '</span></div>';
     revealCard.appendChild(row);
   });
@@ -1620,14 +1742,14 @@ function renderResult(){
   const rows = state.players
     .slice()
     .sort((a,b) => {
-      const ea = roster.find(r=>r.name===a.name) || {points:0};
-      const eb = roster.find(r=>r.name===b.name) || {points:0};
+      const ea = roster.find(r=>r.name.toLowerCase()===a.name.toLowerCase()) || {points:0};
+      const eb = roster.find(r=>r.name.toLowerCase()===b.name.toLowerCase()) || {points:0};
       return eb.points - ea.points;
     });
   rows.forEach(p => {
-    const entry = roster.find(r => r.name === p.name) || {parties:0, points:0};
+    const entry = roster.find(r => r.name.toLowerCase() === p.name.toLowerCase()) || {parties:0, points:0};
     const row = el('div','role-row');
-    row.innerHTML = '<div><div class="label">' + p.name + '</div><div class="desc">' + entry.parties + ' parties jouées</div></div><div style="font-weight:800;font-size:16px;color:var(--amber);">' + entry.points + ' pts</div>';
+    row.innerHTML = '<div><div class="label">' + escapeHtml(p.name) + '</div><div class="desc">' + entry.parties + ' parties jouées</div></div><div style="font-weight:800;font-size:16px;color:var(--amber);">' + entry.points + ' pts</div>';
     scoreCard.appendChild(row);
   });
   scrollArea.appendChild(scoreCard);
@@ -1637,7 +1759,7 @@ function renderResult(){
   const footer = el('div','fixed-part');
   const replay = el('div','btn btn-primary','🔁 Rejouer avec les mêmes joueurs');
   footer.appendChild(replay);
-  replay.onclick = () => { startGame(); };
+  replay.onclick = guardOnce(() => { startGame(); });
 
   const newGame = el('div','btn btn-ghost','⚙️ Nouvelle configuration');
   newGame.style.marginTop = '8px';
