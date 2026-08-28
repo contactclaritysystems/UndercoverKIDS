@@ -848,11 +848,13 @@ function renderReveal(){
     // Le paquet garde toujours le même nombre de cartes : celles déjà
     // prises restent visibles, juste grisées, elles ne disparaissent pas.
     const grid = el('div','deck-grid');
-    // Grandes cartes, en lignes de 3 ou 4 selon le nombre de joueurs,
-    // pour éviter une dernière ligne avec une seule carte isolée.
-    // Jusqu'à 9 joueurs : lignes de 3 cartes. À partir de 10 : lignes de 4.
-    const perRow = totalCards >= 10 ? 4 : Math.min(totalCards, 3);
-    const cardW = Math.min(100, Math.floor((338 - (perRow-1)*14) / perRow));
+    // Nombre de cartes par ligne selon le nombre de joueurs :
+    // 3-4 joueurs -> 2 par ligne, 5-9 -> 3 par ligne, 10-12 -> 4 par ligne.
+    let perRow;
+    if(totalCards <= 4) perRow = 2;
+    else if(totalCards <= 9) perRow = 3;
+    else perRow = 4;
+    const cardW = Math.min(130, Math.floor((338 - (perRow-1)*14) / perRow));
     const cardH = Math.round(cardW * 1.2);
     grid.style.gap = '14px';
     for(let c=0;c<totalCards;c++){
