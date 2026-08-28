@@ -598,6 +598,11 @@ function el(tag, cls, html){
   return e;
 }
 
+// Accord simple du pluriel (ajoute un "s" seulement si count > 1)
+function plural(count, word){
+  return word + (count > 1 ? 's' : '');
+}
+
 let toastTimer = null;
 function showToast(message){
   let toast = document.getElementById('app-toast');
@@ -711,9 +716,9 @@ function renderSetup(){
   info.style.background = '#fafafc';
   info.innerHTML =
     '<div style="display:flex; align-items:center; gap:5px; justify-content:center; flex-wrap:nowrap; overflow-x:auto; padding:2px 0;">' +
-      '<span class="role-chip" style="background:#DEF7E5;color:#1E8A4C;">👨‍👩‍👧 ' + civilCount + ' civil</span>' +
-      (state.numUndercover > 0 ? '<span class="role-chip" style="background:#FFE1E8;color:#C23A66;">🕶️ ' + state.numUndercover + ' infiltré</span>' : '') +
-      (state.numMrWhite > 0 ? '<span class="role-chip" style="background:#EAE7FF;color:#5C3FCC;">🤍 ' + state.numMrWhite + ' Bluffeur</span>' : '') +
+      '<span class="role-chip" style="background:#DEF7E5;color:#1E8A4C;">👨‍👩‍👧 ' + civilCount + ' ' + plural(civilCount,'civil') + '</span>' +
+      (state.numUndercover > 0 ? '<span class="role-chip" style="background:#FFE1E8;color:#C23A66;">🕶️ ' + state.numUndercover + ' ' + plural(state.numUndercover,'infiltré') + '</span>' : '') +
+      (state.numMrWhite > 0 ? '<span class="role-chip" style="background:#EAE7FF;color:#5C3FCC;">🤍 ' + state.numMrWhite + ' ' + plural(state.numMrWhite,'Bluffeur') + '</span>' : '') +
     '</div>';
   scrollArea.appendChild(info);
 
@@ -1140,9 +1145,9 @@ function renderDiscussion(){
   const mrwhiteLeft = active.filter(p => p.role === 'mrwhite').length;
   const statusRow = el('div','status-row');
   statusRow.innerHTML =
-    '<span class="role-chip" style="background:#DEF7E5;color:#1E8A4C;">👨‍👩‍👧 ' + civilsLeft + ' civil</span>' +
-    (undercoverLeft > 0 ? '<span class="role-chip" style="background:#FFE1E8;color:#C23A66;">🕶️ ' + undercoverLeft + ' restant</span>' : '') +
-    (mrwhiteLeft > 0 ? '<span class="role-chip" style="background:#EAE7FF;color:#5C3FCC;">🤍 ' + mrwhiteLeft + ' restant</span>' : '');
+    '<span class="role-chip" style="background:#DEF7E5;color:#1E8A4C;">👨‍👩‍👧 ' + civilsLeft + ' ' + plural(civilsLeft,'civil') + '</span>' +
+    (undercoverLeft > 0 ? '<span class="role-chip" style="background:#FFE1E8;color:#C23A66;">🕶️ ' + undercoverLeft + ' ' + plural(undercoverLeft,'restant') + '</span>' : '') +
+    (mrwhiteLeft > 0 ? '<span class="role-chip" style="background:#EAE7FF;color:#5C3FCC;">🤍 ' + mrwhiteLeft + ' ' + plural(mrwhiteLeft,'restant') + '</span>' : '');
   header.appendChild(statusRow);
   wrap.appendChild(header);
 
