@@ -241,13 +241,19 @@
   .badge.mrwhite{background:#EAE7FF; color:#5C3FCC;}
   .role-chip{display:inline-block; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800;}
   .status-row{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
-  .order-row{display:flex; align-items:center; flex-wrap:wrap; gap:4px;}
+  .order-row{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;}
   .order-pill{
-    padding:7px 12px; border-radius:16px; background:#f0f0f4; color:var(--ink);
-    font-size:13px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:9px 6px; border-radius:14px; background:#f0f0f4; color:var(--ink);
+    font-size:13px; font-weight:700; text-align:center;
   }
   .order-pill.first{background:linear-gradient(135deg, #A8375C 0%, var(--pink) 100%); color:white;}
-  .order-arrow{color:var(--ink-soft); font-size:13px; font-weight:700;}
+  .order-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:18px; height:18px; border-radius:50%; background:rgba(0,0,0,0.12);
+    font-size:11px; font-weight:800; flex-shrink:0;
+  }
+  .order-pill.first .order-num{background:rgba(255,255,255,0.3);}
   .confetti-piece{
     position:fixed; top:-20px; width:8px; height:14px; opacity:0.9; border-radius:2px;
     animation-name:confetti-fall; animation-timing-function:linear; animation-fill-mode:forwards;
@@ -841,7 +847,6 @@ function renderReveal(){
   if(state.chosenCard === null){
     // Le paquet garde toujours le même nombre de cartes : celles déjà
     // prises restent visibles, juste grisées, elles ne disparaissent pas.
-    revealWrap.appendChild(el('div','subtitle', 'Pioche une carte du paquet 🎴'));
     const grid = el('div','deck-grid');
     // Grandes cartes, en lignes de 3 ou 4 selon le nombre de joueurs,
     // pour éviter une dernière ligne avec une seule carte isolée.
@@ -982,11 +987,8 @@ function renderStarter(){
   orderCard.appendChild(el('label','field-label','🎙️ Ordre pour décrire son mot'));
   const orderRow = el('div','order-row');
   order.forEach((p, i) => {
-    const pill = el('div','order-pill' + (i===0 ? ' first' : ''), p.name);
+    const pill = el('div','order-pill' + (i===0 ? ' first' : ''), '<span class="order-num">' + (i+1) + '</span>' + p.name);
     orderRow.appendChild(pill);
-    if(i < order.length - 1){
-      orderRow.appendChild(el('div','order-arrow','→'));
-    }
   });
   orderCard.appendChild(orderRow);
   orderCard.appendChild(el('div','footer-note','Puis on vote tous ensemble pour éliminer quelqu\'un.'));
