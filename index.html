@@ -947,6 +947,9 @@ function rerollWord(){
   state.revealIndex = 0;
   state.revealed = false;
   state.chosenCard = null;
+  // Nouveau mot = nouvelle manche de pioche : le paquet redevient entièrement
+  // vierge, aucune carte ne doit rester marquée comme déjà prise.
+  state.usedCardSlots = new Array(state.revealOrder.length).fill(false);
   render();
 }
 
