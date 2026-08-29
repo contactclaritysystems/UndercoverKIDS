@@ -705,12 +705,10 @@ function renderSetup(){
   helpBtn.onclick = showRulesModal;
   header.appendChild(helpBtn);
 
-  if(roster.length > 0){
-    const scoresBtn = el('div','help-btn scores-btn','🏆');
-    scoresBtn.title = 'Voir tous les scores';
-    scoresBtn.onclick = showLeaderboardModal;
-    header.appendChild(scoresBtn);
-  }
+  const scoresBtn = el('div','help-btn scores-btn','🏆');
+  scoresBtn.title = 'Voir tous les scores';
+  scoresBtn.onclick = showLeaderboardModal;
+  header.appendChild(scoresBtn);
 
   wrap.appendChild(header);
 
@@ -836,12 +834,16 @@ function showLeaderboardModal(){
 
   modal.innerHTML =
     '<h3 style="text-align:center;">🏆 Classement général</h3>' +
-    '<p style="text-align:center;">Tous les joueurs qui ont déjà joué sur cet appareil.</p>' +
-    '<div style="max-height:50vh; overflow-y:auto; margin-bottom:14px;">' + rowsHtml + '</div>';
+    (sorted.length > 0
+      ? '<p style="text-align:center;">Tous les joueurs qui ont déjà joué sur cet appareil.</p>' +
+        '<div style="max-height:50vh; overflow-y:auto; margin-bottom:14px;">' + rowsHtml + '</div>'
+      : '<p style="text-align:center;">Personne n\'a encore terminé de partie sur cet appareil. Joue une première manche jusqu\'au bout pour voir apparaître les scores ici !</p>');
 
-  const resetBtn = el('div','btn btn-ghost','🗑️ Réinitialiser tous les scores');
-  resetBtn.onclick = guardOnce(() => { bg.remove(); showResetScoresConfirm(); });
-  modal.appendChild(resetBtn);
+  if(sorted.length > 0){
+    const resetBtn = el('div','btn btn-ghost','🗑️ Réinitialiser tous les scores');
+    resetBtn.onclick = guardOnce(() => { bg.remove(); showResetScoresConfirm(); });
+    modal.appendChild(resetBtn);
+  }
 
   const closeBtn = el('div','btn btn-primary','Fermer');
   closeBtn.style.marginTop = '10px';
