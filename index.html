@@ -833,7 +833,7 @@ function showLeaderboardModal(){
   });
 
   modal.innerHTML =
-    '<h3 style="text-align:center;">🏆 Classement général</h3>' +
+    '<h3 style="text-align:center; padding-right:64px;">🏆 Classement général</h3>' +
     (sorted.length > 0
       ? '<p style="text-align:center;">Tous les joueurs qui ont déjà joué sur cet appareil.</p>' +
         '<div style="max-height:50vh; overflow-y:auto; margin-bottom:14px;">' + rowsHtml + '</div>'
@@ -1025,7 +1025,9 @@ function startGame(){
   for(let i=0;i<state.numPlayers;i++){
     const finalName = (state.names[i] && state.names[i].trim()) ? state.names[i].trim() : ('Joueur ' + (i+1));
     state.names[i] = finalName;
-    getOrCreateRosterEntry(finalName);
+    // Le joueur n'est enregistré dans le classement qu'à la fin d'une manche
+    // (voir finishGame) : démarrer une partie puis quitter avant la fin ne
+    // doit rien enregistrer, pour rester cohérent avec ce qu'on annonce.
     state.players.push({ id: 'p_' + i + '_' + Math.random().toString(36).slice(2,7), name: finalName, role: roles[i], word: roles[i]==='civil' ? civilWord : (roles[i]==='undercover' ? undercoverWord : null), eliminated:false });
   }
 
