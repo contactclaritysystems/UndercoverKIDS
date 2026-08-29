@@ -302,6 +302,7 @@
     background:#f0f0f4; color:var(--indigo); display:flex; align-items:center; justify-content:center;
     font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 1px 2px var(--shadow);
   }
+  .scores-btn{right:42px; font-size:15px;}
   .level-row{display:flex; gap:8px;}
   .level-btn{
     flex:1; text-align:center; padding:9px 4px; border-radius:12px; background:#f0f0f4;
@@ -703,6 +704,14 @@ function renderSetup(){
   const helpBtn = el('div','help-btn','?');
   helpBtn.onclick = showRulesModal;
   header.appendChild(helpBtn);
+
+  if(roster.length > 0){
+    const scoresBtn = el('div','help-btn scores-btn','🏆');
+    scoresBtn.title = 'Voir tous les scores';
+    scoresBtn.onclick = showLeaderboardModal;
+    header.appendChild(scoresBtn);
+  }
+
   wrap.appendChild(header);
 
   const scrollArea = el('div','scroll-area');
@@ -805,6 +814,69 @@ function renderSetup(){
   wrap.appendChild(footer);
 
   return wrap;
+}
+
+function showLeaderboardModal(){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.style.position = 'relative';
+  modal.style.textAlign = 'left';
+
+  const sorted = roster.slice().sort((a,b) => b.points - a.points || b.parties - a.parties);
+  const medals = ['🥇','🥈','🥉'];
+
+  let rowsHtml = '';
+  sorted.forEach((r, i) => {
+    const rank = medals[i] || ('#' + (i+1));
+    rowsHtml += '<div class="role-row"><div style="display:flex;align-items:center;gap:10px;">' +
+      '<span style="font-weight:800;min-width:28px;">' + rank + '</span>' +
+      '<div><div class="label">' + escapeHtml(r.name) + '</div><div class="desc">' + r.parties + ' ' + plural(r.parties,'partie') + ' ' + plural(r.parties,'jouée') + '</div></div>' +
+      '</div><div style="font-weight:800;font-size:16px;color:var(--amber);">' + r.points + ' pts</div></div>';
+  });
+
+  modal.innerHTML =
+    '<h3 style="text-align:center;">🏆 Classement général</h3>' +
+    '<p style="text-align:center;">Tous les joueurs qui ont déjà joué sur cet appareil.</p>' +
+    '<div style="max-height:50vh; overflow-y:auto; margin-bottom:14px;">' + rowsHtml + '</div>';
+
+  const resetBtn = el('div','btn btn-ghost','🗑️ Réinitialiser tous les scores');
+  resetBtn.onclick = guardOnce(() => { bg.remove(); showResetScoresConfirm(); });
+  modal.appendChild(resetBtn);
+
+  const closeBtn = el('div','btn btn-primary','Fermer');
+  closeBtn.style.marginTop = '10px';
+  closeBtn.onclick = () => bg.remove();
+  modal.appendChild(closeBtn);
+
+  const closeX = el('div','modal-close-btn','✕');
+  closeX.onclick = () => bg.remove();
+  const closeXSticky = el('div','modal-close-sticky-wrap');
+  closeXSticky.appendChild(closeX);
+  modal.insertBefore(closeXSticky, modal.firstChild);
+
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
+}
+
+function showResetScoresConfirm(){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.appendChild(el('h3', null, '🗑️ Réinitialiser tous les scores ?'));
+  modal.appendChild(el('p', null, 'Tous les joueurs et leurs points enregistrés seront définitivement effacés de cet appareil. Cette action est irréversible.'));
+  const yesBtn = el('div','btn btn-primary','Oui, tout effacer');
+  yesBtn.onclick = guardOnce(() => {
+    roster = [];
+    saveRosterToStorage();
+    bg.remove();
+    render();
+  });
+  modal.appendChild(yesBtn);
+  const noBtn = el('div','btn btn-ghost','Annuler');
+  noBtn.style.marginTop = '10px';
+  noBtn.onclick = () => bg.remove();
+  modal.appendChild(noBtn);
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
 }
 
 function showRulesModal(){
