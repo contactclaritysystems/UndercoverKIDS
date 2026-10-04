@@ -90,7 +90,11 @@
   .screen{
     position:relative; z-index:1; animation: pop .3s ease;
   }
-  @keyframes pop{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+  /* Pas de transform ici : un transform actif sur .screen transformerait
+     ses icônes "position:fixed" (croix, reroll...) en position relative à
+     cet écran au lieu du vrai coin de l'écran, le temps de l'animation -
+     c'est exactement ce qui causait le décalage visible à l'ouverture. */
+  @keyframes pop{ from{opacity:0;} to{opacity:1;} }
 
   /* La page défile normalement : le titre en haut et le bouton en bas
      défilent avec le reste, comme une page web classique. */
@@ -151,13 +155,16 @@
   .switch.on{background:var(--mint);}
   .switch .knob{position:absolute; top:2.5px; left:2.5px; width:22px; height:22px; border-radius:50%; background:white; transition:.2s; box-shadow:0 2px 4px rgba(0,0,0,.2);}
   .switch.on .knob{left:21.5px;}
-  .player-row.dragging{opacity:.9; box-shadow:0 10px 24px rgba(28,28,30,.18); background:#fbfbfd; border-radius:14px;}
+  .player-row.dragging, .name-field-wrap.dragging{opacity:.9; box-shadow:0 10px 24px rgba(28,28,30,.18); background:#fbfbfd; border-radius:14px;}
   .drag-handle{user-select:none;}
 
   .name-field-wrap{position:relative; margin-bottom:8px;}
   input.name-input{
     width:100%; padding:10px 12px; border-radius:12px; border:1.5px solid var(--line);
-    font-size:14px; font-weight:600; font-family:inherit; background:#fafafc;
+    /* 16px minimum : en dessous, Safari iOS zoome automatiquement l'écran
+       quand on touche le champ, et ce zoom peut rester bloqué sur les
+       écrans suivants au lieu de revenir à la normale. */
+    font-size:16px; font-weight:600; font-family:inherit; background:#fafafc;
   }
   input.name-input:focus{outline:none; border-color:var(--indigo);}
   .suggestions{
@@ -209,11 +216,26 @@
   }
   .deck-card:active{transform:scale(0.93);}
   .deck-card.used{
-    background:#e2e2e7; box-shadow:none; border-color:transparent;
+    background:#d7d7dc; box-shadow:none; border-color:transparent;
+    opacity:0.55; filter:grayscale(60%); transform:scale(0.94);
   }
   .deck-card.used .deck-card-icon{opacity:.35;}
+  .deck-card-check-wrap{
+    width:34px; height:34px; border-radius:50%; background:var(--mint);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
+  }
   .deck-card-icon{width:32px; height:32px;}
-  .deck-card-check{font-size:24px;}
+  .deck-card-check{font-size:20px; font-weight:900; color:white;}
+  @keyframes cardShuffleIn{
+    0%{ transform: translate(var(--sx,0), var(--sy,-40px)) rotate(var(--sr,-15deg)) scale(0.7); opacity:0; }
+    55%{ opacity:1; }
+    100%{ transform: translate(0,0) rotate(0) scale(1); opacity:1; }
+  }
+  .deck-card-shuffle-in{ animation: cardShuffleIn .55s cubic-bezier(.34,1.56,.64,1) backwards; }
+  .starter-name-spin{ transition:none; }
+  @keyframes starterLand{ 0%{ transform:scale(1.25); } 100%{ transform:scale(1); } }
+  .starter-name-landed{ animation: starterLand .3s cubic-bezier(.34,1.56,.64,1); }
 
   /* Grande carte retournée : le mot doit se voir grand et net */
   .big-flip{width:240px; height:300px; perspective:1000px; margin:6px auto;}
@@ -340,7 +362,7 @@ const WORD_PAIRS_KIDS = [
   ["Fantôme","Vampire"], ["Ninja","Samouraï"], ["Cowboy","Shérif"], ["Génie","Magicien"],
 
   // Transports
-  ["Vélo","Trottinette"], ["Voiture","Camion"], ["Bus","Car"], ["Train","Métro"],
+  ["Vélo","Trottinette"], ["Voiture","Camion"], ["Bus","Tramway"], ["Train","Métro"],
   ["Avion","Hélicoptère"], ["Bateau","Voilier"], ["Moto","Scooter"], ["Fusée","Navette"],
   ["Camion de pompier","Voiture de police"],
 
@@ -350,7 +372,7 @@ const WORD_PAIRS_KIDS = [
 
   // Nature
   ["Soleil","Étoile"], ["Nuage","Brouillard"], ["Montagne","Colline"], ["Rivière","Fleuve"],
-  ["Forêt","Jungle"], ["Mer","Océan"], ["Fleur","Plante"], ["Arbre","Buisson"],
+  ["Forêt","Jungle"], ["Mer","Lac"], ["Fleur","Plante"], ["Arbre","Buisson"],
   ["Piscine","Baignoire"],
 
   // Sports
@@ -368,6 +390,65 @@ const WORD_PAIRS_KIDS = [
   // Lieux et saisons
   ["Maison","Appartement"], ["Cinéma","Théâtre"], ["Zoo","Cirque"], ["Château","Palais"],
   ["Été","Printemps"], ["Hiver","Automne"], ["Pluie","Orage"], ["Vent","Tempête"]
+
+  // --- Nouvelles paires ajoutées (lot 2) ---
+  ["Fourmi","Termite"], ["Araignée","Scorpion"], ["Libellule","Papillon de nuit"], ["Mouche","Moustique"],
+  ["Sauterelle","Criquet"], ["Ver de terre","Chenille"], ["Mille-pattes","Scolopendre"], ["Luciole","Grillon"],
+  ["Mante religieuse","Phasme"], ["Perroquet","Perruche"], ["Pigeon","Tourterelle"], ["Flamant rose","Cigogne"],
+  ["Moineau","Mésange"], ["Corbeau","Corneille"], ["Cygne","Oie"], ["Toucan","Pélican"],
+  ["Autruche","Émeu"], ["Paon","Dindon"], ["Mouette","Goéland"], ["Colibri","Rouge-gorge"],
+  ["Poisson-clown","Poisson rouge"], ["Étoile de mer","Oursin"], ["Méduse","Anémone de mer"], ["Crabe","Homard"],
+  ["Crevette","Écrevisse"], ["Hippocampe","Poisson volant"], ["Raie","Espadon"], ["Thon","Saumon"],
+  ["Anguille","Serpent de mer"], ["Cheval","Poney"], ["Âne","Mulet"], ["Dinde","Pintade"],
+  ["Lapin","Lièvre"], ["Taupe","Rat"], ["Renard","Fouine"], ["Blaireau","Raton laveur"],
+  ["Écureuil","Chipmunk"], ["Guépard","Léopard"], ["Jaguar","Panthère"], ["Hyène","Chacal"],
+  ["Antilope","Gazelle"], ["Bison","Buffle"], ["Hippopotame","Rhinocéros"], ["Crocodile","Alligator"],
+  ["Iguane","Caméléon"], ["Varan","Lézard géant"], ["Chauve-souris","Vampire"], ["Loutre","Phoque"],
+  ["Morse","Otarie"], ["Zèbre","Cheval sauvage"], ["Okapi","Girafe naine"], ["Panda roux","Panda géant"],
+  ["Fraise","Cerise"], ["Kiwi","Figue"], ["Pastèque","Melon"], ["Ananas","Mangue"],
+  ["Raisin","Groseille"], ["Prune","Mirabelle"], ["Abricot","Pêche"], ["Citron","Pamplemousse"],
+  ["Carotte","Panais"], ["Brocoli","Chou-fleur"], ["Courgette","Concombre"], ["Poivron","Piment doux"],
+  ["Tomate","Tomate cerise"], ["Haricot vert","Petit pois"], ["Radis","Navet"], ["Pomme de terre","Patate douce"],
+  ["Oignon","Échalote"], ["Maïs","Épi de maïs"], ["Bonbon","Sucette"], ["Chewing-gum","Caramel"],
+  ["Barbe à papa","Guimauve"], ["Chocolat chaud","Lait chocolaté"], ["Biscuit","Sablé"], ["Muffin","Cupcake"],
+  ["Cookie","Brownie"], ["Flan","Crème caramel"], ["Yaourt glacé","Sorbet"], ["Milkshake","Smoothie"],
+  ["Beignet","Donut"], ["Tarte aux pommes","Tarte aux fraises"], ["Gâteau d'anniversaire","Gâteau au chocolat"], ["Jus d'orange","Jus de pomme"],
+  ["Limonade","Soda"], ["Chocolat au lait","Lait fraise"], ["Thé glacé","Citronnade"], ["Bonnet","Casquette"],
+  ["Écharpe","Foulard"], ["Gants","Moufles"], ["Pull","Gilet"], ["Short","Bermuda"],
+  ["Chaussettes","Collants"], ["Bottes","Baskets"], ["Sandales","Tongs"], ["Pyjama","Chemise de nuit"],
+  ["Maillot de bain","Combinaison de plongée"], ["Ceinture","Bretelles"], ["Sac à dos","Cartable"], ["Lunettes de soleil","Lunettes de vue"],
+  ["Parapluie","Imperméable"], ["Main","Pied"], ["Genou","Coude"], ["Oreille","Nez"],
+  ["Sourcil","Cil"], ["Dent","Ongle"], ["Cheveux","Poils"], ["Cuisine","Salle à manger"],
+  ["Salon","Chambre"], ["Salle de bain","Toilettes"], ["Grenier","Cave"], ["Garage","Jardin"],
+  ["Balcon","Terrasse"], ["Canapé","Fauteuil"], ["Table basse","Table à manger"], ["Lit","Lit superposé"],
+  ["Oreiller","Coussin"], ["Couverture","Édredon"], ["Tapis","Paillasson"], ["Lampe","Lampadaire"],
+  ["Miroir","Vitre"], ["Horloge","Réveil"], ["Balai","Aspirateur"], ["Éponge","Chiffon"],
+  ["Brosse à dents","Peigne"], ["Rond","Ovale"], ["Carré","Rectangle"], ["Triangle","Losange"],
+  ["Étoile","Cœur"], ["Arc-en-ciel","Pluie"], ["Guitare","Ukulélé"], ["Piano","Clavier"],
+  ["Tambour","Tambourin"], ["Flûte","Clarinette"], ["Violon","Violoncelle"], ["Trompette","Trombone"],
+  ["Xylophone","Marimba"], ["Harpe","Lyre"], ["Accordéon","Harmonica"], ["Anniversaire","Fête"],
+  ["Cadeau","Surprise"], ["Ballon","Confetti"], ["Bougie","Guirlande"], ["Déguisement","Costume"],
+  ["Masque","Loup de carnaval"], ["Sapin de Noël","Couronne de Noël"], ["Père Noël","Lutin"], ["Renne","Traîneau"],
+  ["Citrouille","Fantôme"], ["Sorcière","Vampire enfant"], ["Lapin de Pâques","Œuf en chocolat"], ["Feu d'artifice","Pétard"],
+  ["Carnaval","Défilé"], ["Château de sable","Seau et pelle"], ["Serviette de plage","Parasol"], ["Bouée","Planche de surf"],
+  ["Coquillage","Galet"], ["Phare","Jetée"], ["Bateau de pêche","Voilier"], ["Sous-marin","Yacht"],
+  ["Clown","Jongleur"], ["Acrobate","Funambule"], ["Dompteur","Magicien"], ["Grande roue","Manège"],
+  ["Montagnes russes","Auto-tamponneuse"], ["Barbe à papa","Pop-corn"], ["Tyrannosaure","Vélociraptor"], ["Tricératops","Stégosaure"],
+  ["Ptérodactyle","Diplodocus"], ["Mammouth","Tigre à dents de sabre"], ["Homme préhistorique","Cavernicole"], ["Fusée","Navette spatiale"],
+  ["Astronaute","Cosmonaute"], ["Planète","Étoile filante"], ["Lune","Soleil"], ["Comète","Météorite"],
+  ["Soucoupe volante","Vaisseau spatial"], ["Martien","Extraterrestre"], ["Télescope","Jumelles"], ["Dragon","Licorne"],
+  ["Géant","Lutin"], ["Fantôme","Monstre"], ["Pirate","Corsaire"], ["Trésor","Coffre au trésor"],
+  ["Carte au trésor","Boussole"], ["Château fort","Donjon"], ["Épée","Bouclier"], ["Armure","Casque de chevalier"],
+  ["Sirène","Triton"], ["Elfe","Gnome"], ["Fée","Marraine la bonne fée"], ["Super-héros","Super-vilain"],
+  ["Cape","Masque de super-héros"], ["Récréation","Cantine"], ["Maîtresse","Maître"], ["Tableau noir","Tableau blanc"],
+  ["Craie","Feutre"], ["Gomme","Taille-crayon"], ["Règle","Compas"], ["Colle","Ciseaux"],
+  ["Peinture","Pinceau"], ["Pâte à modeler","Argile"], ["Puzzle","Jeu de construction"], ["Billes","Toupie"],
+  ["Corde à sauter","Élastique"], ["Cerf-volant","Frisbee"], ["Trottinette","Skateboard"], ["Vélo","Tricycle"],
+  ["Patins à roulettes","Rollers"], ["Ballon de foot","Ballon de basket"], ["Vétérinaire","Dresseur d'animaux"], ["Facteur","Livreur"],
+  ["Caissier","Vendeur"], ["Coiffeur","Esthéticienne"], ["Photographe","Cameraman"], ["Astronome","Scientifique"],
+  ["Archéologue","Explorateur"], ["Gardien de zoo","Soigneur animalier"], ["Neige","Grêle"], ["Vent","Brise"],
+  ["Tonnerre","Éclair"], ["Arc-en-ciel","Soleil"], ["Parapluie","Bottes de pluie"], ["Poisson rouge","Tortue d'eau"],
+  ["Hamster","Cochon d'Inde"], ["Perruche","Canari"], ["Furet","Chinchilla"], ["Tortue terrestre","Iguane domestique"],
 ];
 
 const WORD_PAIRS_ADOS = [
@@ -378,7 +459,7 @@ const WORD_PAIRS_ADOS = [
   ["Rentrée","Vacances"], ["Contrôle","Examen"], ["Rap","Pop"], ["Concert","Festival"],
   ["Skateboard","Roller"], ["Trottinette électrique","Vélo électrique"], ["Sneakers","Baskets"], ["Jean","Legging"],
   ["Crush","Meilleur ami"], ["Groupe WhatsApp","Groupe Snapchat"], ["Manga","Comics"], ["Console","PC gamer"],
-  ["Batterie","Chargeur"], ["Data mobile","Wifi"], ["Abonnement","Forfait"], ["Instagram","Snapchat"],
+  ["Batterie","Chargeur"], ["Data mobile","Wifi"], ["Abonnement","Essai gratuit"], ["Instagram","Snapchat"],
   ["Mème","GIF"], ["Story","Publication"], ["Chewing-gum","Bonbon"], ["Milkshake","Smoothie"],
   ["Kebab","Burger"], ["Distributeur","Supérette"], ["Enceinte Bluetooth","Baladeur"], ["Anglais","Espagnol"],
 
@@ -393,13 +474,65 @@ const WORD_PAIRS_ADOS = [
   ["Compétition","Entraînement"], ["Coach","Arbitre"], ["Maillot","Short"], ["Podium","Médaille"],
   ["Trophée","Coupe"], ["Appel vidéo","Appel vocal"], ["Notification","Message"], ["Émoji","Autocollant"],
   ["Filtre photo","Effet spécial"], ["Caméra frontale","Appareil photo"], ["Powerbank","Chargeur"], ["Casque VR","Lunettes 3D"],
-  ["Jeu de société","Jeu de cartes"], ["Chatbot","Intelligence artificielle"], ["Application","Site internet"], ["Mot de passe","Code secret"],
+  ["Jeu de société","Jeu de cartes"], ["Chatbot","Intelligence artificielle"], ["Application","Site internet"], ["Mot de passe","Identifiant"],
   ["Devoirs","Révisions"], ["Interro surprise","Contrôle continu"], ["Délégué de classe","Chef d'équipe"], ["Correspondant","Ami virtuel"],
   ["Sortie scolaire","Voyage scolaire"], ["Internat","Externat"], ["Photocopie","Impression"], ["Clé USB","Disque dur"],
   ["Casier","Sac à dos"], ["Uniforme","Tenue correcte exigée"], ["Coupe de cheveux","Couleur de cheveux"], ["Maquillage","Vernis à ongles"],
   ["Parfum","Déodorant"], ["Marque","Contrefaçon"], ["Soldes","Promotion"], ["Centre commercial","Boutique en ligne"],
   ["Livraison","Retrait en magasin"], ["Anniversaire","Fête surprise"], ["Pyjama party","Soirée jeux"], ["Trottinette","Skateboard"],
   ["Vélo BMX","VTT"], ["Randonnée scolaire","Sortie nature"],
+
+  // --- Nouvelles paires ajoutées (lot 2) ---
+  ["Story Instagram","Post Facebook"], ["Followers","Likes"], ["Like","Commentaire"], ["Hashtag","Mention"],
+  ["Live","Replay"], ["DM","Appel vidéo"], ["Appel vidéo","Visioconférence"], ["Playlist Spotify","Album musical"],
+  ["Podcast","Webradio"], ["Chargeur rapide","Batterie externe"], ["Écouteurs sans fil","Casque audio filaire"], ["Smartwatch","Bracelet connecté"],
+  ["Tablette","Liseuse"], ["Clavier mécanique","Souris gamer"], ["Streamer","Youtubeur"], ["Abonnement Netflix","Abonnement Disney+"],
+  ["Série","Saison"], ["Épisode","Pilote"], ["Spoiler","Teaser"], ["Fanfiction","Fan art"],
+  ["Lycée général","Lycée professionnel"], ["Terminale","Première"], ["Bac français","Bac philo"], ["Conseil de classe","Bulletin de notes"],
+  ["Retenue","Colle"], ["CDI","Salle d'étude"], ["Internat","Demi-pension"], ["Correspondant","Échange scolaire"],
+  ["Option théâtre","Option musique"], ["Section sportive","Section européenne"], ["Orientation scolaire","Salon des métiers"], ["Parcoursup","Dossier de candidature"],
+  ["Classe prépa","Université"], ["Cours particulier","Soutien scolaire"], ["Devoir maison","Exposé oral"], ["Basketball","Handball"],
+  ["Volleyball","Beach-volley"], ["Escalade","Via ferrata"], ["Skatepark","Bowl"], ["BMX","VTT freestyle"],
+  ["Roller derby","Hockey sur glace"], ["Musculation","Cross-training"], ["Yoga","Pilates ado"], ["Natation","Water-polo"],
+  ["Athlétisme","Course de fond"], ["Tennis de table","Badminton"], ["Fléchettes","Billard"], ["Concert","Festival de musique"],
+  ["Clip vidéo","Clip audio"], ["Boîte à rythme","Table de mixage"], ["Sneakers montantes","Sneakers basses"], ["Jean slim","Jean baggy"],
+  ["Survêtement","Jogging"], ["Bomber","Doudoune"], ["Casquette snapback","Bob"], ["Piercing oreille","Piercing nez"],
+  ["Tatouage éphémère","Henné"], ["Vernis à ongles","Nail art"], ["Gloss","Baume à lèvres"], ["Nouilles instantanées","Soupe en sachet"],
+  ["Chips","Popcorn salé"], ["Barre chocolatée","Barre céréales"], ["Milkshake","Frappuccino"], ["Pizza part","Pizza entière"],
+  ["Tacos","Burrito"], ["Bubble tea","Smoothie fruits"], ["Donut","Churros"], ["Glace à l'italienne","Glace pot"],
+  ["Soda light","Soda classique"], ["Snack sucré","Snack salé"], ["Manette sans fil","Manette filaire"], ["Jeu en ligne","Jeu solo"],
+  ["Niveau bonus","Niveau secret"], ["Avatar","Pseudo"], ["Guilde","Équipe esport"], ["Tournoi gaming","Ligue esport"],
+  ["Casque VR","Lunettes VR"], ["PC gamer","Console portable"], ["Mise à jour","Patch"], ["DLC","Extension de jeu"],
+  ["Speedrun","Walkthrough"], ["Cinéma","Séance de ciné"], ["Parc d'attractions","Parc aquatique"], ["Laser game","Paintball"],
+  ["Escape game","Chasse au trésor"], ["Soirée pyjama","Soirée jeux"], ["Fête entre amis","Boum"], ["Stage sportif","Stage artistique"],
+  ["Argent de poche","Cagnotte"], ["Meilleur ami","Meilleure amie"], ["Groupe d'amis","Bande de copains"], ["Crush","Coup de cœur"],
+  ["Premier rendez-vous","Premier baiser"], ["Rupture","Réconciliation"], ["Dispute","Malentendu"], ["Confident","Confidente"],
+  ["Soirée entre filles","Soirée entre potes"], ["Voyage scolaire","Séjour linguistique"], ["Auberge de jeunesse","Camping"], ["Sac à dos voyage","Valise cabine"],
+  ["Anglais courant","Espagnol débutant"], ["Sous-titres","Doublage"], ["Carte SIM voyage","Wifi portable"], ["Carte cadeau","Bon d'achat"],
+  ["Soldes en ligne","Vente flash"], ["Livraison express","Click and collect"], ["Appli de paiement","Cagnotte en ligne"], ["Budget mensuel","Économies"],
+  ["Stress avant examen","Trac oral"], ["Fiche de révision","Résumé de cours"], ["Nuit blanche","Révision tardive"], ["Résultat du bac","Admission université"],
+  ["Rattrapage","Deuxième chance"], ["Mode avion","Mode silencieux"], ["Notification push","Rappel calendrier"], ["Stockage cloud","Disque dur externe"],
+  ["Appli de sport","Appli de méditation"], ["Montre connectée","Bracelet fitness"], ["Casque antibruit","Bouchons d'oreilles"], ["Trottinette électrique","Vélo électrique ado"],
+  ["Chambre d'ado","Coin bureau"], ["Réveil téléphone","Réveil classique"], ["Playlist de sport","Playlist de révisions"], ["Appli de rencontre ado","Appli de discussion"],
+  ["Groupe de classe","Groupe de sport"], ["Délégué de classe","Délégué des élèves"], ["Sortie scolaire","Voyage de fin d'année"], ["Boum d'anniversaire","Soirée déguisée"],
+  ["Cadeau d'anniversaire","Carte cadeau ado"], ["Jeu de société entre amis","Jeu vidéo en multijoueur"], ["Karaoké","Soirée dansante"], ["Battle de danse","Battle de rap"],
+  ["Chaîne YouTube","Chaîne Twitch"], ["Montage vidéo","Montage photo"], ["Filtre Snapchat","Filtre Instagram"], ["Appli de musique","Appli de podcast"],
+  ["Haut-parleur Bluetooth","Enceinte portable"], ["Powerbank","Câble chargeur"], ["Coque de téléphone","Protection d'écran"], ["Forfait mobile","Wifi maison"],
+  ["Data illimitée","Appels illimités"], ["Jeu de cartes à collectionner","Jeu de plateau"], ["Compétition scolaire","Tournoi inter-écoles"], ["Club de débat","Club de théâtre"],
+  ["Atelier d'écriture","Club de lecture ado"], ["Cours de soutien","Cours en ligne"], ["Devoirs de vacances","Cahier de révisions"], ["Stage de découverte","Job d'été"],
+  ["Petite annonce de baby-sitting","Cours particuliers rémunérés"], ["Appli de covoiturage ado","Transport scolaire"], ["Abonnement de bus","Carte de train jeune"], ["Sweat à capuche","Veste en jean"],
+  ["Legging de sport","Short de sport"], ["Chaussures de running","Chaussures de basket"], ["Brosse à cheveux","Sèche-cheveux"], ["Crème solaire","Baume après-soleil"],
+  ["Déodorant","Parfum ado"], ["Trousse de maquillage","Trousse de toilette"], ["Sac de sport","Sac de piscine"], ["Gourde réutilisable","Bouteille d'eau"],
+  ["Pique-nique entre amis","Barbecue de quartier"], ["Fête de fin d'année","Spectacle de fin d'année"], ["Compétition de natation","Match de foot amateur"], ["Entraînement de basket","Entraînement de danse"],
+  ["Coach sportif","Professeur de sport"], ["Vestiaire","Terrain de sport"], ["Médaille","Trophée"], ["Appli de dessin","Appli de retouche photo"],
+  ["Blog personnel","Chaîne vidéo"], ["Avatar de jeu","Pseudo en ligne"], ["Console de salon","Console portable ado"], ["Jeu de tir","Jeu d'aventure"],
+  ["Jeu de course","Jeu de sport vidéo"], ["Mangas","Comics"], ["Librairie","Bibliothèque de quartier"], ["Roman young adult","Bande dessinée"],
+  ["Cours de conduite","Code de la route"], ["Permis AM","Permis B"], ["Scooter 50cc","Vélo électrique ado 2"], ["Petit-déjeuner avant les cours","Goûter après l'école"],
+  ["Cantine scolaire","Panier-repas"], ["Distributeur de boissons","Distributeur de snacks"], ["Rentrée scolaire","Vacances de la Toussaint"], ["Vacances d'été ado","Vacances de printemps"],
+  ["Colonie sportive","Colonie artistique"], ["Appli de rencontre","Appli de discussion 2"], ["Playlist road trip","Playlist soirée"], ["Carnet de notes","Agenda scolaire"],
+  ["Sac de cours","Trousse de crayons"], ["Classeur","Pochette plastique"], ["Stylo 4 couleurs","Surligneur"], ["Cahier de texte","Cahier de brouillon"],
+  ["Copie double","Copie simple"], ["Calculatrice scientifique","Calculatrice basique"], ["Cours de chant","Cours de danse"], ["Groupe de musique ado","Chorale"],
+  ["Festival de rue","Concert gratuit"], ["Jeu de rôle","Jeu de plateau stratégie"], ["Tournoi de cartes","Tournoi de jeu vidéo"], ["Appli de dessin numérique","Carnet de croquis"],
 ];
 
 const WORD_PAIRS_ADULTS = [
@@ -422,16 +555,68 @@ const WORD_PAIRS_ADULTS = [
   ["GPS","Carte routière"], ["Contrôle technique","Vidange"], ["Pneu","Batterie de voiture"], ["Rond-point","Feu rouge"],
   ["Autoroute","Route nationale"], ["Aéroport","Gare"], ["Valise","Sac à dos"], ["Passeport","Carte d'identité"],
   ["Visa","Douane"], ["Guide touristique","Application de voyage"], ["Croisière","Séjour all-inclusive"], ["Massage","Spa"],
-  ["Coiffeur","Institut de beauté"], ["Diététicien","Nutritionniste"], ["Ostéopathe","Kinésithérapeute"], ["Dentiste","Orthodontiste"],
+  ["Coiffeur","Institut de beauté"], ["Diététicien","Coach sportif"], ["Ostéopathe","Kinésithérapeute"], ["Dentiste","Orthodontiste"],
   ["Ordonnance","Pharmacie de garde"], ["Lunettes","Lentilles de contact"], ["Vaccin","Rappel"], ["Baby-sitter","Nounou"],
   ["Crèche","Assistante maternelle"], ["Devoirs","Réunion parents-profs"], ["Belle-mère","Beau-père"], ["Cousin","Neveu"],
   ["Mariage civil","Mariage religieux"], ["Baptême","Communion"], ["Testament","Héritage"], ["Syndic","Copropriété"],
   ["Charges","Provision"], ["Déménagement","Cartons"], ["Garde-meuble","Box de stockage"], ["Courtier","Agent immobilier"],
-  ["Bail","État des lieux"], ["Caution","Dépôt de garantie"], ["Colocation","Sous-location"], ["Cheminée","Poêle à bois"],
+  ["Bail","État des lieux"], ["Caution","Loyer"], ["Colocation","Sous-location"], ["Cheminée","Poêle à bois"],
   ["Volets","Rideaux"], ["Panneaux solaires","Chauffe-eau"], ["Facture de gaz","Facture de téléphone"], ["Imprimante","Scanner"],
   ["Visioconférence","Appel téléphonique"], ["Open space","Bureau fermé"], ["Télétravail","Présentiel"], ["Note de frais","Remboursement"],
   ["Augmentation","Prime de fin d'année"], ["Démission","Licenciement"], ["Préavis","Rupture conventionnelle"], ["Livraison à domicile","Click and collect"],
   ["Panier moyen","Liste de courses"],
+
+  // --- Nouvelles paires ajoutées (lot 2) ---
+  ["Réunion d'équipe","Point hebdomadaire"], ["Entretien annuel","Bilan de compétences"], ["Télétravail","Bureau partagé"], ["Open space","Bureau individuel"],
+  ["Pause café","Pause déjeuner"], ["Collègue","Supérieur hiérarchique"], ["Entretien d'embauche","Période d'essai"], ["Contrat CDI","Contrat freelance"],
+  ["Prime annuelle","Augmentation de salaire"], ["Jour de congé","Arrêt maladie"], ["Formation professionnelle","Séminaire"], ["Visioconférence","Appel téléphonique pro"],
+  ["Rapport d'activité","Présentation PowerPoint"], ["Deadline","Planning"], ["Démission","Reconversion professionnelle"], ["Promotion","Mutation"],
+  ["Syndicat","Comité d'entreprise"], ["Compte épargne","Compte courant"], ["Carte de crédit","Carte de débit"], ["Virement bancaire","Prélèvement automatique"],
+  ["Assurance vie","Assurance emprunteur"], ["Crédit immobilier","Crédit auto"], ["Taux d'intérêt","Taux fixe"], ["Bourse","Investissement immobilier"],
+  ["Actions","Obligations financières"], ["Facture d'électricité","Facture de gaz"], ["Relevé bancaire","Historique de paiement"], ["Découvert bancaire","Dette"],
+  ["Retraite complémentaire","Pension de base"], ["Perceuse","Visseuse"], ["Marteau","Maillet"], ["Tournevis","Clé à molette"],
+  ["Peinture murale","Papier peint"], ["Carrelage","Parquet"], ["Plomberie","Électricité maison"], ["Robinet","Chasse d'eau"],
+  ["Isolation thermique","Double vitrage"], ["Jardinage","Tonte de pelouse"], ["Compost","Potager"], ["Serre de jardin","Abri de jardin"],
+  ["Déménagement","Cartons de rangement"], ["Garde-meuble","Grenier"], ["Rénovation","Décoration intérieure"], ["Médecin généraliste","Médecin spécialiste"],
+  ["Rendez-vous dentiste","Rendez-vous ophtalmo"], ["Pharmacie de garde","Pharmacie de quartier"], ["Ordonnance","Carnet de santé"], ["Mutuelle santé","Sécurité sociale"],
+  ["Check-up annuel","Bilan sanguin"], ["Kinésithérapie","Ostéopathie"], ["Salle de sport","Cours collectif fitness"], ["Nutritionniste","Coach bien-être"],
+  ["Sommeil réparateur","Sieste"], ["Méditation","Relaxation"], ["Congé parental","Congé maternité"], ["Réunion parents-profs","Carnet de liaison"],
+  ["Garde alternée","Pension alimentaire"], ["Belle-famille","Famille recomposée"], ["Anniversaire de mariage","Fiançailles"], ["Contrat de mariage","Pacte civil"],
+  ["Billet d'avion","Réservation d'hôtel"], ["Voyage d'affaires","Voyage organisé"], ["Location de voiture","Covoiturage"], ["Passeport","Visa touristique"],
+  ["Assurance voyage","Carte internationale"], ["Décalage horaire","Bagage en soute"], ["Office de tourisme","Guide touristique"], ["Croisière","Séjour tout compris"],
+  ["Camping-car","Van aménagé"], ["Carte grise","Contrôle technique"], ["Déclaration d'impôts","Avis d'imposition"], ["Carte d'identité","Permis de conduire"],
+  ["Acte de naissance","Livret de famille"], ["Préfecture","Mairie"], ["Caisse d'allocations","Pôle emploi"], ["Attestation employeur","Fiche de paie"],
+  ["Quittance de loyer","Contrat de bail"], ["État des lieux","Caution"], ["Mot de passe","Identifiant pro"], ["Antivirus","Pare-feu"],
+  ["Sauvegarde cloud","Disque dur externe"], ["Routeur wifi","Box internet"], ["Mise à jour logicielle","Redémarrage système"], ["Visioconférence pro","Webinaire"],
+  ["Signature électronique","Document scanné"], ["Club de lecture","Cours du soir"], ["Cours de cuisine","Atelier œnologie"], ["Golf","Tennis en club"],
+  ["Randonnée pédestre","Randonnée en montagne"], ["Pêche à la ligne","Chasse"], ["Jardinage amateur","Bricolage du dimanche"], ["Brunch entre amis","Dîner entre collègues"],
+  ["Soirée jeux de société","Soirée cinéma maison"], ["Apéritif dînatoire","Cocktail"], ["Vin rouge","Vin blanc"], ["Café filtre","Café expresso"],
+  ["Recette traditionnelle","Recette revisitée"], ["Cuisine du monde","Cuisine locale"], ["Plat mijoté","Plat express"], ["Robot de cuisine","Mixeur plongeant"],
+  ["Cocotte-minute","Four à micro-ondes"], ["Voiture électrique","Voiture hybride"], ["Péage","Parking payant"], ["Assurance auto","Assistance routière"],
+  ["Embouteillage","Travaux routiers"], ["Métro","Tramway"], ["Vélib","Trottinette en libre-service"], ["Élection municipale","Élection présidentielle"],
+  ["Journal télévisé","Podcast d'actualité"], ["Musée","Exposition temporaire"], ["Théâtre","Opéra"], ["Festival de cinéma","Festival de musique adulte"],
+  ["Club de sport","Association de quartier"], ["Bénévolat","Don associatif"], ["Covoiturage solidaire","Entraide de quartier"], ["Liste de courses","Panier de supermarché"],
+  ["Marché local","Épicerie de quartier"], ["Livraison de repas","Plat à emporter"], ["Restaurant gastronomique","Bistrot de quartier"], ["Réservation de table","Liste d'attente"],
+  ["Abonnement salle de sport","Cours particulier de sport"], ["Coach personnel","Professeur particulier"], ["Bilan de santé","Vaccin annuel"], ["Lunettes de vue","Lentilles de contact"],
+  ["Audioprothésiste","Opticien"], ["Chirurgien","Anesthésiste"], ["Salon de coiffure","Institut de beauté"], ["Manucure","Pédicure"],
+  ["Massage relaxant","Soin du visage"], ["Abonnement téléphonique","Forfait internet"], ["Fournisseur d'énergie","Fournisseur d'eau"], ["Compteur électrique","Compteur à gaz"],
+  ["Assurance habitation","Assurance auto adulte"], ["Syndic de copropriété","Gardien d'immeuble"], ["Charges locatives","Charges de copropriété"], ["Agence immobilière","Agent immobilier"],
+  ["Visite d'appartement","Visite de maison"], ["Compromis de vente","Acte de vente"], ["Prêt bancaire","Apport personnel"], ["Courtier immobilier","Conseiller bancaire"],
+  ["Épargne retraite","Plan d'investissement"], ["Feuille de paie","Contrat de travail"], ["Comité d'entreprise","Délégué syndical"], ["Clause de confidentialité","Clause de non-concurrence"],
+  ["Réseau professionnel","Carte de visite"], ["Salon professionnel","Conférence métier"], ["Webinaire","Formation en ligne"], ["Espace de coworking","Bureau à domicile"],
+  ["Imprimante multifonction","Scanner de documents"], ["Logiciel de comptabilité","Tableur Excel"], ["Réunion client","Appel commercial"], ["Devis","Facture"],
+  ["Bon de commande","Bon de livraison"], ["Fournisseur","Sous-traitant"], ["Chef de projet","Chef d'équipe"], ["Objectif trimestriel","Bilan annuel"],
+  ["Pause déjeuner au bureau","Restaurant d'entreprise"], ["Navette d'entreprise","Parking entreprise"], ["Badge d'accès","Carte professionnelle"], ["Jardin potager","Jardin d'ornement"],
+  ["Terrasse ensoleillée","Jardin ombragé"], ["Piscine privée","Piscine municipale adulte"], ["Abri de voiture","Garage fermé"], ["Système d'alarme","Caméra de surveillance"],
+  ["Portail électrique","Interphone"], ["Carte Vitale","Carte mutuelle"], ["Numéro de sécurité sociale","Numéro fiscal"], ["Permis de construire","Déclaration de travaux"],
+  ["Artisan","Entrepreneur du bâtiment"], ["Devis travaux","Facture travaux"], ["Plombier","Électricien"], ["Menuisier","Charpentier"],
+  ["Peintre en bâtiment","Carreleur"], ["Déco scandinave","Déco industrielle"], ["Canapé-lit","Clic-clac"], ["Table pliante","Table extensible"],
+  ["Buffet","Vaisselier"], ["Rideau occultant","Store vénitien"], ["Ampoule LED","Guirlande lumineuse"], ["Thermostat connecté","Détecteur de fumée"],
+  ["Abonnement streaming","Abonnement presse"], ["Journal papier","Magazine en ligne"], ["Roman policier","Roman historique"], ["Club de randonnée","Club de cyclisme"],
+  ["Marathon","Semi-marathon"], ["Course à pied","Trail"], ["Abonnement piscine","Cours d'aquagym"], ["Sauna","Hammam"],
+  ["Spa urbain","Thalasso"], ["Concert symphonique","Récital de piano"], ["Vernissage","Exposition d'art"], ["Brocante","Vide-grenier"],
+  ["Marché de Noël","Fête foraine adulte"], ["Feu de la Saint-Jean","Bal populaire"], ["Repas de famille","Repas entre voisins"], ["Baby shower","Pendaison de crémaillère"],
+  ["Fête des voisins","Repas de quartier"], ["Don du sang","Bénévolat associatif"], ["Covoiturage domicile-travail","Transport en commun"], ["Vélo de ville","Vélo électrique adulte"],
 ];
 
 const WORD_LEVELS = {
@@ -611,6 +796,16 @@ function syncBgHeight(){
 }
 
 window.addEventListener('resize', syncBgHeight);
+
+// Filet de sécurité supplémentaire : si quelqu'un ferme complètement l'onglet
+// ou l'app en pleine partie (pas seulement via la croix ✖️ du jeu), le
+// navigateur demande aussi une confirmation avant de fermer.
+window.addEventListener('beforeunload', (e) => {
+  if(state.screen !== 'setup'){
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
 window.addEventListener('orientationchange', syncBgHeight);
 
 function showQuitConfirm(){
@@ -671,6 +866,40 @@ function normalizeWord(str){
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/\s+/g, ' ');
+}
+
+// Distance de Levenshtein : nombre minimal de lettres à changer/ajouter/
+// retirer pour passer d'un mot à l'autre (sert à repérer les réponses du
+// Bluffeur très proches du mot exact, comme un singulier/pluriel oublié).
+function levenshteinDistance(a, b){
+  const m = a.length, n = b.length;
+  if(m === 0) return n;
+  if(n === 0) return m;
+  const prev = new Array(n+1);
+  const curr = new Array(n+1);
+  for(let j=0;j<=n;j++) prev[j] = j;
+  for(let i=1;i<=m;i++){
+    curr[0] = i;
+    for(let j=1;j<=n;j++){
+      const cost = a[i-1] === b[j-1] ? 0 : 1;
+      curr[j] = Math.min(curr[j-1]+1, prev[j]+1, prev[j-1]+cost);
+    }
+    for(let j=0;j<=n;j++) prev[j] = curr[j];
+  }
+  return prev[n];
+}
+
+// 'exact' si identique, 'close' si assez proche pour compter quand même
+// (ex : "devoir" au lieu de "devoirs", ou une lettre qui manque/en trop),
+// 'none' sinon. La tolérance augmente un peu avec la longueur du mot.
+function guessMatchType(guess, target){
+  const g = normalizeWord(guess);
+  const t = normalizeWord(target);
+  if(!g) return 'none';
+  if(g === t) return 'exact';
+  const dist = levenshteinDistance(g, t);
+  const tolerance = t.length <= 5 ? 1 : (t.length <= 10 ? 2 : 3);
+  return dist <= tolerance ? 'close' : 'none';
 }
 
 let toastTimer = null;
@@ -738,11 +967,17 @@ function renderSetup(){
   stepper.appendChild(minus); stepper.appendChild(val); stepper.appendChild(plus);
   card1.appendChild(stepper);
 
-  for(let i=0;i<state.numPlayers;i++){
-    card1.appendChild(createNameField(i));
+  const namesContainer = el('div','names-container');
+  function refreshNameFields(){
+    namesContainer.innerHTML = '';
+    for(let i=0;i<state.numPlayers;i++){
+      namesContainer.appendChild(createNameField(i, refreshNameFields));
+    }
   }
+  refreshNameFields();
+  card1.appendChild(namesContainer);
 
-  const nameHint = el('div', null, "✏️ Prénoms dans l'ordre où vous êtes assis");
+  const nameHint = el('div', null, "✏️ Prénoms dans l'ordre où vous êtes assis · maintenir ⠿ pour réordonner");
   nameHint.style.fontSize = '11.5px';
   nameHint.style.fontWeight = '600';
   nameHint.style.color = 'var(--ink-soft)';
@@ -896,7 +1131,7 @@ function showRulesModal(){
     '<p><b>🎮 Le déroulé :</b> chacun pioche une carte à son tour pour découvrir son mot en privé (sans le montrer aux autres). Une fois que tout le monde a vu son mot, le jeu tire au sort qui commence, puis chacun donne un indice sur son mot à voix haute, chacun son tour, en suivant l\'ordre des sièges. Ensuite, tout le monde vote ensemble pour éliminer celui qu\'il soupçonne d\'être l\'infiltré ou le Bluffeur.</p>' +
     '<p><b>🔁 Si ce n\'était pas le bon :</b> tant qu\'il reste au moins un infiltré ou le Bluffeur en jeu, la partie continue : on refait un tour complet où chacun donne un nouvel indice sur son mot, puis on revote pour éliminer quelqu\'un d\'autre. Et ainsi de suite jusqu\'à ce que les civils gagnent, ou qu\'il ne reste plus assez de civils.</p>' +
     '<p><b>🏆 Qui gagne ?</b> Les civils gagnent s\'ils réussissent à éliminer, par le vote, tous les infiltrés et le Bluffeur. Les infiltrés gagnent s\'ils deviennent strictement plus nombreux que les civils encore en jeu. Le Bluffeur gagne tout seul s\'il devine le mot des civils au moment où il est démasqué !</p>' +
-    '<p><b>🥇 Les points :</b> les civils gagnent 2 points chacun si leur camp l\'emporte. Les infiltrés et le Bluffeur (s\'il a survécu jusqu\'au bout) gagnent 3 points chacun si leur camp l\'emporte. Et si le Bluffeur devine le mot exact des civils après avoir été démasqué, il gagne 5 points à lui tout seul, le meilleur score possible !</p>';
+    '<p><b>🥇 Les points :</b> les civils gagnent 3 points chacun si leur camp l\'emporte. Les infiltrés et le Bluffeur (s\'il a survécu jusqu\'au bout) gagnent aussi 3 points chacun si leur camp l\'emporte. Et si le Bluffeur devine le mot des civils après avoir été démasqué, il gagne 4 ou 5 points à lui tout seul (selon que sa réponse était exacte ou juste très proche), le meilleur score possible !</p>';
   const btn = el('div','btn btn-primary','Compris, on joue ! 🎉');
   btn.style.marginTop = '6px';
   btn.onclick = () => bg.remove();
@@ -926,18 +1161,89 @@ function createRoleStepper(value, onChange, getMax){
   return wrap;
 }
 
-function createNameField(i){
+// Glisser-déposer pour réordonner les champs prénoms (au cas où les joueurs
+// changent de place avant de commencer). Même principe que pour "Gérer les
+// joueurs" en cours de partie, mais appliqué directement aux champs texte.
+let nameDragFromIndex = null;
+let nameDragStartY = 0;
+let nameDragOnReorder = null;
+
+function onNameDragMove(e){
+  if(nameDragFromIndex === null) return;
+  const row = document.querySelector('.name-field-wrap[data-field-index="' + nameDragFromIndex + '"]');
+  if(!row) return;
+  row.style.transform = 'translateY(' + (e.clientY - nameDragStartY) + 'px)';
+  row.style.zIndex = '5';
+  const overEl = document.elementFromPoint(e.clientX, e.clientY);
+  const overRow = overEl ? overEl.closest('.name-field-wrap') : null;
+  if(overRow && overRow.dataset.fieldIndex !== undefined){
+    const fromIdx = nameDragFromIndex;
+    const toIdx = parseInt(overRow.dataset.fieldIndex, 10);
+    if(fromIdx !== toIdx){
+      const moved = state.names.splice(fromIdx, 1)[0];
+      state.names.splice(toIdx, 0, moved);
+      nameDragFromIndex = toIdx;
+      nameDragStartY = e.clientY;
+      if(nameDragOnReorder) nameDragOnReorder();
+      const newRow = document.querySelector('.name-field-wrap[data-field-index="' + toIdx + '"]');
+      if(newRow){ newRow.style.transform = 'translateY(0px)'; newRow.classList.add('dragging'); }
+    }
+  }
+}
+function onNameDragUp(){
+  if(nameDragFromIndex !== null){
+    const row = document.querySelector('.name-field-wrap[data-field-index="' + nameDragFromIndex + '"]');
+    if(row){ row.style.transform = ''; row.style.zIndex = ''; row.classList.remove('dragging'); }
+  }
+  nameDragFromIndex = null;
+  nameDragOnReorder = null;
+  document.removeEventListener('pointermove', onNameDragMove);
+  document.removeEventListener('pointerup', onNameDragUp);
+}
+
+function createNameField(i, onReorder){
   const wrapper = el('div','name-field-wrap');
+  wrapper.dataset.fieldIndex = i;
+  wrapper.style.display = 'flex';
+  wrapper.style.alignItems = 'center';
+  wrapper.style.gap = '2px';
+  wrapper.style.transition = 'transform .15s';
+
+  const handle = document.createElement('div');
+  handle.textContent = '⠿';
+  handle.className = 'drag-handle';
+  handle.style.fontSize = '20px';
+  handle.style.color = '#aab4c2';
+  handle.style.cursor = 'grab';
+  handle.style.padding = '8px 6px';
+  handle.style.touchAction = 'none';
+  handle.style.flexShrink = '0';
+  handle.onpointerdown = (e) => {
+    e.preventDefault();
+    nameDragFromIndex = i;
+    nameDragStartY = e.clientY;
+    nameDragOnReorder = onReorder;
+    wrapper.classList.add('dragging');
+    document.addEventListener('pointermove', onNameDragMove);
+    document.addEventListener('pointerup', onNameDragUp);
+  };
+  wrapper.appendChild(handle);
+
+  const inputCol = el('div', null);
+  inputCol.style.position = 'relative';
+  inputCol.style.flex = '1';
+
   const input = document.createElement('input');
   input.className = 'name-input';
   input.type = 'text';
   input.autocomplete = 'off';
   input.value = state.names[i] || '';
   input.placeholder = 'Joueur ' + (i+1);
-  wrapper.appendChild(input);
+  inputCol.appendChild(input);
 
   const sugg = el('div','suggestions');
-  wrapper.appendChild(sugg);
+  inputCol.appendChild(sugg);
+  wrapper.appendChild(inputCol);
 
   function updateSuggestions(){
     const q = input.value.trim().toLowerCase();
@@ -1078,9 +1384,8 @@ function renderReveal(){
   const p = state.players[playerIdx];
   const totalCards = state.revealOrder.length; // toujours autant de cartes que de joueurs
 
-  wrap.appendChild(el('div','subtitle fixed-part', '📱 Passe le téléphone !'));
-
   const scrollArea = el('div','scroll-area center');
+  scrollArea.style.paddingTop = '44px';
   const revealWrap = el('div','reveal-wrap');
   const badge = el('div','avatar-badge', p.name.charAt(0).toUpperCase());
   revealWrap.appendChild(badge);
@@ -1104,11 +1409,22 @@ function renderReveal(){
     const cardW = Math.min(130, Math.floor((containerWidth - (perRow-1)*14) / perRow));
     const cardH = Math.round(cardW * 1.2);
     grid.style.gap = '14px';
+    // Petite animation "mélange" uniquement au tout début du tour, avant que
+    // quiconque n'ait pioché : chaque carte arrive en tournoyant depuis une
+    // position aléatoire, avec un léger décalage pour un effet de mélange.
+    const isFreshDeck = state.revealIndex === 0 && state.usedCardSlots.every(u => !u);
     for(let c=0;c<totalCards;c++){
       const isUsed = !!state.usedCardSlots[c];
-      const card = el('div','deck-card' + (isUsed ? ' used' : ''), isUsed ? '<span class="deck-card-check">✅</span>' : deckCardIconSvg());
+      const card = el('div','deck-card' + (isUsed ? ' used' : ''), isUsed ? '<div class="deck-card-check-wrap"><span class="deck-card-check">✓</span></div>' : deckCardIconSvg());
       card.style.width = cardW + 'px';
       card.style.height = cardH + 'px';
+      if(isFreshDeck){
+        card.classList.add('deck-card-shuffle-in');
+        card.style.setProperty('--sx', (Math.random()*160-80).toFixed(0) + 'px');
+        card.style.setProperty('--sy', (-60 - Math.random()*60).toFixed(0) + 'px');
+        card.style.setProperty('--sr', (Math.random()*50-25).toFixed(0) + 'deg');
+        card.style.animationDelay = (c * 70) + 'ms';
+      }
       if(!isUsed){
         const iconEl = card.querySelector('.deck-card-icon');
         if(iconEl){ const iconSize = Math.round(cardW * 0.5); iconEl.style.width = iconSize + 'px'; iconEl.style.height = iconSize + 'px'; }
@@ -1165,16 +1481,33 @@ function renderReveal(){
   };
   footer.appendChild(btn);
   footer.appendChild(el('div','footer-note footer-note-dark', 'Joueur ' + (state.revealIndex+1) + ' / ' + state.revealOrder.length));
-
-  if(state.revealIndex >= 1 && state.chosenCard === null){
-    const reroll = el('div','btn btn-ghost','🔄 Mot trop dur ? En tirer un autre');
-    reroll.style.marginTop = '8px';
-    reroll.onclick = rerollWord;
-    footer.appendChild(reroll);
-  }
   wrap.appendChild(footer);
 
+  if(state.revealIndex >= 1 && state.chosenCard === null){
+    const rerollIcon = el('div','back-btn','🔄');
+    rerollIcon.title = 'Mot trop dur ? En tirer un autre';
+    rerollIcon.style.fontSize = '15px';
+    rerollIcon.onclick = showRerollConfirm;
+    wrap.appendChild(rerollIcon);
+  }
+
   return wrap;
+}
+
+function showRerollConfirm(){
+  const bg = el('div','modal-bg');
+  const modal = el('div','modal');
+  modal.appendChild(el('h3', null, '🔄 Tirer un autre mot ?'));
+  modal.appendChild(el('p', null, 'Tout le monde doit repiocher : la pioche redémarre à zéro pour tous les joueurs, même ceux qui avaient déjà vu leur mot.'));
+  const yesBtn = el('div','btn btn-primary','Oui, en tirer un autre');
+  yesBtn.onclick = guardOnce(() => { bg.remove(); rerollWord(); });
+  modal.appendChild(yesBtn);
+  const noBtn = el('div','btn btn-ghost','Annuler');
+  noBtn.style.marginTop = '10px';
+  noBtn.onclick = () => bg.remove();
+  modal.appendChild(noBtn);
+  bg.appendChild(modal);
+  document.body.appendChild(bg);
 }
 
 function rerollWord(){
@@ -1209,67 +1542,117 @@ function getSpeakingOrder(startId){
   return order;
 }
 
+let starterAnimPlayedFor = null; // id du dernier starter déjà animé (pour ne jouer l'effet roulette qu'une fois par tirage)
+
+function playStarterRoulette(nameEl, pool, finalName, onDone){
+  let i = 0;
+  let delay = 55;
+  const totalSteps = 12;
+  function step(){
+    nameEl.textContent = pool[i % pool.length];
+    i++;
+    if(i < totalSteps){
+      delay = Math.round(delay * 1.14); // ralentit progressivement, façon roulette
+      setTimeout(step, delay);
+    } else {
+      nameEl.textContent = finalName;
+      nameEl.classList.add('starter-name-landed');
+      setTimeout(onDone, 300);
+    }
+  }
+  step();
+}
+
 function renderStarter(){
   const wrap = el('div','screen center');
   const starter = state.players.find(p => p.id === state.starterId) || state.players.find(p => !p.eliminated) || state.players[0];
   const isFirstRound = state.roundNumber <= 1;
+  // La roulette n'a de sens que pour le tout premier tirage (aléatoire).
+  // À partir du tour 2, le joueur suivant est déterminé logiquement (celui
+  // d'après le dernier éliminé) : on l'affiche directement, sans suspense.
+  const needsSpin = isFirstRound && state.starterId !== starterAnimPlayedFor;
 
-  const scrollArea = el('div','scroll-area center');
+  // Actions secondaires (rares, "moins logiques") en petites icônes discrètes
+  // en haut, bien séparées du gros bouton principal du bas. Masquées pendant
+  // l'animation du tirage au sort pour ne pas interrompre le suspense.
+  if(!needsSpin){
+    const topActions = el('div','top-actions-row');
+    const forgotIcon = el('div','back-btn','❓');
+    forgotIcon.title = "J'ai oublié mon mot";
+    forgotIcon.style.fontSize = '15px';
+    forgotIcon.onclick = showForgotWordPicker;
+    topActions.appendChild(forgotIcon);
 
-  if(isFirstRound){
-    scrollArea.appendChild(el('div','title-row','<span class="emoji">🎲</span><h1 class="main">C\'est parti !</h1>'));
-    scrollArea.appendChild(el('div','starter-icon','🎙️'));
-    const card = el('div','card center');
-    card.innerHTML = '<div style="font-size:14px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">Le sort a désigné...</div>' +
-      '<div style="font-size:24px;font-weight:800;color:var(--pink);">' + escapeHtml(starter.name) + '</div>' +
-      '<div style="font-size:13px;font-weight:600;color:var(--ink-soft);margin-top:6px;">C\'est ce joueur qui décrit son mot en premier !</div>';
-    scrollArea.appendChild(card);
-  } else {
-    scrollArea.appendChild(el('div','title-row','<span class="emoji">🔁</span><h1 class="main">Tour ' + state.roundNumber + ' !</h1>'));
-    scrollArea.appendChild(el('div','starter-icon','🎙️'));
-    const card = el('div','card center');
-    card.innerHTML = '<div style="font-size:14px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">Ce n\'était pas le bon joueur ! On continue avec...</div>' +
-      '<div style="font-size:24px;font-weight:800;color:var(--pink);">' + escapeHtml(starter.name) + '</div>' +
-      '<div style="font-size:13px;font-weight:600;color:var(--ink-soft);margin-top:6px;">Chacun donne un nouvel indice sur son mot, en commençant par ce joueur !</div>';
-    scrollArea.appendChild(card);
+    const manageIcon = el('div','back-btn','⚙️');
+    manageIcon.title = 'Gérer les joueurs';
+    manageIcon.style.fontSize = '15px';
+    manageIcon.style.left = '66px';
+    manageIcon.onclick = showManagePlayers;
+    topActions.appendChild(manageIcon);
+
+    const changeWordIcon = el('div','back-btn','🔄');
+    changeWordIcon.title = 'Changer le mot de la manche';
+    changeWordIcon.style.fontSize = '15px';
+    changeWordIcon.style.left = '114px';
+    changeWordIcon.onclick = showChangeWordConfirm;
+    topActions.appendChild(changeWordIcon);
+    wrap.appendChild(topActions);
   }
 
-  // Ordre de parole : à partir du joueur désigné, dans le sens de la table,
-  // en sautant les joueurs déjà éliminés.
-  const order = getSpeakingOrder(state.starterId);
-  const orderCard = el('div','card');
-  orderCard.appendChild(el('label','field-label','🎙️ Ordre pour décrire son mot'));
-  const orderRow = el('div','order-row');
-  order.forEach((p, i) => {
-    const pill = el('div','order-pill' + (i===0 ? ' first' : ''), '<span class="order-num">' + (i+1) + '</span>' + escapeHtml(p.name));
-    orderRow.appendChild(pill);
-  });
-  orderCard.appendChild(orderRow);
-  orderCard.appendChild(el('div','footer-note','Puis on vote tous ensemble pour éliminer quelqu\'un.'));
-  scrollArea.appendChild(orderCard);
+  const scrollArea = el('div','scroll-area center');
+  scrollArea.style.paddingTop = needsSpin ? '80px' : '52px';
+
+  const titleHtml = isFirstRound
+    ? '<span class="emoji">🎲</span><h1 class="main">C\'est parti !</h1>'
+    : '<span class="emoji">🔁</span><h1 class="main">Tour ' + state.roundNumber + ' !</h1>';
+  scrollArea.appendChild(el('div','title-row', titleHtml));
+  scrollArea.appendChild(el('div','starter-icon','🎙️'));
+
+  const introText = isFirstRound ? 'Le sort a désigné...' : "Ce n'était pas le bon joueur ! On continue avec...";
+  const outroText = isFirstRound ? "C'est ce joueur qui décrit son mot en premier !" : "Chacun donne un nouvel indice sur son mot, en commençant par ce joueur !";
+  const card = el('div','card center');
+  card.innerHTML = '<div style="font-size:14px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;">' + introText + '</div>' +
+    '<div id="starterNameSpin" class="starter-name-spin" style="font-size:24px;font-weight:800;color:var(--pink);">' + (needsSpin ? '🎲' : escapeHtml(starter.name)) + '</div>' +
+    (needsSpin ? '' : '<div style="font-size:13px;font-weight:600;color:var(--ink-soft);margin-top:6px;">' + outroText + '</div>');
+  scrollArea.appendChild(card);
+
+  if(!needsSpin){
+    // Ordre de parole : à partir du joueur désigné, dans le sens de la table,
+    // en sautant les joueurs déjà éliminés.
+    const order = getSpeakingOrder(state.starterId);
+    const orderCard = el('div','card');
+    orderCard.appendChild(el('label','field-label','🎙️ Ordre pour décrire son mot'));
+    const orderRow = el('div','order-row');
+    order.forEach((p, i) => {
+      const pill = el('div','order-pill' + (i===0 ? ' first' : ''), '<span class="order-num">' + (i+1) + '</span>' + escapeHtml(p.name));
+      orderRow.appendChild(pill);
+    });
+    orderCard.appendChild(orderRow);
+    orderCard.appendChild(el('div','footer-note','Puis on vote tous ensemble pour éliminer quelqu\'un.'));
+    scrollArea.appendChild(orderCard);
+  }
 
   wrap.appendChild(scrollArea);
 
-  const footer = el('div','fixed-part');
-  const btn = el('div','btn btn-primary','🗳️ Passer au vote pour éliminer');
-  btn.onclick = () => { state.screen = 'discussion'; render(); };
-  footer.appendChild(btn);
+  if(!needsSpin){
+    const footer = el('div','fixed-part');
+    const btn = el('div','btn btn-primary','🗳️ Passer au vote pour éliminer');
+    btn.onclick = () => { state.screen = 'discussion'; render(); };
+    footer.appendChild(btn);
+    wrap.appendChild(footer);
+  }
 
-  const forgotBtn = el('div','btn btn-ghost','❓ J\'ai oublié mon mot');
-  forgotBtn.style.marginTop = '8px';
-  forgotBtn.onclick = showForgotWordPicker;
-  footer.appendChild(forgotBtn);
-
-  const manageBtn = el('div','btn btn-ghost','⚙️ Gérer les joueurs');
-  manageBtn.style.marginTop = '8px';
-  manageBtn.onclick = showManagePlayers;
-  footer.appendChild(manageBtn);
-
-  const changeWordBtn = el('div','btn btn-ghost','🔄 Changer le mot de la manche');
-  changeWordBtn.style.marginTop = '8px';
-  changeWordBtn.onclick = showChangeWordConfirm;
-  footer.appendChild(changeWordBtn);
-  wrap.appendChild(footer);
+  if(needsSpin){
+    setTimeout(() => {
+      const nameEl = document.getElementById('starterNameSpin');
+      if(!nameEl) return;
+      const pool = state.players.filter(p => !p.eliminated).map(p => p.name);
+      playStarterRoulette(nameEl, pool.length ? pool : [starter.name], starter.name, () => {
+        starterAnimPlayedFor = state.starterId;
+        render();
+      });
+    }, 200);
+  }
 
   return wrap;
 }
@@ -1696,8 +2079,9 @@ function showEliminationResult(p){
   // ici, les mots sont révélés tout de suite sur l'écran suivant, pas "à la fin".
   const footerNote = gameEndsNow ? '' : '<p style="margin-top:8px;">Le mot sera révélé à la fin de la manche.</p>';
 
-  modal.innerHTML = '<h3>' + escapeHtml(p.name) + ' est éliminé(e) !</h3>' +
-    '<span class="badge ' + badgeClass + '">' + roleLabel + '</span>' +
+  const roleColor = p.role==='civil' ? 'var(--mint)' : (p.role==='undercover' ? 'var(--pink)' : 'var(--indigo)');
+  modal.innerHTML = '<h3 style="font-size:24px;color:' + roleColor + ';margin-bottom:2px;">' + roleLabel + '</h3>' +
+    '<p style="font-weight:700;color:var(--ink);margin-bottom:0;">' + escapeHtml(p.name) + ' est éliminé(e) !</p>' +
     outcomeHtml +
     footerNote;
   const btn = el('div','btn btn-primary','Continuer ➡️');
@@ -1716,10 +2100,10 @@ function showMrWhiteGuessModal(idx){
   modal.appendChild(input);
   const btn = el('div','btn btn-secondary','Valider la réponse');
   btn.onclick = guardOnce(() => {
-    const correct = normalizeWord(input.value) === normalizeWord(state.civilWord);
+    const matchType = guessMatchType(input.value, state.civilWord);
     bg.remove();
-    if(correct){
-      finishGame('mrwhite');
+    if(matchType !== 'none'){
+      finishGame('mrwhite', matchType === 'close', input.value.trim());
     } else {
       showEliminationResult(state.players[idx]);
     }
@@ -1762,18 +2146,20 @@ function checkWinConditionOrContinue(){
   }
 }
 
-function finishGame(winnerKey){
+function finishGame(winnerKey, isCloseGuess, guessText){
   state.winner = winnerKey;
+  state.mrwhiteCloseGuess = !!isCloseGuess;
+  state.mrwhiteGuessText = guessText || null;
   state.players.forEach(p => {
     const entry = getOrCreateRosterEntry(p.name);
     entry.parties += 1;
     let pts = 0;
-    if(winnerKey === 'civils' && p.role === 'civil') pts = 2;
+    if(winnerKey === 'civils' && p.role === 'civil') pts = 3;
     if(winnerKey === 'undercover'){
       if(p.role === 'undercover') pts = 3;
       else if(p.role === 'mrwhite' && !p.eliminated) pts = 3;
     }
-    if(winnerKey === 'mrwhite' && p.role === 'mrwhite') pts = 5;
+    if(winnerKey === 'mrwhite' && p.role === 'mrwhite') pts = isCloseGuess ? 4 : 5;
     entry.points += pts;
   });
   saveRosterToStorage();
@@ -1787,11 +2173,24 @@ function renderResult(){
   let emoji, title, desc, color, confettiColors;
   if(state.winner === 'civils'){ emoji='🎉'; title='Les Civils gagnent !'; desc='Tous les infiltrés ont été démasqués, bravo !'; color='var(--mint)'; confettiColors=['#30D158','#40C8E0','#FFD60A']; }
   else if(state.winner === 'undercover'){ emoji='🕶️'; title='Les Infiltrés gagnent !'; desc='Ils étaient trop malins, ils ont survécu au vote !'; color='var(--pink)'; confettiColors=['#FF375F','#FF9F0A','#5E5CE6']; }
-  else { emoji='🤍'; title='Le Bluffeur gagne !'; desc='Il a deviné le mot secret : ' + state.civilWord + ' !'; color='var(--indigo)'; confettiColors=['#5E5CE6','#EAE7FF','#FF375F']; }
+  else {
+    emoji='🤍'; title='Le Bluffeur gagne !'; color='var(--indigo)'; confettiColors=['#5E5CE6','#EAE7FF','#FF375F'];
+    desc = state.mrwhiteCloseGuess
+      ? 'Pas exact mais assez proche (il avait répondu "' + escapeHtml(state.mrwhiteGuessText) + '") : le mot était ' + state.civilWord + ' !'
+      : 'Il a deviné le mot secret : ' + state.civilWord + ' !';
+  }
 
   spawnConfetti(confettiColors);
 
+  const manageBtnTop = el('div','back-btn','⚙️');
+  manageBtnTop.title = 'Gérer les joueurs';
+  manageBtnTop.style.fontSize = '15px';
+  manageBtnTop.onclick = showManagePlayers;
+  wrap.appendChild(manageBtnTop);
+
   const header = el('div','fixed-part center');
+  header.style.paddingLeft = '46px';
+  header.style.paddingRight = '46px';
   header.appendChild(el('div','result-emoji', emoji));
   const h = el('h1', null, title); h.style.color = color; h.style.fontSize="22px";
   header.appendChild(h);
@@ -1833,14 +2232,9 @@ function renderResult(){
   wrap.appendChild(scrollArea);
 
   const footer = el('div','fixed-part');
-  const replay = el('div','btn btn-primary','🔁 Rejouer avec les mêmes joueurs');
+  const replay = el('div','btn btn-primary','▶️ Continuer (nouveau tour)');
   footer.appendChild(replay);
   replay.onclick = guardOnce(() => { startGame(); });
-
-  const newGame = el('div','btn btn-ghost','⚙️ Nouvelle configuration');
-  newGame.style.marginTop = '8px';
-  newGame.onclick = () => { state.screen = 'setup'; render(); };
-  footer.appendChild(newGame);
   wrap.appendChild(footer);
 
   return wrap;
