@@ -30,7 +30,11 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color: transparent; touch-action:manipulation;}
   html{height:100%; overscroll-behavior-y:none; touch-action:manipulation;}
   html{
-    background:#eef0f6; /* filet de sécurité si jamais la div de fond ne charge pas */
+    /* Filet de sécurité : si le calcul de hauteur du fond dégradé est pris
+       en défaut ne serait-ce qu'un instant (ou d'un pixel), on voit cette
+       couleur à la place - elle doit donc être la même teinte sombre que le
+       dégradé, jamais blanche, sinon ça fait un trait blanc disgracieux. */
+    background:#0A2540;
   }
   body{
     margin:0;
@@ -628,6 +632,21 @@ const WORD_LEVELS = {
 // ---------- Historique des joueurs (en mémoire, le temps de la session) ----------
 let roster = [];
 
+// Scores de LA SESSION EN COURS uniquement : contrairement à "roster" (qui
+// est sauvegardé en permanence, voir plus bas), ceci repart toujours à zéro
+// à chaque ouverture de l'app, pour afficher "Scores de la session" sans
+// mélanger avec les parties jouées les jours précédents.
+let sessionScores = [];
+function getOrCreateSessionEntry(name){
+  if(!name) return null;
+  let entry = sessionScores.find(r => r.name.toLowerCase() === name.toLowerCase());
+  if(!entry){
+    entry = { name: name, parties: 0, points: 0 };
+    sessionScores.push(entry);
+  }
+  return entry;
+}
+
 // ---------- Sauvegarde persistante du classement (localStorage) ----------
 // Contrairement au reste (partie en cours, etc.), le classement des joueurs
 // doit survivre à la fermeture de l'app, pas seulement rester en mémoire le
@@ -785,14 +804,19 @@ function syncBgHeight(){
   // On repart d'une hauteur neutre avant de mesurer, sinon l'ancienne
   // valeur peut fausser la mesure du scrollHeight réel du document.
   bg.style.height = '100vh';
-  requestAnimationFrame(() => {
+  const measure = () => {
     const h = Math.max(
       document.documentElement.scrollHeight,
       document.body.scrollHeight,
       window.innerHeight
     );
     bg.style.height = h + 'px';
-  });
+  };
+  requestAnimationFrame(measure);
+  // Deuxième mesure différée : certains contenus (polices, animations,
+  // mise en page tardive) ne sont pas encore stabilisés au premier calcul,
+  // ce qui peut laisser une bande vide en bas du fond pendant un instant.
+  setTimeout(measure, 350);
 }
 
 window.addEventListener('resize', syncBgHeight);
@@ -2151,8 +2175,6 @@ function finishGame(winnerKey, isCloseGuess, guessText){
   state.mrwhiteCloseGuess = !!isCloseGuess;
   state.mrwhiteGuessText = guessText || null;
   state.players.forEach(p => {
-    const entry = getOrCreateRosterEntry(p.name);
-    entry.parties += 1;
     let pts = 0;
     if(winnerKey === 'civils' && p.role === 'civil') pts = 3;
     if(winnerKey === 'undercover'){
@@ -2160,7 +2182,14 @@ function finishGame(winnerKey, isCloseGuess, guessText){
       else if(p.role === 'mrwhite' && !p.eliminated) pts = 3;
     }
     if(winnerKey === 'mrwhite' && p.role === 'mrwhite') pts = isCloseGuess ? 4 : 5;
+
+    const entry = getOrCreateRosterEntry(p.name); // classement général, permanent
+    entry.parties += 1;
     entry.points += pts;
+
+    const sessionEntry = getOrCreateSessionEntry(p.name); // juste cette session
+    sessionEntry.parties += 1;
+    sessionEntry.points += pts;
   });
   saveRosterToStorage();
   state.screen = 'result';
@@ -2217,12 +2246,12 @@ function renderResult(){
   const rows = state.players
     .slice()
     .sort((a,b) => {
-      const ea = roster.find(r=>r.name.toLowerCase()===a.name.toLowerCase()) || {points:0};
-      const eb = roster.find(r=>r.name.toLowerCase()===b.name.toLowerCase()) || {points:0};
+      const ea = sessionScores.find(r=>r.name.toLowerCase()===a.name.toLowerCase()) || {points:0};
+      const eb = sessionScores.find(r=>r.name.toLowerCase()===b.name.toLowerCase()) || {points:0};
       return eb.points - ea.points;
     });
   rows.forEach(p => {
-    const entry = roster.find(r => r.name.toLowerCase() === p.name.toLowerCase()) || {parties:0, points:0};
+    const entry = sessionScores.find(r => r.name.toLowerCase() === p.name.toLowerCase()) || {parties:0, points:0};
     const row = el('div','role-row');
     row.innerHTML = '<div><div class="label">' + escapeHtml(p.name) + '</div><div class="desc">' + entry.parties + ' parties jouées</div></div><div style="font-weight:800;font-size:16px;color:var(--amber);">' + entry.points + ' pts</div>';
     scoreCard.appendChild(row);
